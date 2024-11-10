@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dokumentationsübersicht</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; }
+        .content { margin-left: 20px; }
+        .toggle-btn { margin-top: 5px; margin-bottom: 15px; cursor: pointer; background-color: #007BFF; color: white; border: none; padding: 5px 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Dokumentationsübersicht</h1>
+    <ul>
+<h3>Main</h3>
+<p style='margin-bottom: 5px;'></p>
+<div class='content' style='display: none;'>
+<h4>Funktion: main</h4>
+<p>/**<br>Einstiegspunkt der Anwendung.<br><br>Beschreibung:<br>- Dieses Programm ist eine einfache Aufgabenverwaltung (To-Do-Liste).<br>- Funktionen:<br>- Aufgaben hinzufügen, anzeigen, bearbeiten und löschen.<br>- Verwaltung von Aufgaben mit Priorität und Fälligkeitsdatum.<br><br>Hauptkomponenten:<br>- `TaskService`: Verarbeitet die Geschäftslogik der Aufgabenverwaltung.<br>- `MainMenu`: Die Hauptschnittstelle für den Benutzer, um das Programm zu bedienen.<br><br>Ablauf:<br>- Initialisiert den `TaskService`, der die Aufgaben verwaltet.<br>- Startet das Hauptmenü (`MainMenu`), über das der Benutzer alle Funktionen erreichen kann.<br>/</p>
+</div>
+<button class='toggle-btn' style='margin-bottom: 15px;'>Details anzeigen</button>
+
+<details><summary><b>model</b></summary>
+<ul>
+<h3>Task</h3>
+<p style='margin-bottom: 5px;'></p>
+<div class='content' style='display: none;'>
+<h4>Funktion: generateId</h4>
+<p>/**<br>Generates the next unique ID.<br>@return The next ID as an integer.<br>/</p>
+</div>
+<button class='toggle-btn' style='margin-bottom: 15px;'>Details anzeigen</button>
+
+<h3>User</h3>
+<p style='margin-bottom: 5px;'></p>
+<div class='content' style='display: none;'>
+</div>
+<button class='toggle-btn' style='margin-bottom: 15px;'>Details anzeigen</button>
+
+</ul>
+</details>
+<details><summary><b>service</b></summary>
+<ul>
+<h3>TaskService</h3>
+<p style='margin-bottom: 5px;'></p>
+<div class='content' style='display: none;'>
+<h4>Funktion: init</h4>
+<p>/**<br>Diese Klasse verwaltet die Geschäftslogik der Aufgaben.<br>- Nutzt FileHandler für die persistente Speicherung der Aufgaben.<br>- Enthält die Logik für:<br>- Abrufen von Aufgaben<br>- Hinzufügen neuer Aufgaben<br>- Aktualisieren vorhandener Aufgaben<br>- Löschen von Aufgaben<br>/<br>/**<br>Initialisiert den TaskService und lädt alle gespeicherten Aufgaben.<br>TODO:<br>1. Verwende `fileHandler.loadTasks()`, um die gespeicherten Aufgaben zu laden.<br>2. Füge die geladenen Aufgaben der lokalen `tasks`-Liste hinzu.<br>/</p>
+<h4>Funktion: getAllTasks</h4>
+<p>/**<br>Gibt alle vorhandenen Aufgaben zurück.<br>TODO @reni:<br>1. Gib die `tasks`-Liste zurück.<br>2. Stelle sicher, dass die Liste unverändert bleibt (immutable Rückgabe).<br><br>@return Liste aller Aufgaben (List<Task>).<br>/</p>
+<h4>Funktion: getTask</h4>
+<p>/**<br>Gibt die Aufgabe mit der übergebenen ID zurück.<br>TODO @david:<br>1. Suche die Aufgabe in der `tasks`-Liste, deren ID mit `taskId` übereinstimmt.<br>2. Wenn die Aufgabe gefunden wird, gib sie zurück.<br>3. Wenn keine Aufgabe gefunden wird, Errormeldung.<br><br>@param taskId Die ID der gesuchten Aufgabe.<br>@return Die Aufgabe mit der entsprechenden ID (Task).<br>/</p>
+<h4>Funktion: updateTask</h4>
+<p>/**<br>Aktualisiert die Aufgabe mit der übergebenen ID.<br>TODO @david:<br>1. Suche die Aufgabe in der `tasks`-Liste anhand der ID (`taskId`).<br>2. Wenn die Aufgabe gefunden wird:<br>- Aktualisiere die Aufgabe mit den neuen Werten (`updatedTask`).<br>- Speichere die aktualisierte Liste mit `fileHandler.saveTasks(tasks)`.<br>3. Wenn die Aufgabe nicht gefunden wird, wirf eine Ausnahme.<br><br>@param taskId Die ID der Aufgabe, die aktualisiert werden soll.<br>@param updatedTask Neue Daten für die Aufgabe (Task).<br>@return Die aktualisierte Aufgabe (Task).<br>/</p>
+<h4>Funktion: addTask</h4>
+<p>/**<br>Fügt eine neue Aufgabe hinzu.<br>TODO @alex:<br>1. Füge die neue Aufgabe (`task`) zur `tasks`-Liste hinzu.<br>2. Speichere die aktualisierte Liste mit `fileHandler.saveTasks(tasks)`.<br><br>@param task Die neue Aufgabe, die hinzugefügt werden soll.<br>/</p>
+<h4>Funktion: deleteTask</h4>
+<p>/**<br>Löscht eine Aufgabe.<br>TODO @alex:<br>1. Entferne die Aufgabe (`task`) aus der `tasks`-Liste.<br>2. Wenn die Aufgabe erfolgreich entfernt wurde:<br>- Speichere die aktualisierte Liste mit `fileHandler.saveTasks(tasks)`.<br>3. Wenn die Aufgabe nicht gefunden wird, Errormeldung.<br><br>@param task Die Aufgabe, die gelöscht werden soll.<br>/</p>
+</div>
+<button class='toggle-btn' style='margin-bottom: 15px;'>Details anzeigen</button>
+
+</ul>
+</details>
+<details><summary><b>ui</b></summary>
+<ul>
+<details><summary><b>add</b></summary>
+<ul>
+<h3>addMenu</h3>
+<p style='margin-bottom: 5px;'></p>
+<div class='content' style='display: none;'>
+</div>
+<button class='toggle-btn' style='margin-bottom: 15px;'>Details anzeigen</button>
+
+</ul>
+</details>
+<details><summary><b>main</b></summary>
+<ul>
+<h3>mainMenu</h3>
+<p style='margin-bottom: 5px;'></p>
+<div class='content' style='display: none;'>
+<h4>Funktion: init</h4>
+<p>/**<br>Der Einstiegspunkt der Anwendung.<br>TODO @reni:<br>- Erstelle eine Instanz der TaskService-Klasse.<br>- Erstelle eine Instanz der MainMenu-Klasse und übergib den TaskService.<br>- Rufe die Methode `MainMenu.show()` auf, um das Hauptmenü anzuzeigen.<br>/</p>
+</div>
+<button class='toggle-btn' style='margin-bottom: 15px;'>Details anzeigen</button>
+
+</ul>
+</details>
+<details><summary><b>show</b></summary>
+<ul>
+<h3>showMenu</h3>
+<p style='margin-bottom: 5px;'></p>
+<div class='content' style='display: none;'>
+<h4>Funktion: show</h4>
+<p>/**<br>Diese Klasse zeigt die Details einer Aufgabe an und ermöglicht die Bearbeitung (Edit-Modus).<br>- Die Geschäftslogik wird durch TaskService bereitgestellt.<br>/<br>/**<br>Zeigt die Details der Aufgabe mit der übergebenen ID an.<br>TODO @david:<br>1. Verwende `taskService.getTask(taskId)`, um die Aufgabe abzurufen.<br>2. Wenn die Aufgabe gefunden wird:<br>- Zeige die Details der Aufgabe in der Konsole.<br>- Frage den Benutzer, ob die Aufgabe bearbeitet werden soll (y/n).<br>3. Wenn der Benutzer "y" wählt, wechsle in den Bearbeitungsmodus (`editTask`).<br>4. Wenn die Aufgabe nicht gefunden wird, gib eine Fehlermeldung aus.<br>/</p>
+</div>
+<button class='toggle-btn' style='margin-bottom: 15px;'>Details anzeigen</button>
+
+</ul>
+</details>
+</ul>
+</details>
+<details><summary><b>utils</b></summary>
+<ul>
+<h3>Constants</h3>
+<p style='margin-bottom: 5px;'></p>
+<div class='content' style='display: none;'>
+</div>
+<button class='toggle-btn' style='margin-bottom: 15px;'>Details anzeigen</button>
+
+<h3>DateUtils</h3>
+<p style='margin-bottom: 5px;'></p>
+<div class='content' style='display: none;'>
+<h4>Funktion: parseDate</h4>
+<p>/**<br>Enthält Hilfsfunktionen für die Verarbeitung von Datumswerten.<br>/<br>/**<br>Konvertiert einen Datums-String in ein `LocalDate`-Objekt.<br>@param dateString Der Datums-String im Format "yyyy-MM-dd".<br>@return Ein `LocalDate`-Objekt.<br>/</p>
+<h4>Funktion: formatDate</h4>
+<p>/**<br>Konvertiert ein `LocalDate`-Objekt in einen Datums-String.<br>@param date Das `LocalDate`-Objekt.<br>@return Ein Datums-String im Format "yyyy-MM-dd".<br>/</p>
+</div>
+<button class='toggle-btn' style='margin-bottom: 15px;'>Details anzeigen</button>
+
+<h3>FileHandler</h3>
+<p style='margin-bottom: 5px;'></p>
+<div class='content' style='display: none;'>
+<h4>Funktion: loadTasks</h4>
+<p>/**<br>Diese Klasse verwaltet das Speichern und Laden von Aufgaben aus einer Datei.<br><br>Ziel:<br>- Persistente Speicherung der Aufgaben, auch nach Beenden der Anwendung.<br>- Verwendung des JSON-Formats für die Speicherung.<br>- Unabhängigkeit von der Geschäftslogik (TaskService).<br><br>Funktionen:<br>- `loadTasks()`: Liest die Aufgaben aus der Datei und gibt sie als Liste zurück.<br>- `saveTasks(tasks)`: Speichert die übergebene Liste von Aufgaben in die Datei.<br><br>Hinweise:<br>- Wenn die Datei nicht existiert, wird sie automatisch erstellt.<br>- Falls die Datei leer ist, wird eine leere Liste zurückgegeben.<br>/<br>/**<br>Lädt alle Aufgaben aus der Datei.<br>TODO @reni:<br>1. Prüfe, ob die Datei existiert:<br>- Wenn ja: Lies den Inhalt der Datei und parse ihn in eine Liste von Aufgaben.<br>- Wenn nein: Gib eine leere Liste zurück.<br>2. Verwende Gson für die JSON-Verarbeitung.<br><br>@return Liste der gespeicherten Aufgaben (List<Task>).<br>/</p>
+<h4>Funktion: saveTasks</h4>
+<p>/**<br>Speichert alle Aufgaben in der Datei.<br>TODO @reni:<br>1. Konvertiere die Liste von Aufgaben in JSON-Format.<br>2. Schreibe das JSON in die Datei.<br>3. Falls die Datei nicht existiert, erstelle sie automatisch.<br><br>@param tasks Die Liste der Aufgaben, die gespeichert werden sollen.<br>/</p>
+</div>
+<button class='toggle-btn' style='margin-bottom: 15px;'>Details anzeigen</button>
+
+<h3>InputValidator</h3>
+<p style='margin-bottom: 5px;'></p>
+<div class='content' style='display: none;'>
+<h4>Funktion: isValidPriority</h4>
+<p>/**<br>Enthält Hilfsfunktionen zur Validierung von Benutzereingaben.<br>/<br>/**<br>Prüft, ob die angegebene Priorität gültig ist.<br>@param priority Die zu prüfende Priorität.<br>@return `true`, wenn die Priorität gültig ist, sonst `false`.<br>/</p>
+<h4>Funktion: isValidDate</h4>
+<p>/**<br>Prüft, ob der angegebene Datums-String ein gültiges Datum ist.<br>@param dateString Der Datums-String.<br>@return `true`, wenn das Datum gültig ist, sonst `false`.<br>/</p>
+</div>
+<button class='toggle-btn' style='margin-bottom: 15px;'>Details anzeigen</button>
+
+</ul>
+</details>
+</ul>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.toggle-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const content = button.previousElementSibling;
+                    if (content.style.display === 'none') {
+                        content.style.display = 'block';
+                        button.textContent = 'Details ausblenden';
+                    } else {
+                        content.style.display = 'none';
+                        button.textContent = 'Details anzeigen';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
