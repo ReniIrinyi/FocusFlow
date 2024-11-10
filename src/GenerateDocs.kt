@@ -12,27 +12,63 @@ fun main() {
 
     // Das 'docs'-Verzeichnis bereinigen oder erstellen
     if (outputDir.exists()) {
-        outputDir.deleteRecursively()
+        outputDir.deleteRecursively() // Löscht vorhandene Dateien im 'docs'-Verzeichnis
     }
-    outputDir.mkdir()
+    outputDir.mkdir() // Erstellt das Verzeichnis
 
     println("Generiere Dokumentation...")
 
+    val baseDocumentation = """
+<h1>Projektübersicht: FocusFlow</h1>
+<p><b>Projektziel:</b> Dieses Projekt ist eine einfache Aufgabenverwaltungs-App, die es Benutzern ermöglicht, Aufgaben zu erstellen, zu bearbeiten, zu löschen und Prioritäten zu verwalten.</p>
+<p><b>Technologien:</b> Kotlin, Java</p>
+<p><b>Hauptkomponenten:</b></p>
+<ul>
+    <li><code>TaskService.kt</code>: Verarbeitet die Geschäftslogik der Aufgabenverwaltung.</li>
+    <li><code>MainMenu.kt</code>: Die Hauptschnittstelle für den Benutzer, um das Programm zu bedienen.</li>
+</ul>
+<p><b>Funktionen:</b></p>
+<ul>
+    <li>Aufgaben hinzufügen, bearbeiten und löschen.</li>
+    <li>Prioritäten verwalten (hoch, mittel, niedrig).</li>
+    <li>Suche und Filter nach Aufgabenstatus.</li>
+    <li>Automatische Dokumentationsgenerierung (dieses Skript).</li>
+</ul>
+<p><b>Ausführung:</b> Clone das Repository, und führe <code>GenerateDocs.kt</code> file um die Dokumentation zu erstellen, oder starte die Applikation aus der <code>Main.kt</code>.</p>
+"""
+
+    // Funktion zum Lesen des ersten KDoc-Kommentars im Dateikopf
     fun getFileDescription(lines: List<String>): String {
-        val kdoc = lines.takeWhile { it.trim().startsWith("/**") || it.trim().startsWith("*") }
-        return kdoc.joinToString("\n") { it.trim().removePrefix("*").trim() }
+        val kdoc = lines.takeWhile { it.trim().startsWith("/**") || it.trim().startsWith("*") || it.trim().endsWith("*/") }
+        return kdoc
+            .joinToString("\n") {
+                it.trim()
+                    .removePrefix("/**")
+                    .removePrefix("*")
+                    .removeSuffix("*/")
+                    .trim()
+                    .removeSuffix("/")
+            }
+            .trim()
     }
 
-    fun processFile(file: File): String {
+    // Funktion zur Erstellung des Inhalts für eine Datei
+    fun processFile(file: File, alwaysOpen: Boolean = false): String {
         val fileLines = file.readLines()
         val description = getFileDescription(fileLines) // Beschreibung des Datei-Kopfs
         val content = StringBuilder()
 
-        // Markdown-Dokumentation erstellen
-        content.append("<h3>${file.nameWithoutExtension}</h3>\n")
-        content.append("<p style='margin-bottom: 5px;'>${description}</p>\n") // Kevesebb hely a gomb előtt
-        content.append("<div class='content' style='display: none;'>\n")
+        // Ha a fájl Main.kt, akkor mindig nyitott
+        val openTag = if (alwaysOpen) " open" else ""
 
+        content.append("<li><details$openTag><summary>${file.nameWithoutExtension}</summary>\n")
+
+        // Beschreibung hinzufügen, wenn verfügbar
+        if (description.isNotBlank()) {
+            content.append("<p>$description</p>\n")
+        }
+
+        val functions = StringBuilder()
         var currentComment = mutableListOf<String>()
         var lastFunctionName: String? = null
 
@@ -40,41 +76,61 @@ fun main() {
             val trimmed = line.trim()
 
             // KDoc-Kommentare lesen
-            if (trimmed.startsWith("/**") || trimmed.startsWith("*")) {
-                currentComment.add(trimmed.removePrefix("*").trim())
+            if (trimmed.startsWith("/**") || trimmed.startsWith("*") || trimmed.endsWith("*/")) {
+                currentComment.add(
+                    trimmed
+                        .removePrefix("/**")
+                        .removePrefix("*")
+                        .removeSuffix("*/")
+                        .trim()
+                        .removeSuffix("/")
+                )
             } else if (trimmed.startsWith("fun ")) {
-                lastFunctionName = trimmed.substringAfter("fun ").substringBefore("(").trim()
+                // A függvény neve és paraméterei
+                lastFunctionName = trimmed.substringAfter("fun ").substringBefore("{").trim()
 
                 if (currentComment.isNotEmpty()) {
-                    content.append("<h4>Funktion: $lastFunctionName</h4>\n")
-                    content.append("<p>${currentComment.joinToString("<br>") { it.trim() }}</p>\n")
+                    functions.append("<h4>Funktion: $lastFunctionName</h4>\n")
+                    functions.append("<p>${currentComment.joinToString("<br>") { it.trim() }}</p>\n")
                     currentComment.clear()
                 }
             }
         }
 
-        content.append("</div>\n")
-        content.append("<button class='toggle-btn' style='margin-bottom: 15px;'>Details anzeigen</button>\n") // Nagyobb hely a gomb után
+        if (functions.isNotEmpty()) {
+            content.append("<div class='content'>\n")
+            content.append(functions.toString())
+            content.append("</div>\n")
+        }
 
+        content.append("</details></li>\n")
         return content.toString()
     }
 
-    fun processDirectory(dir: File): String {
+    // Rekursive Verarbeitung der Dateien und Ordner
+    fun processDirectory(dir: File, isUtilsFolder: Boolean = false): String {
         val subLinks = dir.listFiles()?.sorted()?.filter { it.name != "GenerateDocs.kt" }?.joinToString("\n") { file ->
             if (file.isDirectory) {
-                "<details><summary><b>${file.name}</b></summary>\n${processDirectory(file)}\n</details>"
+                val isUtils = file.name == "utils" // Prüfen, ob es der utils-Ordner ist
+                if (isUtils) {
+                    // Utils-Dateien werden speziell behandelt
+                    "<li><details open><summary><b>${file.name}</b></summary><ul>\n${processDirectory(file, isUtilsFolder = true)}</ul></details></li>"
+                } else {
+                    "<li><details><summary><b>${file.name}</b></summary><ul>\n${processDirectory(file)}\n</ul></details></li>"
+                }
             } else if (file.extension == "kt") {
-                processFile(file)
+                val isMain = file.name == "Main.kt"
+                processFile(file, alwaysOpen = isMain) // A Main.kt mindig nyitva
             } else ""
         } ?: ""
 
-        return "<ul>\n$subLinks\n</ul>"
+        return subLinks
     }
 
     // Startpunkt: Verarbeitung der Verzeichnisse und Dateien
     val htmlContent = processDirectory(sourceDir)
 
-    // Index-HTML mit eingebettetem JavaScript und CSS erstellen
+    // Index-HTML erstellen
     val indexFile = File(outputDir, "index.html")
     indexFile.writeText("""
 <!DOCTYPE html>
@@ -85,29 +141,20 @@ fun main() {
     <title>Dokumentationsübersicht</title>
     <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; }
+        h4 {margin-bottom:0}
+        p {margin-top:0}
+        ul { list-style-type: none; padding-left: 20px; }
+        li { margin-bottom: 10px; }
+        details summary { cursor: pointer; font-weight: bold; }
         .content { margin-left: 20px; }
-        .toggle-btn { margin-top: 5px; margin-bottom: 15px; cursor: pointer; background-color: #007BFF; color: white; border: none; padding: 5px 10px; border-radius: 5px; }
     </style>
 </head>
 <body>
-    <h1>Dokumentationsübersicht</h1>
-    $htmlContent
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.toggle-btn').forEach(button => {
-                button.addEventListener('click', () => {
-                    const content = button.previousElementSibling;
-                    if (content.style.display === 'none') {
-                        content.style.display = 'block';
-                        button.textContent = 'Details ausblenden';
-                    } else {
-                        content.style.display = 'none';
-                        button.textContent = 'Details anzeigen';
-                    }
-                });
-            });
-        });
-    </script>
+    $baseDocumentation
+    <h2>Codestruktur</h2>
+    <ul>
+        $htmlContent
+    </ul>
 </body>
 </html>
 """.trimIndent())
