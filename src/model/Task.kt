@@ -12,7 +12,7 @@ data class Task (
     var status: String                  // Status (Created, In Progress, Completed)
 ) {
     companion object {
-        private var currentId: Int = 0
+        var currentId: Int = 0
 
         /**
          * Generates the next unique ID.

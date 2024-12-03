@@ -1,12 +1,11 @@
+import model.Task
 import service.TaskService
-import ui.main.mainMenu
+import ui.main.MainMenu
+import utils.FileHandler
+import java.time.LocalDateTime
 
 /**
  * Einstiegspunkt der Anwendung.
- *
- * Hauptkomponenten:
- * - `TaskService`: Verarbeitet die Geschäftslogik der Aufgabenverwaltung.
- * - `MainMenu`: Die Hauptschnittstelle für den Benutzer, um das Programm zu bedienen.
  *
  * Ablauf:
  * - Initialisiert den `TaskService`, der die Aufgaben verwaltet.
@@ -14,6 +13,37 @@ import ui.main.mainMenu
  */
 fun main() {
    val taskService = TaskService()
-   val mainMenu = mainMenu(taskService)
+   val mainMenu = MainMenu(taskService)
     mainMenu.init()
+
+    ///////////////////////77test FileHandler////////////////////////////////
+        val fileHandler = FileHandler()
+        val tasks = listOf(
+            Task(
+                id = Task.generateId(),
+                title = "Projektplan aktualisieren",
+                priority = "Hoch",
+                createdAt = LocalDateTime.now(),
+                updatedAt = LocalDateTime.now(),
+                deadline = LocalDateTime.now().plusDays(5),
+                status = "Erstellt"
+            ),
+            Task(
+                id = Task.generateId(),
+                title = "Teammeeting vorbereiten",
+                priority = "Mittel",
+                createdAt = LocalDateTime.now(),
+                updatedAt = LocalDateTime.now(),
+                deadline = LocalDateTime.now().plusDays(2),
+                status = "Erstellt"
+            )
+        )
+
+        fileHandler.saveTasks(tasks)
+        println("Aufgaben wurden erfolgreich gespeichert.")
+        // Aufgaben laden
+        val loadedTasks = fileHandler.loadTasks()
+        println("Geladene Aufgaben:")
+        loadedTasks.forEach { println(it) }
+    ///////////////////////////////////////////////////////////////////////
 }

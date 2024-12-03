@@ -1,5 +1,6 @@
 package ui.show
 
+
 import service.TaskService
 import model.Task
 
@@ -7,10 +8,7 @@ import model.Task
  * Diese Klasse zeigt die Details einer Aufgabe an und ermöglicht die Bearbeitung (Edit-Modus).
  * - Die Geschäftslogik wird durch TaskService bereitgestellt.
  */
-class ShowMenu(
-    private val taskService: TaskService,
-    private val taskId: Int
-) {
+class ShowMenu(private val taskService: TaskService) {
 
     /**
      * Zeigt die Details der Aufgabe mit der übergebenen ID an.
