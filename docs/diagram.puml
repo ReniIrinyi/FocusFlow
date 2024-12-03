@@ -1,0 +1,24 @@
+@startuml
+class TaskService {
+    + tasks: 
+    + init(): 
+    + getAllTasks(): List<Task>
+class Task
+    + getTask(taskId: Int): Task
+    + updateTask(taskId: Int, updatedTask: Task): Task
+    + addTask(task: Task): 
+    + deleteTask(task: Task): 
+}
+class AddMenu {
+}
+class MainMenu {
+    + id: Int
+    + init(): 
+}
+class ShowMenu {
+    + show(): 
+    + editTask(task: Task): 
+}
+TaskService --> Task
+ShowMenu --> Task
+@enduml

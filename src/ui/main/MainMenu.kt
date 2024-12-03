@@ -9,7 +9,9 @@ import service.TaskService
  * - Erstelle eine Instanz der MainMenu-Klasse und übergib den TaskService.
  * - Rufe die Methode `MainMenu.show()` auf, um das Hauptmenü anzuzeigen.
  */
-class mainMenu (private val taskService:TaskService) {
+class MainMenu (private val taskService:TaskService) {
+
+     val id:Int = 0
     fun init(){
         taskService.init()
         println("init MainMenu... ")

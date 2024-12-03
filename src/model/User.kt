@@ -1,4 +1,6 @@
 package model
 
-class User {
+data class User(
+    var Id:Int
+) {
 }

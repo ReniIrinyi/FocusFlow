@@ -12,10 +12,9 @@ import utils.FileHandler
  *   - Aktualisieren vorhandener Aufgaben
  *   - Löschen von Aufgaben
  */
-class TaskService {
+class TaskService(): FileHandler() {
 
     private val tasks = mutableListOf<Task>() // Lokale Liste der Aufgaben.
-    private val fileHandler = FileHandler() // Für das Laden und Speichern.
 
     /**
      * Initialisiert den TaskService und lädt alle gespeicherten Aufgaben.
@@ -25,7 +24,7 @@ class TaskService {
      */
     fun init() {
         tasks.clear()
-        tasks.addAll(fileHandler.loadTasks())
+        tasks.addAll(loadTasks())
         println("TaskService erfolgreich initialisiert.")
     }
 
