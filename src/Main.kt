@@ -16,8 +16,8 @@ fun main() {
    val mainMenu = MainMenu(taskService)
     mainMenu.init()
 
-    ///////////////////////77test FileHandler////////////////////////////////
-        val fileHandler = FileHandler()
+    ///////////////////////test FileHandler////////////////////////////////
+      /*  val fileHandler = FileHandler()
         val tasks = listOf(
             Task(
                 id = Task.generateId(),
@@ -44,6 +44,6 @@ fun main() {
         // Aufgaben laden
         val loadedTasks = fileHandler.loadTasks()
         println("Geladene Aufgaben:")
-        loadedTasks.forEach { println(it) }
+        loadedTasks.forEach { println(it) }*/
     ///////////////////////////////////////////////////////////////////////
 }

@@ -17,27 +17,29 @@ class TaskService(): FileHandler() {
     private val tasks = mutableListOf<Task>() // Lokale Liste der Aufgaben.
 
     /**
+     * Konstruktor, der automatisch alle gespeicherten Aufgaben lädt.
+     */
+    init {
+        init() // Initialisiert den TaskService und lädt die gespeicherten Aufgaben.
+    }
+
+    /**
      * Initialisiert den TaskService und lädt alle gespeicherten Aufgaben.
-     * TODO:
-     * 1. Verwende `fileHandler.loadTasks()`, um die gespeicherten Aufgaben zu laden.
-     * 2. Füge die geladenen Aufgaben der lokalen `tasks`-Liste hinzu.
+     * Diese Methode wird im Konstruktor automatisch aufgerufen.
      */
     fun init() {
         tasks.clear()
         tasks.addAll(loadTasks())
-        println("TaskService erfolgreich initialisiert.")
+        println("TaskService erfolgreich initialisiert.${tasks.size} Aufgaben geladen.")
+        println(tasks.toString())
     }
 
     /**
      * Gibt alle vorhandenen Aufgaben zurück.
-     * TODO @reni:
-     * 1. Gib die `tasks`-Liste zurück.
-     * 2. Stelle sicher, dass die Liste unverändert bleibt (immutable Rückgabe).
-     *
      * @return Liste aller Aufgaben (List<Task>).
      */
     fun getAllTasks(): List<Task> {
-        return tasks.toList() // Eine unveränderbare Kopie der Liste zurückgeben.
+        return tasks.toList()
     }
 
     /**

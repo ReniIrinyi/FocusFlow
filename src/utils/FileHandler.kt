@@ -9,7 +9,7 @@ import java.time.LocalDateTime
  *
  * Ziel:
  * - Persistente Speicherung der Aufgaben, auch nach Beenden der Anwendung.
- * - Verwendung des JSON-Formats für die Speicherung.
+ * - Verwendung eines benutzerdefinierten Textformats für die Speicherung.
  * - Unabhängigkeit von der Geschäftslogik (TaskService).
  *
  * Funktionen:
@@ -26,13 +26,15 @@ open class FileHandler {
 
     /**
      * Lädt alle Aufgaben aus der Datei.
-     * TODO @reni:
-     * 1. Prüfe, ob die Datei existiert:
-     *    - Wenn ja: Lies den Inhalt der Datei und parse ihn in eine Liste von Aufgaben.
-     *    - Wenn nein: Gib eine leere Liste zurück.
-     * 2. Verwende Gson für die JSON-Verarbeitung.
      *
-     * @return Liste der gespeicherten Aufgaben (List<Task>).
+     * Schritte:
+     * 1. Prüft, ob die Datei existiert und nicht leer ist.
+     *    - Falls die Datei nicht existiert oder leer ist, wird eine leere Liste zurückgegeben.
+     * 2. Liest die Datei zeilenweise.
+     * 3. Wandelt jede Zeile in ein `Task`-Objekt um, indem die Felder durch das Trennzeichen `|` getrennt werden.
+     * 4. Aktualisiert die `currentId`-Variable der Klasse `Task`, damit neue Aufgaben eindeutige IDs erhalten.
+     *
+     * @return Eine Liste der gespeicherten Aufgaben (`List<Task>`).
      */
     fun loadTasks(): List<Task> {
         val file = File(filePath)
@@ -74,12 +76,15 @@ open class FileHandler {
     }
 
 
-    /**ü'
+    /**
      * Speichert alle Aufgaben in der Datei.
-     * TODO @reni:
-     * 1. Konvertiere die Liste von Aufgaben in JSON-Format.
-     * 2. Schreibe das JSON in die Datei.
-     * 3. Falls die Datei nicht existiert, erstelle sie automatisch.
+     *
+     * Schritte:
+     * 1. Prüft, ob die Datei existiert.
+     *    - Falls nicht, wird die Datei (und die Verzeichnisse) automatisch erstellt.
+     * 2. Wandelt jedes `Task`-Objekt in eine Textzeile um, wobei die Felder durch `|` getrennt werden.
+     *    - Sonderzeichen in den Feldern werden maskiert, um das Format nicht zu stören.
+     * 3. Schreibt die resultierenden Zeilen in die Datei.
      *
      * @param tasks Die Liste der Aufgaben, die gespeichert werden sollen.
      */
@@ -101,10 +106,22 @@ open class FileHandler {
         file.writeText(lines.joinToString("\n"))
     }
 
+    /**
+     * Maskiert Sonderzeichen in einem Textfeld, um Konflikte mit dem Trennzeichen `|` oder anderen Zeichen zu vermeiden.
+     *
+     * @param field Das zu maskierende Textfeld.
+     * @return Der maskierte Text.
+     */
     private fun escapeField(field: String): String {
         return field.replace("\\", "\\\\").replace("|", "\\|").replace("\n", "\\n")
     }
 
+    /**
+     * Hebt die Maskierung von Sonderzeichen in einem Textfeld auf, um das ursprüngliche Format wiederherzustellen.
+     *
+     * @param field Das Textfeld mit maskierten Zeichen.
+     * @return Der ursprüngliche Text.
+     */
     private fun unescapeField(field: String): String {
         return field.replace("\\n", "\n").replace("\\|", "|").replace("\\\\", "\\")
     }

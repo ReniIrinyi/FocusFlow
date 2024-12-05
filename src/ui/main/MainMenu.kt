@@ -13,7 +13,6 @@ class MainMenu (private val taskService:TaskService) {
 
      val id:Int = 0
     fun init(){
-        taskService.init()
         println("init MainMenu... ")
     }
 }
