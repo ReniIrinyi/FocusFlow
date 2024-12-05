@@ -8,7 +8,7 @@ data class Task (
     val priority: String,               // Priority (High, Medium, Low)
     val createdAt: LocalDateTime,       // Creation date and time
     var updatedAt: LocalDateTime,       // Last updated date and time
-    val deadline: LocalDateTime,        // Due date
+    val deadline: LocalDateTime?,        // Due date
     var status: String                  // Status (Created, In Progress, Completed)
 ) {
     companion object {
