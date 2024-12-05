@@ -29,9 +29,14 @@ class TaskService(): FileHandler() {
      */
     fun init() {
         tasks.clear()
-        tasks.addAll(loadTasks())
-        println("TaskService erfolgreich initialisiert.${tasks.size} Aufgaben geladen.")
-        println(tasks.toString())
+        val (loadedTasks, status) = loadTasks()
+        handleFileHandlerResponse(
+            status,
+            successMessage = "TaskService erfolgreich initialisiert. ${loadedTasks.size} Aufgaben geladen.",
+            failureMessage = "Fehler beim Laden der Aufgaben."
+        ) {
+            tasks.addAll(loadedTasks)
+        }
     }
 
     /**
@@ -95,5 +100,31 @@ class TaskService(): FileHandler() {
      * @param task Die Aufgabe, die gelöscht werden soll.
      */
     fun deleteTask(task: Task) {
+    }
+
+    /**
+     * Behandelt die Rückgabewerte des FileHandler und gibt eine Erfolgsmeldung aus.
+     * Bei Erfolg wird die übergebene `onSuccess`-Aktion ausgeführt.
+     *
+     * @param status Der Statuscode vom FileHandler.
+     * @param successMessage Die Nachricht, die bei Erfolg ausgegeben werden soll.
+     * @param failureMessage Die Nachricht, die bei einem Fehler ausgegeben werden soll.
+     * @param onSuccess Eine optionale Aktion, die bei Erfolg ausgeführt werden soll.
+     * @return Boolean, ob die Operation erfolgreich war.
+     */
+    private fun handleFileHandlerResponse(
+        status: Int,
+        successMessage: String,
+        failureMessage: String,
+        onSuccess: (() -> Unit)? = null
+    ): Boolean {
+        return if (status == 200) {
+            println(successMessage)
+            onSuccess?.invoke()
+            true
+        } else {
+            println(failureMessage)
+            false
+        }
     }
 }

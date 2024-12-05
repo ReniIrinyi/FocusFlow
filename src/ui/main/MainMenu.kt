@@ -1,5 +1,7 @@
 package ui.main
 
+import javafx.application.Application
+import javafx.stage.Stage
 import service.TaskService
 
 /**
@@ -9,10 +11,11 @@ import service.TaskService
  * - Erstelle eine Instanz der MainMenu-Klasse und übergib den TaskService.
  * - Rufe die Methode `MainMenu.show()` auf, um das Hauptmenü anzuzeigen.
  */
-class MainMenu (private val taskService:TaskService) {
+class MainMenu: Application() {
 
-     val id:Int = 0
-    fun init(){
-        println("init MainMenu... ")
+    val id:Int = 0
+    override fun start(primaryStage: Stage?) {
+        val taskService:TaskService = TaskService()
+        println("app läuft...")
     }
 }
