@@ -9,9 +9,9 @@ object Constants {
     const val TASKS_FILE_NAME = "tasks.txt" // Der Standard-Dateiname für die Aufgabenliste.
 
     // Statuswerte
-    val STATUS_NOT_DONE = null  // Nicht erledigt (Standardwert)
-    const val STATUS_DONE = 1            // Erledigt
-    const val STATUS_IN_PROGRESS = 0 // In Bearbeitung
+    val STATUS_NOT_DONE = 0  // Nicht erledigt (Standardwert)
+    const val STATUS_IN_PROGRESS = 1 // In Bearbeitung
+    const val STATUS_DONE = 2            // Erledigt
 
     // HTTP-ähnliche Statuscodes
     const val RESTAPI_OK = 200 // status response ok

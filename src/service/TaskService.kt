@@ -73,7 +73,7 @@ class TaskService(): FileHandler() {
      * @param updatedTask Neue Daten für die Aufgabe (Task).
      * @return Die aktualisierte Aufgabe (Task).
      */
-    fun updateTask(taskId: Int, updatedTask: Task): Task {
+    fun updateTask(taskId: Int, updatedData: Task): Task {
         return {} as Task
     }
 

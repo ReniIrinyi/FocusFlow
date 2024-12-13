@@ -6,6 +6,8 @@ import javafx.scene.Scene
 import javafx.scene.control.Button
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
+import model.Task
+import service.FileHandler
 import service.TaskService
 
 /**
@@ -22,7 +24,7 @@ class MainMenu: Application() {
         val taskService:TaskService = TaskService()
         val btn=Button("Test").apply {
             setOnAction{
-                println("Taste geht")
+                taskService.updateTask(1)
             }
         }
         println("here")

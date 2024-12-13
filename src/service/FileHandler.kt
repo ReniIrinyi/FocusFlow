@@ -10,7 +10,7 @@ import java.io.File
 import java.time.LocalDateTime
 
 /**
- * Diese Klasse verwaltet das Speichern, Laden und löschen von Aufgaben aus einer Datei.
+ * Diese Klasse verwaltet das Speichern, Laden und Löschen von Aufgaben aus einer Datei.
  *
  * Ziel:
  * - Persistente Speicherung der Aufgaben, auch nach Beenden der Anwendung.
@@ -20,10 +20,9 @@ import java.time.LocalDateTime
  * Funktionen:
  * - `loadTasks()`: Liest die Aufgaben aus der Datei und gibt sie als Liste zurück.
  * - `saveTasks(tasks)`: Speichert die übergebene Liste von Aufgaben in die Datei.
+ * - `updateTask(taskId, updatedData)`: Aktualisiert eine Aufgabe basierend auf der ID.
+ * - `addTask(newTask)`: Fügt eine neue Aufgabe hinzu.
  *
- * Hinweise:
- * - Wenn die Datei nicht existiert, wird sie automatisch erstellt.
- * - Falls die Datei leer ist, wird eine leere Liste zurückgegeben.
  */
 open class FileHandler {
 
@@ -31,7 +30,7 @@ open class FileHandler {
 
     /**
      * Lädt alle Aufgaben aus der Datei.
-     * @return Eine Liste der gespeicherten Aufgaben (`List<Task>`) oder eine leere Liste bei Fehlern.
+     * @return Eine Liste der gespeicherten Aufgaben (`List<Task>`) oder eine leere Liste bei Fehlern, und der StatusCode.
      */
     fun loadTasks(): Pair<List<Task>, Int> {
         return try {
@@ -52,13 +51,12 @@ open class FileHandler {
 
                 // Status aus Zahl laden
                 val status = when (tokens[6]) {
-                    "1" -> "Erledigt"
-                    "0" -> "In Bearbeitung"
-                    "" -> "Nicht erledigt" // null wird als Nicht erledigt interpretiert
-                    else -> "In Bearbeitung" // Fallback
+                    "2" -> "Erledigt"
+                    "1" -> "In Bearbeitung"
+                    else -> "Nicht erledigt" // Fallback
                 }
 
-                val priority = when(tokens[2]){
+                val priority = when (tokens[2]) {
                     Priority.PRIORITY_HIGH.toString() -> "Hohe Priorität"
                     Priority.PRIORITY_LOW.toString() -> "Niedrige Priorität"
                     Priority.PRIORITY_MEDIUM.toString() -> "Mittlere Priorität"
@@ -82,8 +80,6 @@ open class FileHandler {
             Pair(emptyList(), Constants.RESTAPI_INTERNAL_SERVER_ERROR)
         }
     }
-
-
 
     /**
      * Speichert alle Aufgaben in der Datei.
@@ -118,148 +114,54 @@ open class FileHandler {
         }
     }
 
-    fun updateTask(taskId:Int): Any {
-        return try {
-            val (tasks, status) = loadTasks();
-            val taskToUpdate = tasks.find {it.id===taskId};
-            if(taskToUpdate != null){
-                return Constants.RESTAPI_NOT_FOUND;
-            } else {
-
-            }
-
-        } catch (e:Exception){
-
-        }
-    }
-
-
-
     /**
-     * Löscht eine Aufgabe anhand der ID.
-     * @param taskId Die ID der zu löschenden Aufgabe.
-     * @return 200 bei Erfolg, 404 wenn keine Aufgabe mit der ID gefunden wurde, 400 bei anderen Fehlern.
+     * Aktualisiert eine vorhandene Aufgabe basierend auf ihrer ID.
+     * @param taskId Die ID der zu aktualisierenden Aufgabe.
+     * @param updatedData Die neuen Daten für die Aufgabe.
+     * @return 200 bei Erfolg, 404 wenn keine Aufgabe gefunden wurde, 500 bei Fehler.
      */
-    fun deleteTaskById(taskId: Int): Int {
+    fun updateTask(taskId: Int, updatedData: Task): Int {
         return try {
             val (tasks, status) = loadTasks()
-            if (status != RESTAPI_OK) {
-                return RESTAPI_INTERNAL_SERVER_ERROR
-            }
+            if (status != RESTAPI_OK) return RESTAPI_INTERNAL_SERVER_ERROR
 
-            val taskToDelete = tasks.find { it.id == taskId }
-            if (taskToDelete != null) {
-                val updatedTasks = tasks.filter { it.id != taskId }
-                val saveStatus = saveTasks(updatedTasks)
-                if (saveStatus == RESTAPI_OK) {
-                    println("Aufgabe mit ID $taskId wurde erfolgreich gelöscht.")
-                    RESTAPI_OK
-                } else {
-                    RESTAPI_INTERNAL_SERVER_ERROR
-                }
+            val taskIndex = tasks.indexOfFirst { it.id == taskId }
+            if (taskIndex != -1) {
+                val updatedTasks = tasks.toMutableList()
+                updatedTasks[taskIndex] = updatedData
+                saveTasks(updatedTasks)
+                println("Aufgabe mit ID $taskId wurde erfolgreich aktualisiert.")
+                RESTAPI_OK
             } else {
                 println("Fehler: Keine Aufgabe mit ID $taskId gefunden.")
                 RESTAPI_NOT_FOUND
             }
         } catch (e: Exception) {
-            println("Fehler beim Löschen der Aufgabe: ${e.message}")
+            println("Fehler beim Aktualisieren der Aufgabe: ${e.message}")
             RESTAPI_INTERNAL_SERVER_ERROR
         }
     }
 
     /**
-     * Aktualisiert die Priorität einer Aufgabe basierend auf ihrer ID.
-     *
-     * Schritte:
-     * 1. Validiert den neuen Prioritätswert.
-     * 2. Lädt die Aufgaben aus der Datei.
-     * 3. Sucht die Aufgabe mit der gegebenen ID.
-     *    - Wenn die Aufgabe gefunden wird: Aktualisiert die Priorität.
-     *    - Wenn die Aufgabe nicht gefunden wird: Gibt einen 404-Fehlercode zurück.
-     * 4. Speichert die aktualisierte Liste in die Datei.
-     *
-     * @param taskId Die ID der Aufgabe, die aktualisiert werden soll.
-     * @param newPriority Die neue Priorität für die Aufgabe.
-     * @return 200 bei Erfolg, 404 wenn keine Aufgabe gefunden wurde, 400 bei ungültiger Priorität oder Fehler.
+     * Fügt eine neue Aufgabe hinzu.
+     * @param newTask Die neue Aufgabe, die hinzugefügt werden soll.
+     * @return 200 bei Erfolg, 500 bei Fehler.
      */
-    fun updateTaskPriority(taskId: Int, newPriority: Enum<Priority>): Int {
-        if (newPriority !in listOf(Priority.PRIORITY_HIGH, Priority.PRIORITY_MEDIUM, Priority.PRIORITY_LOW)) {
-            println("Fehler: Ungültiger Prioritätswert '$newPriority'. Erlaubte Werte: ${Priority.PRIORITY_HIGH}, ${Priority.PRIORITY_MEDIUM}, ${Priority.PRIORITY_LOW}.")
-            return RESTAPI_INTERNAL_SERVER_ERROR
-        }
-
+    fun addTask(newTask: Task): Int {
         return try {
             val (tasks, status) = loadTasks()
-            if (status != RESTAPI_OK) {
-                return RESTAPI_INTERNAL_SERVER_ERROR
-            }
+            if (status != RESTAPI_OK) return RESTAPI_INTERNAL_SERVER_ERROR
 
-            val taskIndex = tasks.indexOfFirst { it.id == taskId }
-            if (taskIndex != -1) {
-                val task = tasks[taskIndex]
-                val updatedTask = task.copy(priority = newPriority.toString())
-                val updatedTasks = tasks.toMutableList()
-                updatedTasks[taskIndex] = updatedTask
-
-                val saveStatus = saveTasks(updatedTasks)
-                if (saveStatus == RESTAPI_OK) {
-                    println("Priorität der Aufgabe mit ID $taskId wurde erfolgreich auf $newPriority aktualisiert.")
-                    RESTAPI_OK
-                } else {
-                    RESTAPI_INTERNAL_SERVER_ERROR
-                }
-            } else {
-                println("Fehler: Keine Aufgabe mit ID $taskId gefunden.")
-                RESTAPI_NOT_FOUND
-            }
+            val updatedTasks = tasks.toMutableList()
+            updatedTasks.add(newTask)
+            saveTasks(updatedTasks)
+            println("Neue Aufgabe mit ID ${newTask.id} wurde erfolgreich hinzugefügt.")
+            RESTAPI_OK
         } catch (e: Exception) {
-            println("Fehler beim Aktualisieren der Priorität: ${e.message}")
+            println("Fehler beim Hinzufügen der Aufgabe: ${e.message}")
             RESTAPI_INTERNAL_SERVER_ERROR
         }
     }
-
-    fun updateTaskStatus(taskId: Int, newStatus: Int?): Int {
-        // Validierung des neuen Statuswerts
-        if (newStatus !in listOf(Constants.STATUS_DONE, Constants.STATUS_NOT_DONE, Constants.STATUS_IN_PROGRESS)) {
-            println("Fehler: Ungültiger Statuswert '$newStatus'. Erlaubte Werte: ${Constants.STATUS_DONE}, ${Constants.STATUS_NOT_DONE}, ${Constants.STATUS_IN_PROGRESS}.")
-            return Constants.RESTAPI_INTERNAL_SERVER_ERROR
-        }
-
-        return try {
-            val (tasks, status) = loadTasks()
-            if (status != Constants.RESTAPI_OK) {
-                return Constants.RESTAPI_INTERNAL_SERVER_ERROR
-            }
-
-            val taskIndex = tasks.indexOfFirst { it.id == taskId }
-            if (taskIndex != -1) {
-                val task = tasks[taskIndex]
-                val updatedTask = task.copy(status = when (newStatus) {
-                    Constants.STATUS_DONE -> "Erledigt"
-                    Constants.STATUS_NOT_DONE -> "Nicht erledigt"
-                    else -> "In Bearbeitung"
-                })
-                val updatedTasks = tasks.toMutableList()
-                updatedTasks[taskIndex] = updatedTask
-
-                val saveStatus = saveTasks(updatedTasks)
-                if (saveStatus == Constants.RESTAPI_OK) {
-                    println("Status der Aufgabe mit ID $taskId wurde erfolgreich aktualisiert.")
-                    Constants.RESTAPI_OK
-                } else {
-                    Constants.RESTAPI_INTERNAL_SERVER_ERROR
-                }
-            } else {
-                println("Fehler: Keine Aufgabe mit ID $taskId gefunden.")
-                Constants.RESTAPI_NOT_FOUND
-            }
-        } catch (e: Exception) {
-            println("Fehler beim Aktualisieren des Status: ${e.message}")
-            Constants.RESTAPI_INTERNAL_SERVER_ERROR
-        }
-    }
-
-
 
     private fun escapeField(field: String): String {
         return field.replace("\\", "\\\\").replace("|", "\\|").replace("\n", "\\n")
@@ -268,5 +170,4 @@ open class FileHandler {
     private fun unescapeField(field: String): String {
         return field.replace("\\n", "\n").replace("\\|", "|").replace("\\\\", "\\")
     }
-
 }
