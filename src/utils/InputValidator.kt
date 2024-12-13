@@ -9,11 +9,11 @@ object InputValidator {
      * @param priority Die zu prüfende Priorität.
      * @return `true`, wenn die Priorität gültig ist, sonst `false`.
      */
-    fun isValidPriority(priority: String): Boolean {
+    fun isValidPriority(priority: Enum<Priority>): Boolean {
         return priority in listOf(
-            Constants.PRIORITY_HIGH,
-            Constants.PRIORITY_MEDIUM,
-            Constants.PRIORITY_LOW
+            Priority.PRIORITY_HIGH,
+            Priority.PRIORITY_MEDIUM,
+            Priority.PRIORITY_LOW
         )
     }
 
@@ -29,5 +29,9 @@ object InputValidator {
         } catch (e: Exception) {
             false
         }
+    }
+
+    fun isValidStatus(status:String){
+
     }
 }

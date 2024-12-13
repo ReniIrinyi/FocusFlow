@@ -1,24 +1,56 @@
 @startuml
+hide circle
+left to right direction
+
+class FileHandler {
+    + updatedTask()
+    + updatedTasks()
+    + saveStatus()
+    + loadTasks()
+    }
+
+class Task {
+    + saveTasks(tasks: List<Task>): Int
+    + deleteTaskById(taskId: Int): Int
+    + updateTaskPriority(taskId: Int, newPriority: String): Int
+    + updateTaskStatus(taskId: Int, newStatus: Int?): Int
+    + escapeField(field: String): String
+    + unescapeField(field: String): String
+}
 class TaskService {
-    + tasks: 
+    + tasks: List<Task
     + init(): 
     + getAllTasks(): List<Task>
-class Task
     + getTask(taskId: Int): Task
     + updateTask(taskId: Int, updatedTask: Task): Task
     + addTask(task: Task): 
     + deleteTask(task: Task): 
 }
-class AddMenu {
-}
+
 class MainMenu {
+    + show():
+    + editTask(task: Task):
+    }
+class Application {
     + id: Int
-    + init(): 
-}
+    + taskService: TaskService
+    + start(primaryStage: Stage?):
+    }
+
 class ShowMenu {
-    + show(): 
-    + editTask(task: Task): 
-}
-TaskService --> Task
-ShowMenu --> Task
++ show():
+    + editTask(task: Task):
+    }
+    class AddMenu {
++ show():
+    + editTask(task: Task):
+    }
+
+
+Application <|-- MainMenu
+FileHandler <|-TaskService
+MainMenu <|-- TaskService
+MainMenu <--ShowMenu
+MainMenu <-AddMenu
+
 @enduml

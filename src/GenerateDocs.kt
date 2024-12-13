@@ -55,13 +55,15 @@ val primitiveTypes = setOf(
 fun createUmlContent(sourceDir: File): String {
     val umlContent = StringBuilder()
     umlContent.append("@startuml\n")
+    umlContent.append("hide circle\n")
+   // umlContent.append("left to right direction\n")
 
     val classNames = mutableSetOf<String>() // Store class names
     val inheritanceRelationships = mutableSetOf<Pair<String, String>>() // Inheritance relationships
     val otherRelationships = mutableSetOf<String>() // Other relationships
 
     val classDeclarationRegex = Regex(
-        """^\s*(?:public|private|protected|internal)?\s*(?:abstract\s+)?(class|data\s+class|object|interface)\s+(\w+)(?:\s*:\s*([^{]+))?\s*\{?""",
+        """^\s*(?:public|private|protected|internal)?\s*(?:abstract\s+)?(class|data\s+class|open class|object|interface)\s+(\w+)(?:\s*:\s*([^{]+))?\s*\{?""",
         RegexOption.MULTILINE
     )
 
@@ -74,6 +76,7 @@ fun createUmlContent(sourceDir: File): String {
                 val classType = classMatch.groupValues[1]
                 val className = classMatch.groupValues[2]
                 val inheritanceList = classMatch.groupValues[3]
+                println(inheritanceList)
                 val classBody = extractClassBody(fileContent.substring(classMatch.range.first))
 
                 if (!classNames.contains(className)) {

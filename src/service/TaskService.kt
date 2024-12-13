@@ -1,7 +1,6 @@
 package service
 
 import model.Task
-import utils.FileHandler
 
 /**
  * Diese Klasse verwaltet die Geschäftslogik der Aufgaben.

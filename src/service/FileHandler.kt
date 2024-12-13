@@ -1,9 +1,11 @@
-package utils
+package service
 
 import model.Task
+import utils.Constants
 import utils.Constants.RESTAPI_INTERNAL_SERVER_ERROR
 import utils.Constants.RESTAPI_NOT_FOUND
 import utils.Constants.RESTAPI_OK
+import utils.Priority
 import java.io.File
 import java.time.LocalDateTime
 
@@ -44,7 +46,6 @@ open class FileHandler {
 
                 val id = tokens[0].toInt()
                 val title = unescapeField(tokens[1])
-                val priority = unescapeField(tokens[2])
                 val createdAt = LocalDateTime.parse(tokens[3])
                 val updatedAt = LocalDateTime.parse(tokens[4])
                 val deadline = tokens[5].takeIf { it.isNotEmpty() }?.let { LocalDateTime.parse(it) }
@@ -55,6 +56,13 @@ open class FileHandler {
                     "0" -> "In Bearbeitung"
                     "" -> "Nicht erledigt" // null wird als Nicht erledigt interpretiert
                     else -> "In Bearbeitung" // Fallback
+                }
+
+                val priority = when(tokens[2]){
+                    Priority.PRIORITY_HIGH.toString() -> "Hohe Priorität"
+                    Priority.PRIORITY_LOW.toString() -> "Niedrige Priorität"
+                    Priority.PRIORITY_MEDIUM.toString() -> "Mittlere Priorität"
+                    else -> "Keine Priorität"
                 }
 
                 Task(
@@ -99,7 +107,7 @@ open class FileHandler {
                     else -> ""
                 }
 
-                "${task.id}|${escapeField(task.title)}|${escapeField(task.priority)}|${task.createdAt}|${task.updatedAt}|${task.deadline ?: ""}|$statusValue"
+                "${task.id}|${escapeField(task.title)}|${escapeField(task.priority.toString())}|${task.createdAt}|${task.updatedAt}|${task.deadline ?: ""}|$statusValue"
             }
 
             file.writeText(lines.joinToString("\n"))
@@ -107,6 +115,21 @@ open class FileHandler {
         } catch (e: Exception) {
             println("Fehler beim Speichern der Aufgaben: ${e.message}")
             Constants.RESTAPI_INTERNAL_SERVER_ERROR
+        }
+    }
+
+    fun updateTask(taskId:Int): Any {
+        return try {
+            val (tasks, status) = loadTasks();
+            val taskToUpdate = tasks.find {it.id===taskId};
+            if(taskToUpdate != null){
+                return Constants.RESTAPI_NOT_FOUND;
+            } else {
+
+            }
+
+        } catch (e:Exception){
+
         }
     }
 
@@ -159,9 +182,9 @@ open class FileHandler {
      * @param newPriority Die neue Priorität für die Aufgabe.
      * @return 200 bei Erfolg, 404 wenn keine Aufgabe gefunden wurde, 400 bei ungültiger Priorität oder Fehler.
      */
-    fun updateTaskPriority(taskId: Int, newPriority: String): Int {
-        if (newPriority !in listOf(Constants.PRIORITY_HIGH, Constants.PRIORITY_MEDIUM, Constants.PRIORITY_LOW)) {
-            println("Fehler: Ungültiger Prioritätswert '$newPriority'. Erlaubte Werte: ${Constants.PRIORITY_HIGH}, ${Constants.PRIORITY_MEDIUM}, ${Constants.PRIORITY_LOW}.")
+    fun updateTaskPriority(taskId: Int, newPriority: Enum<Priority>): Int {
+        if (newPriority !in listOf(Priority.PRIORITY_HIGH, Priority.PRIORITY_MEDIUM, Priority.PRIORITY_LOW)) {
+            println("Fehler: Ungültiger Prioritätswert '$newPriority'. Erlaubte Werte: ${Priority.PRIORITY_HIGH}, ${Priority.PRIORITY_MEDIUM}, ${Priority.PRIORITY_LOW}.")
             return RESTAPI_INTERNAL_SERVER_ERROR
         }
 
@@ -174,7 +197,7 @@ open class FileHandler {
             val taskIndex = tasks.indexOfFirst { it.id == taskId }
             if (taskIndex != -1) {
                 val task = tasks[taskIndex]
-                val updatedTask = task.copy(priority = newPriority)
+                val updatedTask = task.copy(priority = newPriority.toString())
                 val updatedTasks = tasks.toMutableList()
                 updatedTasks[taskIndex] = updatedTask
 

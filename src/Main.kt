@@ -1,9 +1,9 @@
 import javafx.application.Application
 import model.Task
-import service.TaskService
+import service.FileHandler
 import ui.main.MainMenu
 import utils.Constants
-import utils.FileHandler
+import utils.Priority
 import java.time.LocalDateTime
 
 /**
@@ -16,12 +16,12 @@ import java.time.LocalDateTime
 fun main() {
 
     ///////////////////////test FileHandler////////////////////////////////
-      /*val fileHandler = FileHandler()
+      val fileHandler = FileHandler()
         val tasks = listOf(
         Task(
             id = Task.generateId(),
             title = "Projektplan aktualisieren",
-            priority = Constants.PRIORITY_HIGH,
+            priority = "PRIORITY_HIGH",
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
             deadline = LocalDateTime.now().plusDays(5),
@@ -30,7 +30,7 @@ fun main() {
         Task(
             id = Task.generateId(),
             title = "Teammeeting vorbereiten",
-            priority = Constants.PRIORITY_MEDIUM,
+            priority = "PRIORITY_MEDIUM",
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
             deadline = LocalDateTime.now().plusDays(2),
@@ -39,7 +39,7 @@ fun main() {
         Task(
             id = Task.generateId(),
             title = "Bericht schreiben",
-            priority = Constants.PRIORITY_LOW,
+            priority = "",
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
             deadline = null, // Keine Deadline
@@ -47,7 +47,7 @@ fun main() {
         )
     )
         fileHandler.saveTasks(tasks)
-    fileHandler.loadTasks()*/
+    fileHandler.loadTasks()
     ///////////////////////////////////////////////////////////////////////
     Application.launch(MainMenu::class.java)
 }

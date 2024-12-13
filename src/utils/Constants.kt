@@ -8,15 +8,10 @@ package utils
 object Constants {
     const val TASKS_FILE_NAME = "tasks.txt" // Der Standard-Dateiname für die Aufgabenliste.
 
-    // Prioritätswerte
-    const val PRIORITY_HIGH = "Hoch"        // Prioritätswert: Hoch
-    const val PRIORITY_MEDIUM = "Mittel"    // Prioritätswert: Mittel
-    const val PRIORITY_LOW = "Niedrig"      // Prioritätswert: Niedrig
-
     // Statuswerte
     val STATUS_NOT_DONE = null  // Nicht erledigt (Standardwert)
     const val STATUS_DONE = 1            // Erledigt
-    const val STATUS_IN_PROGRESS=0 // In Bearbeitung
+    const val STATUS_IN_PROGRESS = 0 // In Bearbeitung
 
     // HTTP-ähnliche Statuscodes
     const val RESTAPI_OK = 200 // status response ok

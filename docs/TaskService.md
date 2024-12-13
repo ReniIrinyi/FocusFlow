@@ -10,17 +10,14 @@ Diese Klasse verwaltet die Geschäftslogik der Aufgaben.
 - Löschen von Aufgaben
 
 
+Konstruktor, der automatisch alle gespeicherten Aufgaben lädt.
+
+
 Initialisiert den TaskService und lädt alle gespeicherten Aufgaben.
-TODO:
-1. Verwende `fileHandler.loadTasks()`, um die gespeicherten Aufgaben zu laden.
-2. Füge die geladenen Aufgaben der lokalen `tasks`-Liste hinzu.
+Diese Methode wird im Konstruktor automatisch aufgerufen.
 
 
 Gibt alle vorhandenen Aufgaben zurück.
-TODO @reni:
-1. Gib die `tasks`-Liste zurück.
-2. Stelle sicher, dass die Liste unverändert bleibt (immutable Rückgabe).
-
 @return Liste aller Aufgaben (List<Task>).
 
 
@@ -63,6 +60,16 @@ TODO @alex:
 3. Wenn die Aufgabe nicht gefunden wird, Errormeldung.
 
 @param task Die Aufgabe, die gelöscht werden soll.
+
+
+Behandelt die Rückgabewerte des FileHandler und gibt eine Erfolgsmeldung aus.
+Bei Erfolg wird die übergebene `onSuccess`-Aktion ausgeführt.
+
+@param status Der Statuscode vom FileHandler.
+@param successMessage Die Nachricht, die bei Erfolg ausgegeben werden soll.
+@param failureMessage Die Nachricht, die bei einem Fehler ausgegeben werden soll.
+@param onSuccess Eine optionale Aktion, die bei Erfolg ausgeführt werden soll.
+@return Boolean, ob die Operation erfolgreich war.
 
 
 ---

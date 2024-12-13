@@ -1,5 +1,6 @@
 package model
 
+import utils.Priority
 import java.time.LocalDateTime
 
 data class Task (
