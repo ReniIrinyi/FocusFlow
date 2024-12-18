@@ -1,0 +1,43 @@
+.root {
+    -fx-background-color: #FDF8E3; /* Haupt-Hintergrundfarbe */
+}
+
+.pane-background {
+    -fx-background-color: #FFFFFF;
+}
+
+
+.current-time-pointer {
+    -fx-fill: dodgerblue;
+    -fx-label-padding: 12;
+    -fx-translate-z: -15;
+}
+
+.past-time-line {
+    -fx-stroke: gray;
+    -fx-stroke-width: 6; 
+}
+
+.future-time-line {
+    -fx-stroke: dodgerblue;
+    -fx-stroke-width: 6;
+}
+
+
+
+.task-block {
+    -fx-background-color: #90CAF9; /* Blau für Aufgaben-Block */
+    -fx-border-color: #1976D2;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 5px;
+    -fx-text-fill: #FFFFFF; /* Weiße Schrift */
+}
+
+.task-label {
+    -fx-font-size: 12px;
+    -fx-background-color: #BBDEFB;
+    -fx-padding: 5px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}

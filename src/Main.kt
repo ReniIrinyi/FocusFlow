@@ -5,6 +5,7 @@ import ui.main.MainMenu
 import utils.Constants
 import utils.Priority
 import java.time.LocalDateTime
+import java.time.LocalTime
 
 /**
  * Einstiegspunkt der Anwendung.
@@ -25,7 +26,9 @@ fun main() {
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
             deadline = LocalDateTime.now().plusDays(5),
-            status = Constants.STATUS_DONE.toString() // Erledigt
+            status = Constants.STATUS_DONE.toString(),
+            startTime = LocalTime.of(17, 0),
+            endTime = LocalTime.of(21, 0)
         ),
         Task(
             id = Task.generateId(),
@@ -34,7 +37,9 @@ fun main() {
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
             deadline = LocalDateTime.now().plusDays(2),
-            status = Constants.STATUS_IN_PROGRESS.toString() // In Bearbeitung
+            status = Constants.STATUS_IN_PROGRESS.toString(),
+            startTime = LocalTime.of(16, 0),
+            endTime = LocalTime.of(17, 0)
         ),
         Task(
             id = Task.generateId(),
@@ -43,7 +48,9 @@ fun main() {
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
             deadline = null, // Keine Deadline
-            status = Constants.STATUS_NOT_DONE.toString() // Nicht erledigt
+            status = Constants.STATUS_NOT_DONE.toString(),
+            startTime = LocalTime.of(19, 0),
+            endTime = LocalTime.of(21, 0)
         )
     )
         fileHandler.saveTasks(tasks)

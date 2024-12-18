@@ -2,6 +2,7 @@ package model
 
 import utils.Priority
 import java.time.LocalDateTime
+import java.time.LocalTime
 
 data class Task (
     val id: Int,                        // Unique identifier
@@ -9,6 +10,8 @@ data class Task (
     val priority: String,               // Priority (High, Medium, Low)
     val createdAt: LocalDateTime,       // Creation date and time
     var updatedAt: LocalDateTime,       // Last updated date and time
+    val startTime: LocalTime?,        // Start Time
+    val endTime: LocalTime?,        // End Time
     val deadline: LocalDateTime?,        // Due date
     var status: String                  // Status (Created, In Progress, Completed)
 ) {

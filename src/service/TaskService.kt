@@ -73,9 +73,9 @@ class TaskService(): FileHandler() {
      * @param updatedTask Neue Daten für die Aufgabe (Task).
      * @return Die aktualisierte Aufgabe (Task).
      */
-    fun updateTask(taskId: Int, updatedData: Task): Task {
-        return {} as Task
-    }
+    fun add(newTask: Task) {
+      var status = addTask(newTask)
+  }
 
     /**
      * Fügt eine neue Aufgabe hinzu.
@@ -85,8 +85,9 @@ class TaskService(): FileHandler() {
      *
      * @param task Die neue Aufgabe, die hinzugefügt werden soll.
      */
-    fun addTask(task: Task) {
-    }
+   fun update(taskId: Int, updatedTask: Task) {
+     var status =  updateTask(taskId,updatedTask)
+   }
 
     /**
      * Löscht eine Aufgabe.
@@ -98,7 +99,13 @@ class TaskService(): FileHandler() {
      *
      * @param task Die Aufgabe, die gelöscht werden soll.
      */
-    fun deleteTask(task: Task) {
+    fun delete(taskId:Int) {
+        var status = deleteTaskById(taskId)
+        handleFileHandlerResponse(status,"", "",
+            {
+            println("onSucess")
+        }
+        )
     }
 
     /**

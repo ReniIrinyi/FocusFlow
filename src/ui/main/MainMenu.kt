@@ -9,6 +9,7 @@ import javafx.stage.Stage
 import model.Task
 import service.FileHandler
 import service.TaskService
+import ui.timeline.TimeLineMenu
 
 /**
  * Der Einstiegspunkt der Anwendung.
@@ -22,9 +23,9 @@ class MainMenu: Application() {
     val id:Int = 0
     override fun start(primaryStage: Stage) {
         val taskService:TaskService = TaskService()
-        val btn=Button("Test").apply {
+        val btn=Button("Zeitachse").apply {
             setOnAction{
-                taskService.updateTask(1)
+                openZeitachse(taskService.getAllTasks())
             }
         }
         println("here")
@@ -34,11 +35,13 @@ class MainMenu: Application() {
         var scene = Scene(main, 800.0, 600.0)
         primaryStage.setScene(scene)
         primaryStage.show()
-
-
-
-
         println("app läuft...")
+    }
+
+    fun openZeitachse(tasks: List<Task>) {
+        val stage = Stage()
+        val zeitachse = TimeLineMenu()
+        zeitachse.start(stage, tasks)
     }
 
 }
