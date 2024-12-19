@@ -9,6 +9,7 @@ import javafx.stage.Stage
 import model.Task
 import service.FileHandler
 import service.TaskService
+import ui.add.AddMenu
 import ui.timeline.TimeLineMenu
 
 /**
@@ -23,19 +24,30 @@ class MainMenu: Application() {
     val id:Int = 0
     override fun start(primaryStage: Stage) {
         val taskService:TaskService = TaskService()
-        val btn=Button("Zeitachse").apply {
+        val timelineButton=Button("Zeitachse").apply {
             setOnAction{
                 openZeitachse(taskService.getAllTasks())
             }
         }
+
+        val uploadButton=Button("Add Menü").apply { setOnAction{
+            openAddMenu(taskService)
+        } }
+
         println("here")
         primaryStage.title="FocusFlow"
-        var main = Group()
-        main.getChildren().add( btn)
-        var scene = Scene(main, 800.0, 600.0)
+        val layout = VBox(20.0, uploadButton, timelineButton).apply {
+            spacing = 20.0
+        }
+        val scene = Scene(layout, 800.0, 600.0)
         primaryStage.setScene(scene)
         primaryStage.show()
         println("app läuft...")
+    }
+
+    fun openAddMenu(taskService: TaskService){
+        val addMenu = AddMenu()
+        addMenu.openUploadMenu(taskService)
     }
 
     fun openZeitachse(tasks: List<Task>) {

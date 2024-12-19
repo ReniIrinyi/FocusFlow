@@ -13,8 +13,11 @@ data class Task (
     val startTime: LocalTime?,        // Start Time
     val endTime: LocalTime?,        // End Time
     val deadline: LocalDateTime?,        // Due date
-    var status: String                  // Status (Created, In Progress, Completed)
+    var status: String,
+    val imageBase64: String
+// Status (Created, In Progress, Completed)
 ) {
+
     companion object {
         var currentId: Int = 0
 

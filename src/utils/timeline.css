@@ -15,7 +15,7 @@
 
 .past-time-line {
     -fx-stroke: gray;
-    -fx-stroke-width: 6; 
+    -fx-stroke-width: 6;
 }
 
 .future-time-line {

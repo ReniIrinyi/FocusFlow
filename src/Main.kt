@@ -17,7 +17,7 @@ import java.time.LocalTime
 fun main() {
 
     ///////////////////////test FileHandler////////////////////////////////
-      val fileHandler = FileHandler()
+      /*val fileHandler = FileHandler()
         val tasks = listOf(
         Task(
             id = Task.generateId(),
@@ -28,7 +28,8 @@ fun main() {
             deadline = LocalDateTime.now().plusDays(5),
             status = Constants.STATUS_DONE.toString(),
             startTime = LocalTime.of(17, 0),
-            endTime = LocalTime.of(21, 0)
+            endTime = LocalTime.of(21, 0),
+
         ),
         Task(
             id = Task.generateId(),
@@ -50,11 +51,11 @@ fun main() {
             deadline = null, // Keine Deadline
             status = Constants.STATUS_NOT_DONE.toString(),
             startTime = LocalTime.of(19, 0),
-            endTime = LocalTime.of(21, 0)
+            endTime = LocalTime.of(23, 0)
         )
     )
         fileHandler.saveTasks(tasks)
-    fileHandler.loadTasks()
+    fileHandler.loadTasks()*/
     ///////////////////////////////////////////////////////////////////////
     Application.launch(MainMenu::class.java)
 }

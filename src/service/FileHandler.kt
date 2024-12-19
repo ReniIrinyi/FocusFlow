@@ -49,8 +49,9 @@ open class FileHandler:TaskStorageInterface {
                 val createdAt = LocalDateTime.parse(tokens[3])
                 val updatedAt = LocalDateTime.parse(tokens[4])
                 val deadline = tokens[5].takeIf { it.isNotEmpty() }?.let { LocalDateTime.parse(it) }
-                val startTime = tokens.getOrNull(7)?.takeIf { it.isNotEmpty() }?.let { LocalTime.parse(it) } ?: LocalTime.MIN
-                val endTime = tokens.getOrNull(8)?.takeIf { it.isNotEmpty() }?.let { LocalTime.parse(it) } ?: LocalTime.MAX
+                val startTime = tokens.getOrNull(7)?.trim()?.takeIf { it.isNotEmpty() }?.let { LocalTime.parse(it) } ?: LocalTime.MIN
+                val endTime = tokens.getOrNull(8)?.trim()?.takeIf { it.isNotEmpty() }?.let { LocalTime.parse(it) } ?: LocalTime.MAX
+                val imageBase64 = tokens.getOrNull(9)?.takeIf { it.isNotEmpty() }
 
                 // Status aus Zahl laden
                 val status = when (tokens[6]) {
@@ -75,7 +76,9 @@ open class FileHandler:TaskStorageInterface {
                     deadline = deadline,
                     status = status,
                     startTime = startTime,
-                    endTime = endTime
+                    endTime = endTime,
+                    imageBase64 = (imageBase64).toString()
+
                 )
             }
             println(tasks.toString())
@@ -116,9 +119,11 @@ open class FileHandler:TaskStorageInterface {
                         "${task.deadline ?: ""}|" +
                         "$statusValue|" +
                         "${task.startTime}|" +
-                        "${task.endTime}"
+                        "${task.endTime} |" +
+                                task.imageBase64
             }
 
+            println(lines)
             file.writeText(lines.joinToString("\n"))
             Constants.RESTAPI_OK
         } catch (e: Exception) {
@@ -307,4 +312,5 @@ open class FileHandler:TaskStorageInterface {
     private fun unescapeField(field: String): String {
         return field.replace("\\n", "\n").replace("\\|", "|").replace("\\\\", "\\")
     }
+
 }

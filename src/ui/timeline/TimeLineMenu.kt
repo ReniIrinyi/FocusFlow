@@ -8,6 +8,8 @@ import javafx.scene.Scene
 import javafx.stage.Stage
 import model.Task
 import javafx.scene.control.Label
+import javafx.scene.image.Image
+import javafx.scene.image.ImageView
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
 import javafx.scene.shape.Circle
@@ -15,8 +17,10 @@ import javafx.scene.shape.Line
 import javafx.scene.shape.Polygon
 import javafx.scene.text.Font
 import javafx.util.Duration
+import java.io.ByteArrayInputStream
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 class TimeLineMenu {
 
@@ -153,6 +157,11 @@ class TimeLineMenu {
         }
     }
 
+    fun decodeBase64ToImage(base64String: String): Image {
+        val imageBytes = Base64.getDecoder().decode(base64String)
+        return Image(ByteArrayInputStream(imageBytes))
+    }
+
     private fun drawTasks(tasks: List<Task>) {
         val taskSpacing = 20.0
         val taskWidth = 180.0
@@ -166,6 +175,14 @@ class TimeLineMenu {
             val endY = calculateTimePosition(task.endTime ?: LocalTime.now(), 800.0)
             val taskHeight = endY - startY
 
+            val taskImage = task.imageBase64?.let { decodeBase64ToImage(it) }
+            val imageView = taskImage?.let {
+                ImageView(it).apply {
+                    fitWidth = taskWidth - 20
+                    isPreserveRatio = true
+                }
+            }
+
             var currentX = if (placeOnLeft) centerX - taskSpacing - taskWidth else centerX + 70
             while (placedTasks.any { (x, y) ->
                     x == currentX && y in startY..endY
@@ -174,12 +191,18 @@ class TimeLineMenu {
                 placeOnLeft = !placeOnLeft
             }
 
+            val isPastTask = task.endTime?.isBefore(LocalTime.now()) ?: false
+            val backgroundColor = if (isPastTask) "#B0BEC5" else "#90CAF9"
+
             val taskBlock = VBox().apply {
                 layoutX = currentX
                 layoutY = startY
                 prefWidth = taskWidth
                 prefHeight = taskHeight
-                style = "-fx-background-color: #BBDEFB; -fx-border-color: #1976D2; -fx-border-radius: 5px; -fx-padding: 5px;"
+                style = "-fx-background-color: $backgroundColor; -fx-border-color: #1976D2; -fx-border-radius: 5px; -fx-padding: 5px;"
+                if (imageView != null) {
+                    children.add(imageView)
+                }
                 children.addAll(
                     Label(task.title).apply { font = Font.font(14.0) },
                     Label("${task.startTime} - ${task.endTime}").apply { font = Font.font(12.0) }

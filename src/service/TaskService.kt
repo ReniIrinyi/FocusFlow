@@ -1,6 +1,7 @@
 package service
 
 import model.Task
+import utils.ImgHandler
 
 /**
  * Diese Klasse verwaltet die Geschäftslogik der Aufgaben.
@@ -13,6 +14,7 @@ import model.Task
  */
 class TaskService(): FileHandler() {
 
+    private val imgHandler = ImgHandler()
     private val tasks = mutableListOf<Task>() // Lokale Liste der Aufgaben.
 
     /**
@@ -133,4 +135,15 @@ class TaskService(): FileHandler() {
             false
         }
     }
+
+     fun decodeBase64ToImage(base64String: String): String {
+        TODO("Not yet implemented")
+    }
+
+     fun encodeImageToBase64(absolutePath: String): String {
+        val imgHandler = ImgHandler()
+       return imgHandler.encodeImageToBase64(absolutePath)
+
+    }
+
 }
