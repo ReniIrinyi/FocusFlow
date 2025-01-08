@@ -23,6 +23,7 @@ Gibt alle vorhandenen Aufgaben zurück.
 
 Gibt die Aufgabe mit der übergebenen ID zurück.
 TODO @david:
+//alle aufgaben laden
 1. Suche die Aufgabe in der `tasks`-Liste, deren ID mit `taskId` übereinstimmt.
 2. Wenn die Aufgabe gefunden wird, gib sie zurück.
 3. Wenn keine Aufgabe gefunden wird, Errormeldung.

@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="fuel-3.0.0-alpha04">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../../../java/fuel/fuel-3.0.0-alpha04.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

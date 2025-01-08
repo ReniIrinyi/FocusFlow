@@ -10,12 +10,11 @@ data class Task (
     val priority: String,               // Priority (High, Medium, Low)
     val createdAt: LocalDateTime,       // Creation date and time
     var updatedAt: LocalDateTime,       // Last updated date and time
-    val startTime: LocalTime?,        // Start Time
-    val endTime: LocalTime?,        // End Time
+    val startTime: LocalDateTime?,  // NEM LocalTime
+    val endTime: LocalDateTime?,    // NEM LocalTime    // End Time
     val deadline: LocalDateTime?,        // Due date
     var status: String,
-    val imageBase64: String
-// Status (Created, In Progress, Completed)
+    val imageBase64: String,
 ) {
 
     companion object {

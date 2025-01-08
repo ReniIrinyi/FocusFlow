@@ -2,228 +2,210 @@ package ui.timeline
 
 import javafx.animation.KeyFrame
 import javafx.animation.Timeline
+import javafx.event.EventHandler
 import javafx.geometry.Insets
-import javafx.geometry.Pos
-import javafx.scene.Scene
-import javafx.stage.Stage
-import model.Task
 import javafx.scene.control.Label
+import javafx.scene.control.ScrollPane
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
-import javafx.scene.shape.Circle
 import javafx.scene.shape.Line
 import javafx.scene.shape.Polygon
+import javafx.scene.shape.Rectangle
 import javafx.scene.text.Font
 import javafx.util.Duration
+import model.Task
 import java.io.ByteArrayInputStream
-import java.time.LocalTime
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 class TimeLineMenu {
 
     private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-    private val timeline = Timeline()
-    private val centerPane = Pane()
+    private val timelineContent = Pane()
+    private val scrollPane = ScrollPane(timelineContent)
+    private val nowPointer = Polygon(-7.0, -12.0,
+        7.0, -12.0,
+        0.0,  0.0).apply { fill = Color.RED }
 
-    fun start(stage: Stage, tasks: List<Task>) {
-        val root = BorderPane()
-        root.style = "-fx-background-color: #FDF8E3;"
+    private var windowStart = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0)
+    private var windowEnd = LocalDateTime.now().withHour(23).withMinute(59).withSecond(59).withNano(0)
 
-        drawTimeLine(centerPane)
 
-        val currentTimeLine = Line().apply {
-            startX = 700.0
-            endX =50.0
-            strokeWidth = 2.0
-        }
-        centerPane.children.add(currentTimeLine)
+    private val pxPerMinute = 3.0
+    private var totalHeight = 0.0
+
+    fun createView(tasks: List<Task>): Pane {
+        scrollPane.isPannable = true
+        scrollPane.hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
+        scrollPane.vbarPolicy = ScrollPane.ScrollBarPolicy.ALWAYS
+        scrollPane.style = "-fx-background-color: #FDF8E3;"
+        scrollPane.setFitToWidth(true)
+        scrollPane.setFitToHeight(false)
 
         drawTimeMarkers()
-
         drawTasks(tasks)
 
-        timeline.cycleCount = Timeline.INDEFINITE
-       /* timeline.keyFrames.add(KeyFrame(Duration.seconds(1.0), {
-            val now = LocalTime.now()
-            val paneHeight = centerPane.height
-            val position = calculateTimePosition(now, paneHeight)
+        timelineContent.children.addAll(nowPointer)
 
-            currentTimeLine.startY = position
-            currentTimeLine.endY = position
-            currentTimeLine.toFront()
-        }))*/
+        initTimeUpdater()
+        initAutoScrollToCurrentTime()
 
-        timeline.play()
+        val header = TimeLineHeader()
 
-        root.center = centerPane
-        val scene = Scene(root, 1200.0, 800.0)
-        val css = javaClass.getResource("/utils/timeline.css")?.toExternalForm()
-        if (css != null) {
-            scene.stylesheets.add(css)
-            println("CSS found: $css")
-        } else {
-            println("CSS not found!")
+        val root = VBox(header,scrollPane).apply {
+            setPrefSize(800.0, 600.0)
+            spacing = 10.0
+            padding = Insets(0.00,0.00,10.00,0.00)
         }
-
-
-        stage.title = "Zeitachse - Aufgaben"
-        stage.scene = scene
-        stage.show()
+        return root
     }
 
-    private fun drawTimeLine(centerPane: Pane) {
-        val centerX = 600.0
-        val startHour = 12
-        val endHour = 23
+    private fun initAutoScrollToCurrentTime() {
+        val now = LocalDateTime.now()
+        val diffMin = ChronoUnit.MINUTES.between(windowStart, now).toDouble()
+        val currentPos = diffMin * pxPerMinute
 
-        val pastTimeLine = Line().apply {
-            startX = centerX
-            endX = centerX
-            startY = 0.0
-            endY = 0.0
-            styleClass.add("past-time-line")
-        }
+        val scrollPosition = (currentPos / totalHeight).coerceIn(0.0, 1.0)
 
-        val futureTimeLine = Line().apply {
-            startX = centerX
-            endX = centerX
-            startY = 0.0
-            endY = centerPane.height
-            styleClass.add("future-time-line")
-
-        }
-
-        val currentTimePointer = Polygon().apply {
-            points.addAll(
-                centerX - 7.0, 0.0,
-                centerX + 7.0, 0.0,
-                centerX, 12.0
-            )
-            styleClass.add("current-time-pointer")
-        }
-
-        futureTimeLine.toFront()
-        currentTimePointer.toFront()
-        centerPane.children.addAll(pastTimeLine, futureTimeLine, currentTimePointer)
-
-        timeline.cycleCount = Timeline.INDEFINITE
-        timeline.keyFrames.add(KeyFrame(Duration.seconds(1.0), {
-            val now = LocalTime.now()
-            val paneHeight = centerPane.height
-            val totalMinutes = (endHour - startHour) * 60.0
-            val elapsedMinutes = ((now.hour - startHour) * 60) + now.minute
-            val currentPosition = (elapsedMinutes / totalMinutes) * paneHeight
-
-            pastTimeLine.endY = currentPosition
-            futureTimeLine.startY = currentPosition
-            futureTimeLine.endY = paneHeight
-
-            currentTimePointer.translateY = currentPosition
-        }))
-
-        timeline.play()
+        scrollPane.vvalue = scrollPosition
     }
 
 
+    /**
+     * Zeichnet die Halbstunden-Markierungen und legt die Größe des timelineContent fest.
+     */
     private fun drawTimeMarkers() {
-        val startHour = 12
-        val endHour = 23
-        val paneHeight = 800.0
+        val totalMinutes = ChronoUnit.MINUTES.between(windowStart, windowEnd).toDouble()
+        totalHeight = totalMinutes * pxPerMinute
 
-        for (hour in startHour..endHour) {
-            for (minute in 0..59) {
-                val time = LocalTime.of(hour, minute)
-                val yPos = calculateTimePosition(time, paneHeight)
+        timelineContent.prefWidth = 600.0
+        timelineContent.prefHeight = totalHeight
 
-                val dotSize = if (minute % 30 == 0) 2.0 else 0.0
-                val dot = Circle(600.0, yPos, dotSize).apply {
-                    fill = if (minute % 30 == 0) Color.WHITE else null
-                }
+        val centerX = 300.0
 
-                if (minute % 30 == 0) {
-                    val timeLabel = Label(time.format(timeFormatter)).apply {
-                        font = Font.font(14.0)
-                        layoutX = 620.0
-                        layoutY = yPos - 10.0
-                    }
-                    centerPane.children.addAll(dot, timeLabel)
-                } else {
-                    centerPane.children.add(dot)
-                }
-            }
+        val pastLine = Rectangle(centerX - 5, 0.0, 10.0, totalHeight).apply {
+            fill = Color.LIGHTGRAY
+            arcWidth = 10.0
+            arcHeight = 10.0
         }
+        timelineContent.children.add(pastLine)
+
+        val futureLine = Rectangle(centerX - 5, 0.0, 10.0, 0.0).apply {
+            fill = Color.ORANGE
+            arcWidth = 10.0
+            arcHeight = 10.0
+        }
+        timelineContent.children.add(futureLine)
+
+        var current = windowStart
+        while (!current.isAfter(windowEnd)) {
+            val diffMin = ChronoUnit.MINUTES.between(windowStart, current).toDouble()
+            val yPos = diffMin * pxPerMinute
+
+            val timeLabel = Label(current.format(timeFormatter)).apply {
+                layoutX = centerX + 20
+                layoutY = yPos - 10
+                font = Font.font(14.0)
+            }
+            timelineContent.children.add(timeLabel)
+
+            current = current.plusMinutes(30)
+        }
+
+        val timeline = Timeline(
+            KeyFrame(Duration.seconds(1.0), EventHandler {
+                val now = LocalDateTime.now()
+                val diffMin = ChronoUnit.MINUTES.between(windowStart, now).toDouble()
+                val currentPos = diffMin * pxPerMinute
+
+                futureLine.height = totalHeight - currentPos
+                futureLine.layoutY = currentPos
+            })
+        )
+        timeline.cycleCount = Timeline.INDEFINITE
+        timeline.play()
     }
 
-    fun decodeBase64ToImage(base64String: String): Image {
-        val imageBytes = Base64.getDecoder().decode(base64String)
-        return Image(ByteArrayInputStream(imageBytes))
-    }
+
 
     private fun drawTasks(tasks: List<Task>) {
-        val taskSpacing = 20.0
+        val centerX = 300.0
         val taskWidth = 180.0
-        val centerX = 600.0
-        val horizontalOffset = 200.0
-        val placedTasks = mutableListOf<Pair<Double, Double>>()
+        val horizontalOffset = 50.0
         var placeOnLeft = true
+        tasks.forEach { println("Task: ${it.title}, Start: ${it.startTime}, End: ${it.endTime}") }
 
-        tasks.sortedBy { it.startTime }.forEach { task ->
-            val startY = calculateTimePosition(task.startTime ?: LocalTime.now(), 800.0)
-            val endY = calculateTimePosition(task.endTime ?: LocalTime.now(), 800.0)
-            val taskHeight = endY - startY
+        tasks.sortedBy { it.startTime }.forEach { t ->
+            val start = requireNotNull(t.startTime)
+            val end = requireNotNull(t.endTime)
 
-            val taskImage = task.imageBase64?.let { decodeBase64ToImage(it) }
-            val imageView = taskImage?.let {
-                ImageView(it).apply {
+            val startDiff = ChronoUnit.MINUTES.between(windowStart, start).toDouble()
+            val endDiff = ChronoUnit.MINUTES.between(windowStart, end).toDouble()
+
+            val startY = startDiff * pxPerMinute
+            val endY = endDiff * pxPerMinute
+            val height = (endY - startY).coerceAtLeast(30.0)
+
+            val isPast = (end < LocalDateTime.now())
+            val bgColor = if (isPast) "#B0BEC5" else "#90CAF9"
+
+            val imageView = t.imageBase64?.takeIf { it.isNotBlank() }?.let {
+                val bytes = Base64.getDecoder().decode(it)
+                ImageView(Image(ByteArrayInputStream(bytes))).apply {
                     fitWidth = taskWidth - 20
                     isPreserveRatio = true
                 }
             }
 
-            var currentX = if (placeOnLeft) centerX - taskSpacing - taskWidth else centerX + 70
-            while (placedTasks.any { (x, y) ->
-                    x == currentX && y in startY..endY
-                }) {
-                currentX = if (placeOnLeft) currentX - horizontalOffset else currentX + horizontalOffset
-                placeOnLeft = !placeOnLeft
-            }
-
-            val isPastTask = task.endTime?.isBefore(LocalTime.now()) ?: false
-            val backgroundColor = if (isPastTask) "#B0BEC5" else "#90CAF9"
-
-            val taskBlock = VBox().apply {
-                layoutX = currentX
+            val box = VBox().apply {
+                layoutX = if (placeOnLeft) (centerX - taskWidth - 20) else (centerX + 20 + horizontalOffset)
                 layoutY = startY
                 prefWidth = taskWidth
-                prefHeight = taskHeight
-                style = "-fx-background-color: $backgroundColor; -fx-border-color: #1976D2; -fx-border-radius: 5px; -fx-padding: 5px;"
-                if (imageView != null) {
-                    children.add(imageView)
-                }
+                prefHeight = height
+                style = """
+                -fx-background-color: $bgColor;
+                -fx-border-color: #1976D2;
+                -fx-border-radius: 5px;
+                -fx-padding: 5px;
+            """.trimIndent()
+
+                imageView?.let { children.add(it) }
                 children.addAll(
-                    Label(task.title).apply { font = Font.font(14.0) },
-                    Label("${task.startTime} - ${task.endTime}").apply { font = Font.font(12.0) }
+                    Label(t.title).apply { font = Font.font(14.0) },
+                    Label("${start.format(timeFormatter)} - ${end.format(timeFormatter)}")
+                        .apply { font = Font.font(12.0) }
                 )
             }
-
-            placedTasks.add(Pair(currentX, startY))
-
             placeOnLeft = !placeOnLeft
 
-            centerPane.children.add(taskBlock)
+            timelineContent.children.add(box)
         }
     }
 
 
-    private fun calculateTimePosition(time: LocalTime, paneHeight: Double): Double {
-        val startHour = 12
-        val endHour = 23
-        val totalMinutes = (endHour - startHour) * 60.0
-        val pixelsPerMinute = paneHeight / totalMinutes
-        val elapsedMinutes = ((time.hour - startHour) * 60) + time.minute
-        return elapsedMinutes * pixelsPerMinute
+    private fun initTimeUpdater() {
+        val nowLine = Line(295.0, 0.0, 305.0, 0.0).apply {
+            stroke = Color.BLUE
+            strokeWidth = 4.0
+        }
+        timelineContent.children.add(nowLine)
+
+        val timeline = Timeline(
+            KeyFrame(Duration.seconds(1.0), EventHandler {
+                val now = LocalDateTime.now()
+                val diffMin = ChronoUnit.MINUTES.between(windowStart, now).toDouble()
+                val currentPos = diffMin * pxPerMinute
+
+                nowLine.startY = currentPos
+                nowLine.endY = currentPos
+            })
+        )
+        timeline.cycleCount = Timeline.INDEFINITE
+        timeline.play()
     }
+
 }

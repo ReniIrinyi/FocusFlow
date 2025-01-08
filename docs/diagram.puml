@@ -1,56 +1,180 @@
 @startuml
 hide circle
-left to right direction
-
 class FileHandler {
-    + updatedTask()
-    + updatedTasks()
-    + saveStatus()
-    + loadTasks()
-    }
-
-class Task {
+class TaskStorageInterface
+    + filePath: 
+    + file: 
+    + tasks: 
+    + tokens: 
+    + id: 
+    + title: 
+    + createdAt: 
+    + updatedAt: 
+    + deadline: 
+    + startTime: 
+    + endTime: 
+    + imageBase64: 
+    + status: 
+    + priority: 
+    + file: 
+    + lines: 
+    + statusValue: 
+    + taskIndex: 
+    + updatedTasks: 
+    + updatedTasks: 
+    + taskToDelete: 
+    + updatedTasks: 
+    + saveStatus: 
+    + taskIndex: 
+    + task: 
+    + updatedTask: 
+    + updatedTasks: 
+    + saveStatus: 
+    + taskIndex: 
+    + task: 
+    + updatedTask: 
+    + updatedTasks: 
+    + saveStatus: 
+    + loadTasks(): Pair<List<Task>, Int>
+class Pair
+class Task
     + saveTasks(tasks: List<Task>): Int
+    + updateTask(taskId: Int, updatedData: Task): Int
+    + addTask(newTask: Task): Int
     + deleteTaskById(taskId: Int): Int
-    + updateTaskPriority(taskId: Int, newPriority: String): Int
+    + updateTaskPriority(taskId: Int, newPriority: Enum<Priority>): Int
+class Enum
+class Priority
     + updateTaskStatus(taskId: Int, newStatus: Int?): Int
     + escapeField(field: String): String
     + unescapeField(field: String): String
 }
 class TaskService {
-    + tasks: List<Task
+    + imgHandler: 
+    + tasks: 
+    + status: 
+    + status: 
+    + status: 
+    + imgHandler: 
     + init(): 
     + getAllTasks(): List<Task>
     + getTask(taskId: Int): Task
-    + updateTask(taskId: Int, updatedTask: Task): Task
-    + addTask(task: Task): 
-    + deleteTask(task: Task): 
+    + add(newTask: Task): 
+    + update(taskId: Int, updatedTask: Task): 
+    + delete(taskId:Int): 
+    + decodeBase64ToImage(base64String: String): String
+    + encodeImageToBase64(absolutePath: String): String
+
+}
+class UserService {
+    + file: 
+    + lines: 
+    + file: 
+    + users: 
+    + tokens: 
+    + saveUsers(users: List<User>): Int
+class User
+    + loadUsers(): Pair<List<User>, Int>
+    + authenticateUser(email: String?, password: String?): 
+    + generateUserId(): Int
+    + registerUser(newUser: User): Boolean
+}
+class AddMenu {
+    + stage: 
+    + fileChooser: 
+    + titleField: 
+    + priorityField: 
+    + startTimeField: 
+    + endTimeField: 
+    + timeFields: 
+    + deadlinePicker: 
+    + uploadButton: 
+    + selectedFileLabel: 
+    + selectedFile: File?
+
 }
 
-class MainMenu {
-    + show():
-    + editTask(task: Task):
-    }
-class Application {
-    + id: Int
-    + taskService: TaskService
-    + start(primaryStage: Stage?):
-    }
-
 class ShowMenu {
-+ show():
-    + editTask(task: Task):
-    }
-    class AddMenu {
-+ show():
-    + editTask(task: Task):
-    }
+    + show(): 
+    + editTask(task: Task): 
+}
+class TimeLineMenu {
+    + timeFormatter: 
+    + timeline: 
+    + centerPane: 
+    + root: 
+    + currentTimeLine: 
+    + now: 
+    + paneHeight: 
+    + position: 
+    + scene: 
+    + css: 
+    + centerX: 
+    + startHour: 
+    + endHour: 
+    + pastTimeLine: 
+    + futureTimeLine: 
+    + currentTimePointer: 
+    + now: 
+    + paneHeight: 
+    + totalMinutes: 
+    + elapsedMinutes: 
+    + currentPosition: 
+    + startHour: 
+    + endHour: 
+    + paneHeight: 
+    + time: 
+    + yPos: 
+    + dotSize: 
+    + dot: 
+    + timeLabel: 
+    + imageBytes: 
+    + taskSpacing: 
+    + taskWidth: 
+    + centerX: 
+    + horizontalOffset: 
+    + placedTasks: 
+    + placeOnLeft: 
+    + startY: 
+    + endY: 
+    + taskHeight: 
+    + taskImage: 
+    + imageView: 
+    + currentX: 
+    + isPastTask: 
+    + backgroundColor: 
+    + taskBlock: 
+    + startHour: 
+    + endHour: 
+    + totalMinutes: 
+    + pixelsPerMinute: 
+    + elapsedMinutes: 
+    + start(stage: Stage, tasks: List<Task>): 
+    + drawTimeLine(centerPane: Pane): 
+}
 
-
+TaskStorageInterface <|-- FileHandler
 Application <|-- MainMenu
-FileHandler <|-TaskService
-MainMenu <|-- TaskService
-MainMenu <--ShowMenu
-MainMenu <-AddMenu
-
+FileHandler --> Pair
+FileHandler --> Task
+FileHandler --> Enum
+FileHandler --> Priority
+TaskService --> Task
+TaskStorageInterface --> Pair
+TaskStorageInterface --> Task
+TaskStorageInterface --> Enum
+TaskStorageInterface --> Priority
+UserService --> User
+UserService --> Pair
+AddMenu --> File
+AddMenu --> TaskService
+MainMenu --> TaskService
+MainMenu --> Stage
+MainMenu --> Task
+ShowMenu --> Task
+TimeLineMenu --> Stage
+TimeLineMenu --> Task
+TimeLineMenu --> Pane
+TimeLineMenu --> Image
+TimeLineMenu --> LocalTime
 @enduml

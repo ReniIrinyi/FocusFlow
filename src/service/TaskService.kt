@@ -29,7 +29,7 @@ class TaskService(): FileHandler() {
      * Diese Methode wird im Konstruktor automatisch aufgerufen.
      */
     fun init() {
-        tasks.clear()
+      //  tasks.clear()
         val (loadedTasks, status) = loadTasks()
         handleFileHandlerResponse(
             status,
@@ -51,6 +51,7 @@ class TaskService(): FileHandler() {
     /**
      * Gibt die Aufgabe mit der übergebenen ID zurück.
      * TODO @david:
+     * //alle aufgaben laden
      * 1. Suche die Aufgabe in der `tasks`-Liste, deren ID mit `taskId` übereinstimmt.
      * 2. Wenn die Aufgabe gefunden wird, gib sie zurück.
      * 3. Wenn keine Aufgabe gefunden wird, Errormeldung.

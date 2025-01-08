@@ -1,7 +1,7 @@
 # Documentation: FileHandler
 
 
-Diese Klasse verwaltet das Speichern, Laden und löschen von Aufgaben aus einer Datei.
+Diese Klasse verwaltet das Speichern, Laden und Löschen von Aufgaben aus einer Datei.
 
 Ziel:
 - Persistente Speicherung der Aufgaben, auch nach Beenden der Anwendung.
@@ -11,19 +11,29 @@ Ziel:
 Funktionen:
 - `loadTasks()`: Liest die Aufgaben aus der Datei und gibt sie als Liste zurück.
 - `saveTasks(tasks)`: Speichert die übergebene Liste von Aufgaben in die Datei.
+- `updateTask(taskId, updatedData)`: Aktualisiert eine Aufgabe basierend auf der ID.
+- `addTask(newTask)`: Fügt eine neue Aufgabe hinzu.
 
-Hinweise:
-- Wenn die Datei nicht existiert, wird sie automatisch erstellt.
-- Falls die Datei leer ist, wird eine leere Liste zurückgegeben.
 
 
 Lädt alle Aufgaben aus der Datei.
-@return Eine Liste der gespeicherten Aufgaben (`List<Task>`) oder eine leere Liste bei Fehlern.
+@return Eine Liste der gespeicherten Aufgaben (`List<Task>`) oder eine leere Liste bei Fehlern, und der StatusCode.
 
 
 Speichert alle Aufgaben in der Datei.
 @param tasks Die Liste der Aufgaben, die gespeichert werden sollen.
 @return 200 bei Erfolg, 400 bei Fehler.
+
+
+Aktualisiert eine vorhandene Aufgabe basierend auf ihrer ID.
+@param taskId Die ID der zu aktualisierenden Aufgabe.
+@param updatedData Die neuen Daten für die Aufgabe.
+@return 200 bei Erfolg, 404 wenn keine Aufgabe gefunden wurde, 500 bei Fehler.
+
+
+Fügt eine neue Aufgabe hinzu.
+@param newTask Die neue Aufgabe, die hinzugefügt werden soll.
+@return 200 bei Erfolg, 500 bei Fehler.
 
 
 Löscht eine Aufgabe anhand der ID.
