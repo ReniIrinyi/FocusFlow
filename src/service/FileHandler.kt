@@ -105,7 +105,6 @@ open class FileHandler:TaskStorageInterface {
                     imageBase64 = imageBase64 ?: ""
                 )
             }
-            println(tasks.toString())
             Pair(tasks, Constants.RESTAPI_OK)
         } catch (e: Exception) {
             println("Fehler beim Laden der Aufgaben: ${e.message}")

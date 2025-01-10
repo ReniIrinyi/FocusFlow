@@ -1,27 +1,42 @@
 package service
 
 import model.User
+import org.w3c.dom.Document
 import utils.Constants
 import utils.Role
 import java.io.File
 import java.security.MessageDigest
 
 class UserService {
+    init {
+        checkIfFilePathExists();
+    }
 
-    private val userFilePath = "user_data.txt"
+    private val userFilePath = File("user_data.txt")
+
+    fun checkIfFilePathExists(){
+        println("checkIfFilePathExists()...")
+        println(userFilePath)
+        if (userFilePath !== null && !userFilePath.exists()){
+            println("File $userFilePath does not exist")
+            File.createTempFile("user", "txt")
+        } else {
+            println("File $userFilePath exists")
+        }
+    }
 
     fun userExists(): Boolean {
-        return File(userFilePath).exists()
+        return userFilePath.exists()
     }
 
     fun saveUser(username: String, password: String) {
         val hashedPassword = hashPassword(password)
         val userData = "$username|$hashedPassword"
-        File(userFilePath).writeText(userData)
+        userFilePath.writeText(userData)
     }
 
     fun validateUser(inputPassword: String): Boolean {
-        val file = File(userFilePath)
+        val file = userFilePath
         if (!file.exists()) return false
 
         val userData = file.readText().split("|")

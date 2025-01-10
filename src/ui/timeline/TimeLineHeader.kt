@@ -14,6 +14,7 @@ import javafx.util.Duration
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+//todo: warum so langsam..
 class TimeLineHeader : HBox() {
     private val timeLabel = Label().apply {
         textFill = Color.WHITE
@@ -32,13 +33,13 @@ class TimeLineHeader : HBox() {
             font = Font.font(16.0)
         }
 
-        val userIcon = ImageView(Image("https://via.placeholder.com/50")).apply {
+       /* val userIcon = ImageView(Image("https://via.placeholder.com/50")).apply {
             fitWidth = 50.0
             fitHeight = 50.0
             isPreserveRatio = true
-        }
+        }*/
 
-        val userBox = VBox(userIcon, userLabel).apply {
+        val userBox = VBox(userLabel).apply {
             spacing = 5.0
             alignment = Pos.CENTER
         }
@@ -48,7 +49,7 @@ class TimeLineHeader : HBox() {
             font = Font.font(16.0)
         }
 
-        val sunIcon = ImageView(Image("https://via.placeholder.com/50")).apply {
+       /* val sunIcon = ImageView(Image("https://via.placeholder.com/50")).apply {
             fitWidth = 50.0
             fitHeight = 50.0
             isPreserveRatio = true
@@ -57,9 +58,9 @@ class TimeLineHeader : HBox() {
             fitWidth = 50.0
             fitHeight = 50.0
             isPreserveRatio = true
-        }
+        }*/
 
-        val weatherBox = HBox(sunIcon, flowerIcon).apply {
+        val weatherBox = HBox().apply {
             spacing = 10.0
             alignment = Pos.CENTER
         }
