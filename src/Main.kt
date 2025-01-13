@@ -1,7 +1,9 @@
 import javafx.application.Application
 import model.Task
 import service.FileHandler
+import service.TaskService
 import ui.main.MainMenu
+import ui.show.ShowMenu
 import utils.Constants
 import utils.Priority
 import java.time.LocalDateTime
@@ -56,6 +58,8 @@ fun main() {
     )
         fileHandler.saveTasks(tasks)
     fileHandler.loadTasks()*/
+    //val taskService = TaskService()
+   // var showMenu = ShowMenu(taskService, 1);
     ///////////////////////////////////////////////////////////////////////
     Application.launch(MainMenu::class.java)
 }

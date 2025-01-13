@@ -41,6 +41,16 @@ class TaskService(): FileHandler() {
     }
 
     /**
+     * Get all tasks for a specific user.
+     * @param userId The ID of the user.
+     * @return List of tasks assigned to the user.
+     */
+    fun getTasksForUser(userId: Int): List<Task> {
+        println(tasks.filter { it.userId == userId })
+        return tasks.filter { it.userId == userId }
+    }
+
+    /**
      * Gibt alle vorhandenen Aufgaben zurück.
      * @return Liste aller Aufgaben (List<Task>).
      */

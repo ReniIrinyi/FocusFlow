@@ -1,20 +1,54 @@
 package ui.adminMenu
 
+import UserService
 import javafx.scene.control.Button
+import javafx.scene.control.Label
+import javafx.scene.layout.HBox
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
 import service.TaskService
-import service.UserService
+import ui.AdminSettings.TimelineSettings
+import ui.AdminSettings.UserManager
+import ui.AdminSettings.UserSettings
+import ui.timeline.MultiTimeLineManager
 import ui.add.AddMenu
-import ui.usersettings.UserSettings
-
 
 class AdminMenu(private val taskService: TaskService, private val userService: UserService) {
 
     private val content = StackPane()
 
     fun createView(): VBox {
-        val userSettingsButton = Button("User Settings").apply {
+        // Create Header with Admin Settings options
+        val header = createAdminSettingsHeader()
+
+        // Sidebar Buttons
+        val addTaskButton = Button("Add Task").apply {
+            setOnAction {
+                val addMenu = AddMenu()
+                content.children.setAll(addMenu.createView(taskService, userService))
+            }
+        }
+
+        val multiTimelineButton = Button("Show Timelines").apply {
+            setOnAction {
+                val multiTimeLineManager = MultiTimeLineManager(taskService, userService)
+                content.children.setAll(multiTimeLineManager.createView())
+            }
+        }
+
+        // Sidebar layout
+        val sidebar = VBox(10.0, addTaskButton, multiTimelineButton).apply {
+            style = "-fx-padding: 10px; -fx-background-color: #F5F5F5;"
+        }
+
+        // Combine Header, Sidebar, and Content
+        return VBox(20.0, header, HBox(20.0, sidebar, content)).apply {
+            style = "-fx-padding: 20px; -fx-background-color: #E8F5E9;"
+        }
+    }
+
+    private fun createAdminSettingsHeader(): HBox {
+        val userSettingsButton = Button("Benutzereinstellungen").apply {
             setOnAction {
                 val userSettings = UserSettings(userService) {
                     refreshView()
@@ -22,20 +56,26 @@ class AdminMenu(private val taskService: TaskService, private val userService: U
                 content.children.setAll(userSettings.createView())
             }
         }
-
-        val addTaskButton = Button("Add Task").apply {
+        val userManagerButton = Button("Benutzer Verwalten").apply {
             setOnAction {
-                val addMenu = AddMenu()
-                content.children.setAll(addMenu.createView(taskService))
+                val userManager = UserManager(userService) {
+                    refreshView()
+                }
+                content.children.setAll(userManager.createView())
             }
         }
 
-        val adminMenuButtons = VBox(10.0, userSettingsButton, addTaskButton).apply {
-            style = "-fx-padding: 10px; -fx-background-color: #F5F5F5;"
+        val timelineSettingsButton = Button("Einstellungen der Zeitachse").apply {
+            setOnAction {
+                val timelineSettings = TimelineSettings(userService)
+                content.children.setAll(timelineSettings.createView())
+            }
         }
 
-        return VBox(20.0, adminMenuButtons, content).apply {
-            style = "-fx-padding: 20px; -fx-background-color: #E8F5E9;"
+
+        // Header layout with buttons
+        return HBox(10.0, userSettingsButton, userManagerButton,timelineSettingsButton).apply {
+            style = "-fx-padding: 10px; -fx-background-color: #ECECEC; -fx-spacing: 15px;"
         }
     }
 

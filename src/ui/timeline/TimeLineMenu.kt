@@ -39,7 +39,6 @@ class TimeLineMenu {
     private var totalHeight = 0.0
 
     fun createView(tasks: List<Task>): Pane {
-        println("createView...")
         scrollPane.isPannable = true
         scrollPane.hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
         scrollPane.vbarPolicy = ScrollPane.ScrollBarPolicy.ALWAYS
@@ -53,18 +52,14 @@ class TimeLineMenu {
         timelineContent.children.addAll(nowPointer)
 
         initTimeUpdater()
-        println("initTimeUpdater done..")
         initAutoScrollToCurrentTime()
-        println("initAutoScrollToCurrentTime done..")
         val header = TimeLineHeader()
-        println("timeline done...")
 
         val root = VBox(header,scrollPane).apply {
             setPrefSize(800.0, 600.0)
             spacing = 10.0
             padding = Insets(0.00,0.00,10.00,0.00)
         }
-        println("createView done... ")
         return root
     }
 
@@ -141,7 +136,6 @@ class TimeLineMenu {
         val taskWidth = 180.0
         val horizontalOffset = 50.0
         var placeOnLeft = true
-        tasks.forEach { println("Task: ${it.title}, Start: ${it.startTime}, End: ${it.endTime}") }
 
         tasks.sortedBy { it.startTime }.forEach { t ->
             val start = requireNotNull(t.startTime)

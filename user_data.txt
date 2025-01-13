@@ -1,1 +1,4 @@
-reni|91b4d142823f7d20c5f08df69122de43f35f057a988d9619f6d3138485c9a203
+1|admin|admin@icloud.com|91b4d142823f7d20c5f08df69122de43f35f057a988d9619f6d3138485c9a203|ADMIN
+3|laura|laura@laura.com||USER
+5|dani|laura@laura.com||USER
+7|adam|laura@laura.com||USER

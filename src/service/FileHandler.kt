@@ -38,6 +38,7 @@ open class FileHandler:TaskStorageInterface {
     override fun loadTasks(): Pair<List<Task>, Int> {
         return try {
             val file = File(filePath)
+            println(file)
 
             if (!file.exists() || file.readText().isEmpty()) {
                 return Pair(emptyList(), Constants.RESTAPI_OK)
@@ -49,20 +50,12 @@ open class FileHandler:TaskStorageInterface {
                 val id = tokens[0].toInt()
                 val title = unescapeField(tokens[1])
 
-                // KORÁBBAN:
-                // val createdAt = LocalDateTime.parse(tokens[3])
-                // val updatedAt = LocalDateTime.parse(tokens[4])
-                // => Ha biztosan mindig "yyyy-MM-ddTHH:mm" formátum, maradhat
-                // Ha lehet "csak óra:perc", használd a lenti segédfüggvényt.
-
                 val createdAt = parseFlexibleDateTime(tokens[3]) ?: LocalDateTime.now()
                 val updatedAt = parseFlexibleDateTime(tokens[4]) ?: LocalDateTime.now()
 
                 val deadline = tokens[5].takeIf { it.isNotEmpty() }
                     ?.let { parseFlexibleDateTime(it) }
 
-                // FIGYELEM: a 7. és 8. indexben startTime, endTime szerepelhet
-                // Lehet "17:00" vagy "2023-10-04T17:00" is.
                 val startTimeStr = tokens.getOrNull(7)?.trim().orEmpty()
                 val endTimeStr   = tokens.getOrNull(8)?.trim().orEmpty()
 
@@ -75,6 +68,8 @@ open class FileHandler:TaskStorageInterface {
                 } else null
 
                 val imageBase64 = tokens.getOrNull(9)?.takeIf { it.isNotEmpty() }
+                val userId = tokens.getOrNull(10)?.toIntOrNull() ?: -1
+                println(userId)
 
                 // Status aus Zahl laden
                 val status = when (tokens[6]) {
@@ -98,11 +93,10 @@ open class FileHandler:TaskStorageInterface {
                     updatedAt = updatedAt,
                     deadline = deadline,
                     status = status,
-                    // Ha mindenképp LocalDateTime kell, de parse-ban null jöhet,
-                    // fallback-ként tehetsz pl. LocalDateTime.MIN:
                     startTime = startTime ?: LocalDateTime.MIN,
                     endTime   = endTime   ?: LocalDateTime.MAX,
-                    imageBase64 = imageBase64 ?: ""
+                    imageBase64 = imageBase64 ?: "",
+                    userId = userId
                 )
             }
             Pair(tasks, Constants.RESTAPI_OK)
@@ -134,17 +128,11 @@ open class FileHandler:TaskStorageInterface {
                     Constants.STATUS_IN_PROGRESS.toString() -> "0"
                     else -> "2"
                 }
-
-                // A startTime és endTime-t legjobb "yyyy-MM-ddTHH:mm" formátumban menteni,
-                // hogy később gond nélkül LocalDateTime.parse(...)-al be tudd olvasni.
-                // Ha "csak óra:perc" formátumot akarsz, pl. "HH:mm", akkor
-                // parseFlexibleDateTime(...) logikát kell fenntartanod.
-
                 val fmt = DateTimeFormatter.ISO_LOCAL_DATE_TIME
                 val stStr = task.startTime?.format(fmt) ?: ""
                 val etStr = task.endTime?.format(fmt)   ?: ""
 
-                "${task.id}|" +
+                        "${task.id}|" +
                         "${escapeField(task.title)}|" +
                         "${escapeField(task.priority.toString())}|" +
                         "${task.createdAt.format(fmt)}|" +
@@ -153,10 +141,9 @@ open class FileHandler:TaskStorageInterface {
                         "$statusValue|" +
                         stStr + "|" +
                         etStr + "|" +
-                        (task.imageBase64 ?: "")
+                        (task.imageBase64 ?: "")  + "|" +
+                        "${task.userId}"
             }
-
-            println(lines)
             file.writeText(lines.joinToString("\n"))
             Constants.RESTAPI_OK
         } catch (e: Exception) {
@@ -342,16 +329,12 @@ open class FileHandler:TaskStorageInterface {
         if (value.isNullOrBlank()) return null
 
         return try {
-            // 1) Próbáljuk LocalDateTime.parse(...) -> pl. "2023-10-04T17:00"
             LocalDateTime.parse(value)
         } catch (ex: Exception) {
-            // 2) Ha nem sikerül, próbáljuk LocalTime.parse(...) -> pl. "17:00"
             try {
                 val lt = LocalTime.parse(value)
-                // Tegyük mondjuk a mai napra:
                 LocalDateTime.of(LocalDate.now(), lt)
             } catch (ex2: Exception) {
-                // 3) Se LocalDateTime, se LocalTime nem parse-olható -> null
                 null
             }
         }

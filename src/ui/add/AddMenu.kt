@@ -1,5 +1,6 @@
 package ui.add
 
+import UserService
 import javafx.scene.control.*
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
@@ -16,10 +17,15 @@ import java.time.LocalTime
  */
 class AddMenu {
 
-    fun createView(taskService: TaskService): VBox {
+    fun createView(taskService: TaskService, userService: UserService): VBox {
         val fileChooser = FileChooser().apply {
             title = "Bild auswählen"
             extensionFilters.add(FileChooser.ExtensionFilter("Bilder", "*.png", "*.jpg", "*.jpeg"))
+        }
+
+        val userDropdown = ComboBox<Pair<Int, String>>().apply {
+            promptText = "Wähle einen Benutzer aus"
+            items.addAll(userService.getUsers().map { it.id to it.name })
         }
 
         val titleField = TextField().apply {
@@ -30,11 +36,10 @@ class AddMenu {
             promptText = "Priorität (Hoch, Mittel, Niedrig)"
         }
 
-        // Spinner az óra megadásához (0..23), alapértelmezett 12
         val startTimeField = Spinner<Int>(0, 23, 12).apply {
             isEditable = true
         }
-        // Spinner a befejezési óra megadásához
+
         val endTimeField = Spinner<Int>(0, 23, 13).apply {
             isEditable = true
         }
@@ -67,28 +72,17 @@ class AddMenu {
                     priorityField.text.isNotEmpty() &&
                     selectedFile != null
                 ) {
-                    // A kiválasztott kép base64-kódja
                     val base64Image = taskService.encodeImageToBase64(selectedFile!!.absolutePath)
-
                     val priority = priorityField.text
-
-                    // Spinner -> óra, +0 perc, "mai nap" (ha te nap-szintű feladatot kezelsz)
                     val startHour = startTimeField.value
                     val endHour = endTimeField.value
-
-                    // A "mai" dátumot használjuk
                     val today = LocalDate.now()
-
-                    // LocalTime a spinner óra + 0 perc
                     val startLocalTime = LocalTime.of(startHour, 0)
                     val endLocalTime = LocalTime.of(endHour, 0)
-
-                    // LocalDateTime (dátum + óra:perc)
                     val startTime = LocalDateTime.of(today, startLocalTime)
                     val endTime = LocalDateTime.of(today, endLocalTime)
-
-                    // Deadline, ha a user kiválasztott valamit (DatePicker)
                     val deadline = deadlinePicker.value?.atStartOfDay()
+                    val selectedUser = userDropdown.value.first
 
                     val newTask = Task(
                         id = Task.generateId(),
@@ -100,12 +94,12 @@ class AddMenu {
                         endTime = endTime,
                         deadline = deadline,
                         status = "Nicht erledigt",
-                        imageBase64 = base64Image
+                        imageBase64 = base64Image,
+                        userId = selectedUser,
                     )
 
-                    // Mentés a TaskService segítségével
                     taskService.add(newTask)
-                    println("Aufgabe gespeichert: ${newTask.title}")
+                    println("Aufgabe gespeichert: ${newTask.title} für user: ${selectedUser}")
                 } else {
                     println("Bitte alle Felder ausfüllen und ein Bild auswählen!")
                 }
@@ -114,6 +108,7 @@ class AddMenu {
 
         return VBox(20.0,
             Label("Aufgabe erstellen"),
+            userDropdown,
             titleField,
             priorityField,
             timeFields,
