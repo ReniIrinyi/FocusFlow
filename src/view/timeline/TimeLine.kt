@@ -14,6 +14,7 @@ import javafx.scene.shape.Line
 import javafx.scene.shape.Polygon
 import javafx.scene.shape.Rectangle
 import javafx.scene.text.Font
+import javafx.scene.web.WebView
 import javafx.util.Duration
 import model.Task
 import java.io.ByteArrayInputStream
@@ -159,6 +160,12 @@ class TimeLine {
                 }
             }
 
+            val webView = WebView().apply {
+                prefHeight = 100.0 // Begrenze die Höhe, falls die Beschreibung zu lang ist
+                prefWidth = taskWidth - 20.0
+                engine.loadContent(t.description) // HTML-Inhalt der Aufgabe
+            }
+
             val box = VBox().apply {
                 layoutX = if (placeOnLeft) (centerX - taskWidth - 20) else (centerX + 20 + horizontalOffset)
                 layoutY = startY
@@ -175,7 +182,8 @@ class TimeLine {
                 children.addAll(
                     Label(t.title).apply { font = Font.font(14.0) },
                     Label("${start.format(timeFormatter)} - ${end.format(timeFormatter)}")
-                        .apply { font = Font.font(12.0) }
+                        .apply { font = Font.font(12.0) },
+                    webView
                 )
             }
             placeOnLeft = !placeOnLeft

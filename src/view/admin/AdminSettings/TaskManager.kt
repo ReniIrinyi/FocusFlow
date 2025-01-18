@@ -3,6 +3,7 @@ package view.admin.AdminSettings
 import javafx.scene.control.*
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
+import javafx.scene.web.HTMLEditor
 import javafx.stage.FileChooser
 import model.Task
 import service.TaskService
@@ -15,7 +16,7 @@ import java.time.LocalTime
 /**
  * Diese Klasse verwaltet das Hinzufügen neuer Aufgaben.
  */
-class TaskManager(private val taskService: TaskService,private val userService: UserService) {
+class TaskManager(private val taskService: TaskService, private val userService: UserService) {
 
     private var selectedFile: File? = null
 
@@ -34,8 +35,9 @@ class TaskManager(private val taskService: TaskService,private val userService: 
             promptText = "Aufgabentitel"
         }
 
-        val priorityField = TextField().apply {
-            promptText = "Priorität (Hoch, Mittel, Niedrig)"
+        val priorityDropdown = ComboBox<String>().apply {
+            promptText = "Priorität auswählen"
+            items.addAll("Hoch", "Mittel", "Niedrig")
         }
 
         val startTimeField = Spinner<Int>(0, 23, 12).apply {
@@ -55,6 +57,11 @@ class TaskManager(private val taskService: TaskService,private val userService: 
             promptText = "Deadline auswählen"
         }
 
+        val descriptionLabel = Label("Aufgabe Beschreibung:")
+        val htmlEditor = HTMLEditor().apply {
+            prefHeight = 300.0
+        }
+
         val uploadButton = Button("Bild auswählen")
         val selectedFileLabel = Label("Kein Bild ausgewählt")
 
@@ -72,10 +79,11 @@ class TaskManager(private val taskService: TaskService,private val userService: 
                     taskService,
                     userDropdown,
                     titleField,
-                    priorityField,
+                    priorityDropdown,
                     startTimeField,
                     endTimeField,
-                    deadlinePicker
+                    deadlinePicker,
+                    htmlEditor
                 )
             }
         }
@@ -84,9 +92,11 @@ class TaskManager(private val taskService: TaskService,private val userService: 
             Label("Aufgabe erstellen"),
             userDropdown,
             titleField,
-            priorityField,
+            priorityDropdown,
             timeFields,
             deadlinePicker,
+            descriptionLabel,
+            htmlEditor,
             uploadButton,
             selectedFileLabel,
             saveButton
@@ -100,18 +110,23 @@ class TaskManager(private val taskService: TaskService,private val userService: 
         taskService: TaskService,
         userDropdown: ComboBox<Pair<Int, String>>,
         titleField: TextField,
-        priorityField: TextField,
+        priorityDropdown: ComboBox<String>,
         startTimeField: Spinner<Int>,
         endTimeField: Spinner<Int>,
-        deadlinePicker: DatePicker
+        deadlinePicker: DatePicker,
+        htmlEditor: HTMLEditor
     ) {
         if (titleField.text.isNotEmpty() &&
-            priorityField.text.isNotEmpty() &&
-            selectedFile != null &&
+            priorityDropdown.value != null &&
             userDropdown.value != null
         ) {
-            val base64Image = taskService.encodeImageToBase64(selectedFile!!.absolutePath)
-            val priority = priorityField.text
+            val base64Image = selectedFile?.absolutePath?.let { taskService.encodeImageToBase64(it) } ?: ""
+            val priority = when (priorityDropdown.value) {
+                "Hoch" -> 1
+                "Mittel" -> 2
+                "Niedrig" -> 3
+                else -> throw IllegalArgumentException("Ungültige Priorität")
+            }
             val startHour = startTimeField.value
             val endHour = endTimeField.value
             val today = LocalDate.now()
@@ -121,25 +136,27 @@ class TaskManager(private val taskService: TaskService,private val userService: 
             val endTime = LocalDateTime.of(today, endLocalTime)
             val deadline = deadlinePicker.value?.atStartOfDay()
             val selectedUser = userDropdown.value.first
+            val description = htmlEditor.htmlText
 
             val newTask = Task(
                 id = Task.generateId(),
-                title = titleField.text,
-                priority = priority,
+                userId = selectedUser,
                 createdAt = LocalDateTime.now(),
                 updatedAt = LocalDateTime.now(),
+                priority = priority,
+                status = 0,
+                title = titleField.text,
+                description = description, // HTML
                 startTime = startTime,
-                endTime = endTime,
                 deadline = deadline,
-                status = "Nicht erledigt",
-                imageBase64 = base64Image,
-                userId = selectedUser,
+                endTime = endTime,
+                imageBase64 = base64Image
             )
 
             taskService.save(newTask)
-            println("Aufgabe gespeichert: ${newTask.title} für Benutzer: ${selectedUser}")
+            println("Aufgabe gespeichert: ${newTask.title} mit Beschreibung: ${description.take(30)}…")
         } else {
-            println("Bitte alle Felder ausfüllen und ein Bild auswählen!")
+            println("Bitte alle Felder ausfüllen und eine Priorität setzen!")
         }
     }
 }

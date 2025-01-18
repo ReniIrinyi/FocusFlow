@@ -1,8 +1,6 @@
 package model
 
-import utils.Priority
 import java.time.LocalDateTime
-import java.time.LocalTime
 
 /**
  * Die `Task`-Datenklasse repräsentiert eine Aufgabe innerhalb des Systems.
@@ -11,27 +9,29 @@ import java.time.LocalTime
  * @property id Eindeutiger Bezeichner der Aufgabe.
  * @property userId Die ID des Benutzers, dem die Aufgabe zugewiesen ist.
  * @property title Der Titel der Aufgabe.
- * @property priority Die Priorität der Aufgabe (z. B. "High", "Medium", "Low").
+ * @property priority Die Priorität der Aufgabe (Hoch = 1, Mittel = 2, Niedrig = 3).
  * @property createdAt Das Datum und die Uhrzeit der Erstellung der Aufgabe.
  * @property updatedAt Das Datum und die Uhrzeit der letzten Aktualisierung der Aufgabe.
- * @property startTime Startzeitpunkt der Aufgabe (optional).
- * @property endTime Endzeitpunkt der Aufgabe (optional).
+ * @property startTime Startzeitpunkt der Aufgabe.
+ * @property endTime Abschluss der Aufgabe.
  * @property deadline Fälligkeitsdatum der Aufgabe (optional).
- * @property status Der aktuelle Status der Aufgabe (z. B. "Offen", "Erledigt").
+ * @property status Der aktuelle Status der Aufgabe (Nicht erledigt = 0, In Bearbeitung =1, Erledigt = 2).
  * @property imageBase64 Ein Bild im Base64-String-Format, das mit der Aufgabe verknüpft ist (z. B. ein Screenshot).
+ * @property description Beschreibung der Aufgabe.
  */
 data class Task (
-    val id: Int,                         // Eindeutiger Bezeichner der Aufgabe
-    val userId: Int,                     // Benutzer-ID, dem die Aufgabe zugewiesen ist
-    val title: String,                   // Titel der Aufgabe
-    val priority: String,                // Beschreibung der Priorität (z. B. High, Medium, Low)
-    val createdAt: LocalDateTime,        // Erstellungsdatum und -zeit der Aufgabe
-    var updatedAt: LocalDateTime,        // Letzte Änderungszeit der Aufgabe
-    val startTime: LocalDateTime?,       // Startzeit der Aufgabe (null, wenn nicht definiert)
-    val endTime: LocalDateTime?,         // Endzeit der Aufgabe (null, wenn nicht definiert)
-    val deadline: LocalDateTime?,        // Deadline für die Aufgabe (null, wenn keine Deadline vorhanden ist)
-    var status: String,                  // Status der Aufgabe (z. B. Offen, Erledigt)
-    val imageBase64: String,             // Optionales Bild im Base64-Format
+    val id: Int,
+    val userId: Int,
+    val createdAt: LocalDateTime,
+    var updatedAt: LocalDateTime,
+    val priority: Int,
+    var status: Int,
+    val title: String,
+    val description:String,
+    val startTime: LocalDateTime,
+    val deadline: LocalDateTime?,
+    val endTime: LocalDateTime,
+    val imageBase64: String,
 ) {
 
     companion object {
@@ -44,7 +44,7 @@ data class Task (
          */
         fun generateId(): Int {
             currentId++ // Erhöht die aktuelle ID um 1.
-            return currentId // Gibt die erwartete ID zurück.
+            return currentId
         }
     }
 }

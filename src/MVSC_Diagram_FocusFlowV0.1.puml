@@ -2,14 +2,13 @@
 skinparam style strictuml
 skinparam packageStyle rectangle
 
-package "Presentation Layer (View)" {
+package View {
   interface MainMenü {
     + showUserSettings()
     + setupHeader()
     + showTimeLineMenu()
     + showAdminMenu()
     + authenticateAdmin():bool
-    + showAlert()
   }
 
   class TimeLineManager {
@@ -51,7 +50,6 @@ package "Presentation Layer (View)" {
       + createView(): VBox
       + loadTimeLineSettings()
       + saveTimeLineSettings()
-      + showAlert()
     }
 
     class UserManager {
@@ -64,7 +62,6 @@ package "Presentation Layer (View)" {
     class AdminAuthSettings {
       + createView(): VBox
       + updatePassword()
-      + showalert()
     }
   }
 
@@ -74,7 +71,7 @@ package "Presentation Layer (View)" {
   AdminMenu --> AdminSettings.TimelineSettings
 }
 
-package "ServiceLayer" {
+package Service {
   interface CrudService<T> {
     + findAll(): List<T>
     + findById(Int): T
@@ -103,8 +100,16 @@ package "ServiceLayer" {
     + validateUser(Username,Passwort):void
   }
 
+  class TimeLineSettingsService {
+    + findAll(): List<User>
+    + findById(Int): User
+    + save(User): void
+    + delete(Int): void
+  }
+
   CrudService <|.. TaskService
   CrudService <|.. UserService
+  CrudService <|.. TimeLineSettingsService
 
 
   MainMenü --> CrudService
@@ -143,33 +148,49 @@ package Controller {
        + updateEntity(Int, User): Boolean
        + deleteEntityById(Int): Boolean
      }
+     class TimeLineSettingsStorage {
+       + checkIfFilePathExists():void
+       + loadEntities(): List<User>
+       + saveEntities(List<User>): void
+       + addEntity(User): void
+       + updateEntity(Int, User): Boolean
+       + deleteEntityById(Int): Boolean
+     }
 
      StorageInterface <|.. TaskStorage
      StorageInterface <|.. UserStorage
+     StorageInterface <|.. TimeLineSettingsStorage
 
 }
 
-package "Model Layer" {
+package Model {
   class Task {
     + id: Int
+    + userId: Int
     + title: String
+    + priority: String
+    + updatedAt: LocalDateTime
     + startTime: LocalDateTime
     + endTime: LocalDateTime
+    + deadLine?:LocalDateTime
+    + status:String,
+    + imageBase64:String
   }
 
   class User {
     + id: Int
     + name: String
+    + email: String
+    + password?: String
     + role: String
+    + generateId()
   }
+
+  class TimeLineSettings{
+    + timeLineCount:Int
+    + userId:Int
+  }
+
 }
-
-package "Utilities" {
-  class ErrorManager {
-    + logError(String, Exception): void
-    + alertUser(String, String): void
-  }
-
-  ErrorManager ..> Controller.StorageInterface
 }
 @enduml

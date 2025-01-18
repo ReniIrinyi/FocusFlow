@@ -2,7 +2,7 @@ package service
 
 import model.User
 import controller.UserStorage
-import utils.Role
+import utils.Constants
 import java.security.MessageDigest
 
 /**
@@ -34,6 +34,23 @@ class UserService : CrudService<User> {
         return findAll().find { it.id == id } // Sucht nach einem Benutzer mit der angegebenen ID in der Liste.
     }
 
+    fun createAdmin(username: String, email: String, password: String) {
+        // Generiere eine eindeutige Benutzer-ID.
+        val userId = User.generateId()
+
+        // Erstelle den neuen Admin-Benutzer.
+        val adminUser = User(
+            id = userId,
+            name = username,
+            email = email,
+            password = hashPassword(password), // Sichere Speicherung des Passworts.
+            role = Constants.ROLE_ADMIN
+        )
+
+        // Speichere den neuen Benutzer mit dem existierenden `save`-Mechanismus.
+        save(adminUser)
+    }
+
     /**
      * Speichert einen neuen User oder aktualisiert einen bestehenden.
      *
@@ -63,7 +80,7 @@ class UserService : CrudService<User> {
 
 
     fun isAdminExists(): Boolean {
-        return storage.loadEntities().first.any { it.role == Role.ADMIN }
+        return storage.loadEntities().first.any { it.role ==  Constants.ROLE_ADMIN }
     }
 
     /**
@@ -72,14 +89,14 @@ class UserService : CrudService<User> {
      * @return Der Admin-Benutzer oder `null`, falls kein Admin gefunden wurde.
      */
     fun getAdmin(): User? {
-        return storage.loadEntities().first.find { it.role == Role.ADMIN }
+        return storage.loadEntities().first.find { it.role ==  Constants.ROLE_ADMIN }
     }
 
-    fun updateAdminPassword(username: String, newPassword: String) {
+    fun updateAdminPassword(newPassword: String) {
         val users = findAll()
 
         // Sucht den Benutzer mit dem Benutzernamen
-        val user = users.find { it.name == username && it.role == Role.ADMIN }
+        val user = users.find { it.role == Constants.ROLE_ADMIN }
             ?: throw IllegalArgumentException("Admin mit dem angegebenen Benutzernamen existiert nicht!")
 
         // Neues Passwort hashen
@@ -99,7 +116,7 @@ class UserService : CrudService<User> {
         val user = users.find { it.name == username } ?: return false // Benutzer existiert nicht.
 
         return when (user.role) {
-            Role.ADMIN -> {
+            Constants.ROLE_ADMIN -> {
                 // Admins erfordern eine Passwortprüfung.
                 val hashedInputPassword = hashPassword(inputPassword ?: "")
                 user.password == hashedInputPassword

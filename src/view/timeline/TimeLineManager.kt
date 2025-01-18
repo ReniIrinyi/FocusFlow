@@ -4,14 +4,17 @@ import javafx.geometry.Insets
 import javafx.scene.control.Label
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
+import model.Task
 import service.TaskService
 import service.UserService
 import utils.Constants
+import utils.HelperFunctions
 import java.io.File
 
 class TimeLineManager(
     private val taskService: TaskService,
     private val userService: UserService,
+    private val helperFunctions: HelperFunctions,
 ) {
 
     private val settingsFile = File(Constants.TIMELINE_FILE_PATH)
@@ -23,8 +26,7 @@ class TimeLineManager(
         // Generate timelines for valid user IDs
         val timelines = selectedUserIds.filterNotNull().take(timelineCount).mapNotNull { userId ->
             val user = userService.findById(userId)
-            val tasks = taskService.findByUserId(userId)
-            println(user)
+            val tasks:List<Task> = taskService.findByUserId(userId)
             println(tasks.size)
 
             if (user != null) {

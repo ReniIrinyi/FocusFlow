@@ -2,7 +2,7 @@ package service
 
 import model.Task
 import controller.TaskStorage
-import utils.ImgHandler
+import utils.HelperFunctions
 
 /**
  * Die TaskService-Klasse dient der Verwaltung von Task-Entitäten (Aufgaben).
@@ -57,8 +57,8 @@ class TaskService : CrudService<Task> {
      * @param entity Die Task, die gespeichert oder aktualisiert werden soll.
      */
     fun encodeImageToBase64(absolutePath: String): String {
-        val imgHandler = ImgHandler()
-        return imgHandler.encodeImageToBase64(absolutePath)
+        val helperFunctions = HelperFunctions()
+        return helperFunctions.encodeImageToBase64(absolutePath)
     }
 
     /**

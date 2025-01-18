@@ -3,93 +3,103 @@ package view.admin.AdminSettings
 import javafx.scene.control.*
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
+import model.TimeLineSettings
 import model.User
+import service.TimeLineSettingsService
 import service.UserService
-import java.io.File
+import utils.HelperFunctions
 
-class TimelineSettings(private val userService: UserService) {
+class TimelineSettings(
+    private val userService: UserService,
+    private val timelineSettingsService: TimeLineSettingsService,
+    private val helperFunctions: HelperFunctions,
+) {
 
-    private val settingsFile = File("timeline.txt")
-    private val timelineCountDropdown = ComboBox<Int>()
-    private val userDropdowns = List(3) { ComboBox<Pair<Int?, String>>() }
+    private val timelineCountDropdown = ComboBox<Int>() // Dropdown-Menü für die Auswahl der Timeline-Anzahl
+    private val userDropdowns = List(3) { ComboBox<Pair<Int?, String>>() } // Drei Dropdowns für die Benutzerzuweisung zu den Timelines
 
+    /**
+     * Erstellt die JavaFX-Ansicht zur Verwaltung der Timeline-Einstellungen im Admin-Bereich.
+     *
+     * @return Die erstellte Ansicht.
+     */
     fun createView(): VBox {
-        val availableUsers = userService.findAll()
+        val availableUsers = userService.findAll() // Benutzerliste aus dem UserService laden
         println(availableUsers)
-        loadSettings(availableUsers)
+        loadSettings(availableUsers) // Einstellungen laden und Dropdowns initialisieren
 
-        // Timeline count dropdown
-        timelineCountDropdown.items.addAll(1, 2, 3)
-        timelineCountDropdown.promptText = "Select Number of Timelines"
+        // Dropdown für die Auswahl der Timeline-Anzahl
+        timelineCountDropdown.items.addAll(1, 2, 3) // Timeline-Anzahl 1 bis 3
+        timelineCountDropdown.promptText = "Wählen Sie die Anzahl der Timelines"
 
-        // Enable user dropdowns based on selected timeline count
+        // Aktiviert oder deaktiviert Dropdowns basierend auf der gewählten Anzahl von Timelines
         timelineCountDropdown.setOnAction {
-            val count = timelineCountDropdown.value ?: 1
+            val count = timelineCountDropdown.value ?: 1 // Standardmäßig mindestens 1
             userDropdowns.forEachIndexed { index, dropdown ->
-                dropdown.isDisable = index >= count
-                if (index >= count) dropdown.value = null to "None"
+                dropdown.isDisable = index >= count // Dropdown deaktivieren, wenn über die gewählte Zahl hinaus
+                if (index >= count) dropdown.value = null to "Keine" // Kein Benutzer zuweisen, wenn deaktiviert
             }
         }
 
-        val saveButton = Button("Save Settings").apply {
+        val saveButton = Button("Einstellungen speichern").apply {
             setOnAction {
-                saveSettings()
-                showAlert(Alert.AlertType.INFORMATION, "Settings Saved", "Timeline settings saved successfully.")
+                saveSettings() // Einstellungen speichern
+                helperFunctions.showAlert( (Alert.AlertType.INFORMATION), "Einstellungen gespeichert", "Timeline-Einstellungen wurden erfolgreich gespeichert.")
             }
         }
 
+        // Layout für die Anzeige der Konfiguration
         val settingsBox = VBox(10.0).apply {
             children.addAll(
-                Label("Configure Timeline Settings"),
-                HBox(10.0, Label("Number of Timelines:"), timelineCountDropdown),
-                *userDropdowns.mapIndexed { index, dropdown ->
-                    HBox(10.0, Label("Timeline ${index + 1} User:"), dropdown)
+                Label("Konfigurieren Sie die Timeline-Einstellungen"),
+                HBox(10.0, Label("Anzahl der Timelines:"), timelineCountDropdown),
+                *userDropdowns.mapIndexed { index, dropdown -> // Dropdowns für die Benutzerzuweisungen
+                    HBox(10.0, Label("Timeline ${index + 1} Benutzer:"), dropdown)
                 }.toTypedArray(),
-                saveButton
+                saveButton // Speicher-Button hinzufügen
             )
-            style = "-fx-padding: 20px; -fx-background-color: #FFF3E0;"
+            style = "-fx-padding: 20px; -fx-background-color: #FFF3E0;" // Layout-Stil
         }
 
-        return settingsBox
+        return settingsBox // Die gesamte Ansicht zurückgeben
     }
 
-    private fun saveSettings() {
-        val timelineCount = timelineCountDropdown.value ?: 1
-        val selectedUsers = userDropdowns.map { it.value?.first?.toString() ?: "None" }
-
-        val content = "$timelineCount|${selectedUsers.joinToString("|")}"
-        settingsFile.writeText(content)
-    }
-
+    /**
+     * Lädt bereits gespeicherte Einstellungen aus dem Service und initialisiert die Benutzer-Dropdowns.
+     *
+     * @param availableUsers Liste der verfügbaren Benutzer.
+     */
     private fun loadSettings(availableUsers: List<User>) {
-        if (settingsFile.exists()) {
-            val content = settingsFile.readText().trim()
-            val parts = content.split("|")
-            if (parts.isNotEmpty()) {
-                val timelineCount = parts[0].toIntOrNull() ?: 1
-                timelineCountDropdown.value = timelineCount
-                val userOptions = listOf<Pair<Int?, String>>(null to "None") + availableUsers.map { it.id to it.name }
-                parts.drop(1).forEachIndexed { index, userIdOrNone ->
-                    if (index < userDropdowns.size) {
-                        val userPair = userOptions.find { it.first?.toString() == userIdOrNone }
-                            ?: (null to "None")
+        val userOptions = listOf<Pair<Int?, String>>(null to "Keine") + availableUsers.map { it.id to it.name } // Benutzeroptionen für Dropdowns
+        val allSettings = timelineSettingsService.findAll() // Lädt alle vorhandenen Einstellungen
 
-                        userDropdowns[index].items.setAll(userOptions)
-                        userDropdowns[index].value = userPair
-                        userDropdowns[index].isDisable = index >= timelineCount
+        // Standardmäßige Timeline-Anzahl einstellen
+        val defaultCount = allSettings.firstOrNull()?.timeLineCount ?: 1 // Falls keine existieren, Standardwert 1
+        timelineCountDropdown.value = defaultCount // Setzt den Standardwert im Dropdown
 
-                    }
-                }
-            }
+        // Initialisiert die Benutzerzuweisungen basierend auf den gespeicherten Einstellungen
+        userDropdowns.forEachIndexed { index, dropdown ->
+            dropdown.items.setAll(userOptions) // Erlaubte Optionen setzen
+
+            val timelineSetting = allSettings.getOrNull(index) // Nimmt die gespeicherten Werte, falls vorhanden
+            val userPair = userOptions.find { it.first == timelineSetting?.userId } ?: (null to "Keine") // Setzt zugewiesenen Benutzer oder "Keine"
+
+            dropdown.value = userPair // Setzt den Standardwert im Dropdown
+            dropdown.isDisable = index >= defaultCount // Deaktiviert Dropdowns, die über die Timeline-Anzahl hinausgehen
         }
     }
 
+    /**
+     * Speichert die ausgewählten Einstellungen mithilfe des TimelineSettingsService.
+     */
+    private fun saveSettings() {
+        val timelineCount = timelineCountDropdown.value ?: 1 // Anzahl der aktiven Timelines
 
-    private fun showAlert(type: Alert.AlertType, title: String, message: String) {
-        Alert(type).apply {
-            this.title = title
-            this.contentText = message
-            showAndWait()
+        (0 until timelineCount).forEach { index ->
+            val userId = userDropdowns[index].value?.first // Holt Benutzer-ID aus dem Dropdown
+            val timeLineSettings = TimeLineSettings(timelineCount, userId = userId ?: -1) // Erstellt ein TimeLineSettings-Objekt
+            timelineSettingsService.save(timeLineSettings) // Speichert die Einstellungen
         }
     }
+
 }

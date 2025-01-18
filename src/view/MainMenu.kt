@@ -7,7 +7,9 @@ import javafx.scene.layout.BorderPane
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
 import service.TaskService
+import service.TimeLineSettingsService
 import service.UserService
+import utils.HelperFunctions
 import view.admin.AdminSettings.AdminAuthSettings
 import view.admin.AdminMenu
 import view.timeline.TimeLineManager
@@ -19,6 +21,8 @@ class MainMenu : Application() {
     private val root = BorderPane()
     private val userService = UserService()
     private val taskService = TaskService()
+    private val timeLineSettingsService = TimeLineSettingsService()
+     private val helperFunctions = HelperFunctions()
 
     override fun start(primaryStage: Stage) {
         if (!userService.isAdminExists()) {
@@ -35,7 +39,7 @@ class MainMenu : Application() {
     }
 
     private fun showUserSettings() {
-        val userSettings = AdminAuthSettings(userService) {
+        val userSettings = AdminAuthSettings(userService,helperFunctions) {
             setupHeader()
             showTimeLineMenu()
         }
@@ -53,16 +57,16 @@ class MainMenu : Application() {
     }
 
     private fun showTimeLineMenu() {
-        val timeLineMenu = TimeLineManager(taskService, userService)
+        val timeLineMenu = TimeLineManager(taskService, userService,helperFunctions)
         root.center = timeLineMenu.createView()
     }
 
     private fun showAdminMenu() {
         if (authenticateAdmin()) {
-            val adminView = AdminMenu(taskService, userService)
+            val adminView = AdminMenu(taskService, userService, timeLineSettingsService,helperFunctions)
             root.center = adminView.createView()
         } else {
-            showAlert("Authentication Failed", "Only the admin can access this section.")
+            helperFunctions.showAlert((Alert.AlertType.ERROR),"Authentication Failed", "Only the admin can access this section.")
         }
     }
 
@@ -101,13 +105,4 @@ class MainMenu : Application() {
         }
     }
 
-
-    private fun showAlert(title: String, message: String) {
-        Alert(Alert.AlertType.ERROR).apply {
-            this.title = title
-            this.headerText = null
-            this.contentText = message
-            showAndWait()
-        }
-    }
 }

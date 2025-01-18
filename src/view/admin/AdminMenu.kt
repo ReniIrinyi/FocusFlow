@@ -4,14 +4,17 @@ import javafx.scene.control.Button
 import javafx.scene.layout.HBox
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
+import model.TimeLineSettings
 import service.TaskService
+import service.TimeLineSettingsService
 import service.UserService
+import utils.HelperFunctions
 import view.admin.AdminSettings.TimelineSettings
 import view.admin.AdminSettings.UserManager
 import view.admin.AdminSettings.AdminAuthSettings
 import view.admin.AdminSettings.TaskManager
 
-class AdminMenu(private val taskService: TaskService, private val userService: UserService) {
+class AdminMenu(private val taskService: TaskService, private val userService: UserService, private val timeLineSettingsService: TimeLineSettingsService, private val helperFunctions: HelperFunctions,) {
 
     private val content = StackPane()
 
@@ -26,7 +29,7 @@ class AdminMenu(private val taskService: TaskService, private val userService: U
     private fun createAdminSettingsHeader(): HBox {
         val userSettingsButton = Button("Einstellungen Admin").apply {
             setOnAction {
-                val userSettings = AdminAuthSettings(userService) {
+                val userSettings = AdminAuthSettings(userService, helperFunctions) {
                     refreshView()
                 }
                 content.children.setAll(userSettings.createView())
@@ -34,7 +37,7 @@ class AdminMenu(private val taskService: TaskService, private val userService: U
         }
         val userManagerButton = Button("Benutzer Verwalten").apply {
             setOnAction {
-                val userManager = UserManager(userService) {
+                val userManager = UserManager(userService, helperFunctions) {
                     refreshView()
                 }
                 content.children.setAll(userManager.createView())
@@ -43,7 +46,7 @@ class AdminMenu(private val taskService: TaskService, private val userService: U
 
         val timelineSettingsButton = Button("Einstellungen der Zeitachse").apply {
             setOnAction {
-                val timelineSettings = TimelineSettings(userService)
+                val timelineSettings = TimelineSettings(userService,timeLineSettingsService,helperFunctions)
                 content.children.setAll(timelineSettings.createView())
             }
         }

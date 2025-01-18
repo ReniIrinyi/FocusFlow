@@ -2,9 +2,7 @@ package controller
 
 import model.User
 import utils.Constants
-import utils.Role
 import java.io.File
-import java.security.MessageDigest
 
 /**
  * Die `UserStorage`-Klasse ist spezialisiert auf die Verwaltung von `User`-Entitäten.
@@ -35,8 +33,6 @@ class UserStorage : StorageInterface<User> {
         if (!file.exists()) {
             println("Datei $file existiert nicht. Eine neue Datei wird erstellt...")
             file.createNewFile()
-        } else {
-            println("Datei $file existiert bereits.")
         }
     }
 
@@ -65,7 +61,7 @@ class UserStorage : StorageInterface<User> {
             Pair(users, 200)
         } catch (e: Exception) {
             println("Fehler beim Laden der Benutzer: ${e.message}")
-            Pair(emptyList(), 500)
+            Pair(emptyList(), Constants.RESTAPI_INTERNAL_SERVER_ERROR)
         }
     }
 
@@ -82,7 +78,7 @@ class UserStorage : StorageInterface<User> {
             200
         } catch (e: Exception) {
             println("Fehler beim Speichern der Benutzer: ${e.message}")
-            500
+            Constants.RESTAPI_INTERNAL_SERVER_ERROR
         }
     }
 
@@ -96,17 +92,18 @@ class UserStorage : StorageInterface<User> {
     override fun updateEntity(id: Int, updatedData: User): Int {
         return try {
             val (users, status) = loadEntities()
-            if (status != 200) return 500
+            if (status != Constants.RESTAPI_OK) return Constants.RESTAPI_INTERNAL_SERVER_ERROR
 
-            val userIndex = users.indexOfFirst { it.id == id } // Sucht den Benutzer anhand der ID
-            if (userIndex == -1) return 404
+            // Sucht den Benutzer anhand der ID
+            val userIndex = users.indexOfFirst { it.id == id }
+            if (userIndex == -1) return Constants.RESTAPI_NOT_FOUND
 
             val updatedUsers = users.toMutableList()
             updatedUsers[userIndex] = updatedData
-            saveEntities(updatedUsers) // Speichert die aktualisierte Benutzerliste
+            saveEntities(updatedUsers)
         } catch (e: Exception) {
-            println("Fehler beim Aktualisieren des Benutzers: ${e.message}")
-            500
+            Constants.RESTAPI_INTERNAL_SERVER_ERROR
+
         }
     }
 
@@ -122,16 +119,16 @@ class UserStorage : StorageInterface<User> {
             if (status != 200) return 500
 
             // Verhindert das Hinzufügen eines zweiten Admins
-            if (newEntity.role == Role.ADMIN && users.any { it.role == Role.ADMIN }) {
-                throw IllegalArgumentException("Es darf nur einen Admin geben!")
+            if (newEntity.role ==  Constants.ROLE_ADMIN && users.any { it.role ==  Constants.ROLE_ADMIN }) {
+                Constants.RESTAPI_ADMIN_EXISTS
             }
 
             val newUsers = users.toMutableList()
             newUsers.add(newEntity)
             saveEntities(newUsers)
         } catch (e: Exception) {
-            println("Fehler beim Hinzufügen des Benutzers: ${e.message}")
-            500
+            Constants.RESTAPI_INTERNAL_SERVER_ERROR
+
         }
     }
 
@@ -144,15 +141,18 @@ class UserStorage : StorageInterface<User> {
     override fun deleteEntityById(id: Int): Int {
         return try {
             val (users, status) = loadEntities()
-            if (status != 200) return 500
+            if (status != Constants.RESTAPI_OK) return Constants.RESTAPI_INTERNAL_SERVER_ERROR
 
-            val updatedUsers = users.filter { it.id != id } // Filtert den Benutzer mit der angegebenen ID heraus
-            if (updatedUsers.size == users.size) return 404 // Keine Änderungen, Benutzer nicht gefunden
+            // Filtert den Benutzer mit der angegebenen ID heraus
+            val updatedUsers = users.filter { it.id != id }
+            if (updatedUsers.size == users.size) {
+                return Constants.RESTAPI_NOT_FOUND
+            }
 
             saveEntities(updatedUsers)
         } catch (e: Exception) {
-            println("Fehler beim Löschen des Benutzers: ${e.message}")
-            500
+            Constants.RESTAPI_INTERNAL_SERVER_ERROR
+
         }
     }
 
@@ -176,7 +176,7 @@ class UserStorage : StorageInterface<User> {
                 name = parts[1],
                 email = parts[2],
                 password = parts[3],
-                role = Role.valueOf(parts[4])
+                role = parts[4].toInt()
             )
         } else {
             null
