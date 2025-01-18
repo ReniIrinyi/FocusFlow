@@ -6,13 +6,11 @@ import javafx.scene.control.*
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
-import model.Task
-import service.CrudService
 import service.TaskService
 import service.UserService
-import view.admin.AdminSettings.UserSettings
+import view.admin.AdminSettings.AdminAuthSettings
 import view.admin.AdminMenu
-import view.timeline.TimeLineMenu
+import view.timeline.TimeLineManager
 
 
 // Der Einstiegspunkt der Anwendung.
@@ -23,11 +21,11 @@ class MainMenu : Application() {
     private val taskService = TaskService()
 
     override fun start(primaryStage: Stage) {
-        if (userService.findAll().isEmpty()) {
+        if (!userService.isAdminExists()) {
             showUserSettings()
         } else {
             setupHeader()
-            showZeitachse()
+            showTimeLineMenu()
         }
 
         val scene = Scene(root, 1200.0, 800.0)
@@ -36,31 +34,30 @@ class MainMenu : Application() {
         primaryStage.show()
     }
 
+    private fun showUserSettings() {
+        val userSettings = AdminAuthSettings(userService) {
+            setupHeader()
+            showTimeLineMenu()
+        }
+        root.center = userSettings.createView()
+    }
+
     private fun setupHeader() {
         val header = Header(
-            taskService = taskService,
-            onZeitachseClicked = { showZeitachse() },
-            onAdminClicked = { showAdminView() }
+            taskService,onZeitachseClicked = { showTimeLineMenu() },
+            onAdminClicked = { showAdminMenu() }
         )
         header.style = "-fx-background-color: rgba(255,0,0,0.3);"
 
         root.top = header
     }
 
-    private fun showZeitachse() {
-        val timeLineMenu = TimeLineMenu()
-        root.center = timeLineMenu.createView(taskService.findAll())
+    private fun showTimeLineMenu() {
+        val timeLineMenu = TimeLineManager(taskService, userService)
+        root.center = timeLineMenu.createView()
     }
 
-    private fun showUserSettings() {
-        val userSettings = UserSettings(userService) {
-            setupHeader()
-            showZeitachse()
-        }
-        root.center = userSettings.createView()
-    }
-
-    private fun showAdminView() {
+    private fun showAdminMenu() {
         if (authenticateAdmin()) {
             val adminView = AdminMenu(taskService, userService)
             root.center = adminView.createView()

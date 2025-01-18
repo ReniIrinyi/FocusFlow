@@ -6,28 +6,29 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import service.TaskService
 import service.UserService
+import utils.Constants
 import java.io.File
 
-class MultiTimeLineManager(
+class TimeLineManager(
     private val taskService: TaskService,
-    private val userService: UserService
+    private val userService: UserService,
 ) {
 
-    private val settingsFile = File("timeline.txt")
+    private val settingsFile = File(Constants.TIMELINE_FILE_PATH)
 
     fun createView(): VBox {
         // Load settings (number of timelines and assigned users)
-        val (timelineCount, selectedUserIds) = loadSettings()
+        val (timelineCount, selectedUserIds) = loadTimeLineSettings()
 
         // Generate timelines for valid user IDs
         val timelines = selectedUserIds.filterNotNull().take(timelineCount).mapNotNull { userId ->
             val user = userService.findById(userId)
-            val tasks = taskService.getTasksForUser(userId)
+            val tasks = taskService.findByUserId(userId)
             println(user)
             println(tasks.size)
 
             if (user != null) {
-                val timeLineMenu = TimeLineMenu()
+                val timeLineMenu = TimeLine()
                 VBox(10.0).apply {
                     children.addAll(
                         Label("Timeline for: ${user.name}"), // Display the user's name
@@ -50,7 +51,7 @@ class MultiTimeLineManager(
         }
     }
 
-    private fun loadSettings(): Pair<Int, List<Int?>> {
+    private fun loadTimeLineSettings(): Pair<Int, List<Int?>> {
         if (settingsFile.exists()) {
             val content = settingsFile.readText()
             val parts = content.split("|")

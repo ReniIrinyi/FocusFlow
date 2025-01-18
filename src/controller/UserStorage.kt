@@ -31,7 +31,7 @@ class UserStorage : StorageInterface<User> {
      * Überprüft, ob die Datei zum Speichern der Benutzer existiert.
      * Wenn nicht, wird eine neue Datei erstellt.
      */
-    private fun checkIfFilePathExists() {
+    override  fun checkIfFilePathExists() {
         if (!file.exists()) {
             println("Datei $file existiert nicht. Eine neue Datei wird erstellt...")
             file.createNewFile()
@@ -154,37 +154,6 @@ class UserStorage : StorageInterface<User> {
             println("Fehler beim Löschen des Benutzers: ${e.message}")
             500
         }
-    }
-
-    /**
-     * Prüft, ob bereits ein Admin existiert.
-     *
-     * @return `true`, wenn ein Admin existiert; sonst `false`.
-     */
-    fun isAdminExists(): Boolean {
-        return loadEntities().first.any { it.role == Role.ADMIN }
-    }
-
-    /**
-     * Gibt den aktuellen Admin-Benutzer (falls vorhanden) zurück.
-     *
-     * @return Der Admin-Benutzer oder `null`, falls kein Admin gefunden wurde.
-     */
-    fun getAdmin(): User? {
-        return loadEntities().first.find { it.role == Role.ADMIN }
-    }
-
-    /**
-     * Hash-Funktion für Passwörter. Verwendet den SHA-256-Algorithmus, um das Passwort
-     * zu verschlüsseln, bevor es gespeichert wird.
-     *
-     * @param password Das Klartext-Passwort.
-     * @return Der Hashwert des Passworts als hexadezimale Zeichenfolge.
-     */
-    fun hashPassword(password: String): String {
-        val md = MessageDigest.getInstance("SHA-256")
-        val hashedBytes = md.digest(password.toByteArray())
-        return hashedBytes.joinToString("") { "%02x".format(it) }
     }
 
     // Hilfsmethoden zur Konvertierung zwischen Benutzer und Datei

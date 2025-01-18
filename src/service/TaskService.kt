@@ -32,11 +32,12 @@ class TaskService : CrudService<Task> {
         return findAll().find { it.id == id } // Sucht nach einer Task mit der angegebenen ID in der Liste.
     }
 
-    /**
-     * Speichert eine neue Task oder aktualisiert eine bestehende.
-     *
-     * @param entity Die Task, die gespeichert oder aktualisiert werden soll.
-     */
+    fun findByUserId(userId: Int): List<Task> {
+        val tasks = findAll()
+        println(tasks.filter { it.userId == userId })
+        return tasks.filter { it.userId == userId }
+    }
+
     override fun save(entity: Task) {
         val tasks = findAll() // Ruft alle Aufgaben ab.
         val existingTask = tasks.find { it.id == entity.id } // Überprüft, ob die Aufgabe bereits existiert.
@@ -51,6 +52,16 @@ class TaskService : CrudService<Task> {
     }
 
     /**
+     * Speichert eine neue Task oder aktualisiert eine bestehende.
+     *
+     * @param entity Die Task, die gespeichert oder aktualisiert werden soll.
+     */
+    fun encodeImageToBase64(absolutePath: String): String {
+        val imgHandler = ImgHandler()
+        return imgHandler.encodeImageToBase64(absolutePath)
+    }
+
+    /**
      * Löscht eine Task-Entität anhand ihrer ID.
      *
      * @param id Die ID der zu löschenden Task.
@@ -59,16 +70,5 @@ class TaskService : CrudService<Task> {
         storage.deleteEntityById(id) // Löscht die Task anhand der ID.
     }
 
-    fun encodeImageToBase64(absolutePath: String): String {
-        val imgHandler = ImgHandler()
-        return imgHandler.encodeImageToBase64(absolutePath)
-
-    }
-
-    fun getTasksForUser(userId: Int): List<Task> {
-        val tasks = findAll()
-        println(tasks.filter { it.userId == userId })
-        return tasks.filter { it.userId == userId }
-    }
 
 }

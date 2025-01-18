@@ -3,6 +3,7 @@ package service
 import model.User
 import controller.UserStorage
 import utils.Role
+import java.security.MessageDigest
 
 /**
  * Die UserService-Klasse dient der Verwaltung von User-Entitäten (Benutzern).
@@ -28,6 +29,7 @@ class UserService : CrudService<User> {
      * @param id Die ID des gesuchten Benutzers.
      * @return Der gefundene Benutzer, falls vorhanden, ansonsten null.
      */
+
     override fun findById(id: Int): User? {
         return findAll().find { it.id == id } // Sucht nach einem Benutzer mit der angegebenen ID in der Liste.
     }
@@ -61,7 +63,7 @@ class UserService : CrudService<User> {
 
 
     fun isAdminExists(): Boolean {
-        return storage.isAdminExists()
+        return storage.loadEntities().first.any { it.role == Role.ADMIN }
     }
 
     /**
@@ -70,7 +72,7 @@ class UserService : CrudService<User> {
      * @return Der Admin-Benutzer oder `null`, falls kein Admin gefunden wurde.
      */
     fun getAdmin(): User? {
-        return storage.getAdmin()
+        return storage.loadEntities().first.find { it.role == Role.ADMIN }
     }
 
     fun updateAdminPassword(username: String, newPassword: String) {
@@ -81,7 +83,7 @@ class UserService : CrudService<User> {
             ?: throw IllegalArgumentException("Admin mit dem angegebenen Benutzernamen existiert nicht!")
 
         // Neues Passwort hashen
-        val hashedPassword = storage.hashPassword(newPassword)
+        val hashedPassword = hashPassword(newPassword)
 
         // Aktualisiertes User-Objekt erstellen
         val updatedUser = user.copy(password = hashedPassword)
@@ -99,7 +101,7 @@ class UserService : CrudService<User> {
         return when (user.role) {
             Role.ADMIN -> {
                 // Admins erfordern eine Passwortprüfung.
-                val hashedInputPassword = storage.hashPassword(inputPassword ?: "")
+                val hashedInputPassword = hashPassword(inputPassword ?: "")
                 user.password == hashedInputPassword
             }
             else -> {
@@ -107,9 +109,21 @@ class UserService : CrudService<User> {
                 true
             }
         }
-
-
     }
+
+    /**
+     * Hash-Funktion für Passwörter. Verwendet den SHA-256-Algorithmus, um das Passwort
+     * zu verschlüsseln, bevor es gespeichert wird.
+     *
+     * @param password Das Klartext-Passwort.
+     * @return Der Hashwert des Passworts als hexadezimale Zeichenfolge.
+     */
+    fun hashPassword(password: String): String {
+        val md = MessageDigest.getInstance("SHA-256")
+        val hashedBytes = md.digest(password.toByteArray())
+        return hashedBytes.joinToString("") { "%02x".format(it) }
+    }
+
 
 
 

@@ -10,6 +10,7 @@ package controller
  */
 interface StorageInterface<T> {
 
+    fun checkIfFilePathExists()
     /**
      * Lädt alle Entitäten aus einer Datenquelle (z. B. Datei, Datenbank).
      *

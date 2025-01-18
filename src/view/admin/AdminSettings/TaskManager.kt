@@ -15,9 +15,11 @@ import java.time.LocalTime
 /**
  * Diese Klasse verwaltet das Hinzufügen neuer Aufgaben.
  */
-class AddMenu {
+class TaskManager(private val taskService: TaskService,private val userService: UserService) {
 
-    fun createView(taskService: TaskService, userService: UserService): VBox {
+    private var selectedFile: File? = null
+
+    fun createView(): VBox {
         val fileChooser = FileChooser().apply {
             title = "Bild auswählen"
             extensionFilters.add(FileChooser.ExtensionFilter("Bilder", "*.png", "*.jpg", "*.jpeg"))
@@ -56,8 +58,6 @@ class AddMenu {
         val uploadButton = Button("Bild auswählen")
         val selectedFileLabel = Label("Kein Bild ausgewählt")
 
-        var selectedFile: File? = null
-
         uploadButton.setOnAction {
             val file = fileChooser.showOpenDialog(null)
             if (file != null) {
@@ -68,41 +68,15 @@ class AddMenu {
 
         val saveButton = Button("Aufgabe speichern").apply {
             setOnAction {
-                if (titleField.text.isNotEmpty() &&
-                    priorityField.text.isNotEmpty() &&
-                    selectedFile != null
-                ) {
-                    val base64Image = taskService.encodeImageToBase64(selectedFile!!.absolutePath)
-                    val priority = priorityField.text
-                    val startHour = startTimeField.value
-                    val endHour = endTimeField.value
-                    val today = LocalDate.now()
-                    val startLocalTime = LocalTime.of(startHour, 0)
-                    val endLocalTime = LocalTime.of(endHour, 0)
-                    val startTime = LocalDateTime.of(today, startLocalTime)
-                    val endTime = LocalDateTime.of(today, endLocalTime)
-                    val deadline = deadlinePicker.value?.atStartOfDay()
-                    val selectedUser = userDropdown.value.first
-
-                    val newTask = Task(
-                        id = Task.generateId(),
-                        title = titleField.text,
-                        priority = priority,
-                        createdAt = LocalDateTime.now(),
-                        updatedAt = LocalDateTime.now(),
-                        startTime = startTime,
-                        endTime = endTime,
-                        deadline = deadline,
-                        status = "Nicht erledigt",
-                        imageBase64 = base64Image,
-                        userId = selectedUser,
-                    )
-
-                    taskService.save(newTask)
-                    println("Aufgabe gespeichert: ${newTask.title} für user: ${selectedUser}")
-                } else {
-                    println("Bitte alle Felder ausfüllen und ein Bild auswählen!")
-                }
+                saveTask(
+                    taskService,
+                    userDropdown,
+                    titleField,
+                    priorityField,
+                    startTimeField,
+                    endTimeField,
+                    deadlinePicker
+                )
             }
         }
 
@@ -119,6 +93,53 @@ class AddMenu {
         ).apply {
             spacing = 20.0
             style = "-fx-padding: 20px; -fx-background-color: #F5F5F5;"
+        }
+    }
+
+    private fun saveTask(
+        taskService: TaskService,
+        userDropdown: ComboBox<Pair<Int, String>>,
+        titleField: TextField,
+        priorityField: TextField,
+        startTimeField: Spinner<Int>,
+        endTimeField: Spinner<Int>,
+        deadlinePicker: DatePicker
+    ) {
+        if (titleField.text.isNotEmpty() &&
+            priorityField.text.isNotEmpty() &&
+            selectedFile != null &&
+            userDropdown.value != null
+        ) {
+            val base64Image = taskService.encodeImageToBase64(selectedFile!!.absolutePath)
+            val priority = priorityField.text
+            val startHour = startTimeField.value
+            val endHour = endTimeField.value
+            val today = LocalDate.now()
+            val startLocalTime = LocalTime.of(startHour, 0)
+            val endLocalTime = LocalTime.of(endHour, 0)
+            val startTime = LocalDateTime.of(today, startLocalTime)
+            val endTime = LocalDateTime.of(today, endLocalTime)
+            val deadline = deadlinePicker.value?.atStartOfDay()
+            val selectedUser = userDropdown.value.first
+
+            val newTask = Task(
+                id = Task.generateId(),
+                title = titleField.text,
+                priority = priority,
+                createdAt = LocalDateTime.now(),
+                updatedAt = LocalDateTime.now(),
+                startTime = startTime,
+                endTime = endTime,
+                deadline = deadline,
+                status = "Nicht erledigt",
+                imageBase64 = base64Image,
+                userId = selectedUser,
+            )
+
+            taskService.save(newTask)
+            println("Aufgabe gespeichert: ${newTask.title} für Benutzer: ${selectedUser}")
+        } else {
+            println("Bitte alle Felder ausfüllen und ein Bild auswählen!")
         }
     }
 }

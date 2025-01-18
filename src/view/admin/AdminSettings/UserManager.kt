@@ -29,7 +29,7 @@ class UserManager(
                 val userName = selectedUser.substringBefore(" (")
                 val user = userService.findAll().find { it.name == userName }
                 if (user != null) {
-                    val userEditPane = createBetreuterSubMenu(user)
+                    val userEditPane = showUserUpdateDialog(user)
                     userDetailsPane.children.setAll(userEditPane)
                 }
             }
@@ -37,7 +37,7 @@ class UserManager(
 
         val addUserButton = Button("Add User").apply {
             setOnAction {
-                showAddUserModal(userList)
+                showUserAddModal(userList)
             }
         }
 
@@ -66,7 +66,7 @@ class UserManager(
         }
     }
 
-    private fun createBetreuterSubMenu(user: User): VBox {
+    private fun showUserUpdateDialog(user: User): VBox {
         val nameField = TextField(user.name).apply {
             promptText = "Username"
         }
@@ -104,7 +104,7 @@ class UserManager(
         }
     }
 
-    private fun showAddUserModal(userList: ListView<String>) {
+    private fun showUserAddModal(userList: ListView<String>) {
         val dialog = Dialog<User>().apply {
             title = "Add New User"
             dialogPane.content = VBox(10.0).apply {
@@ -156,10 +156,6 @@ class UserManager(
             this.contentText = message
             showAndWait()
         }
-    }
-
-    private fun isValidUsername(username: String): Boolean {
-        return username.matches(Regex("^[a-zA-Z0-9_]+$"))
     }
 
     private fun isValidEmail(email: String): Boolean {

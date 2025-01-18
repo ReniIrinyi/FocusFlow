@@ -22,7 +22,7 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.*
 
-class TimeLineMenu {
+class TimeLine {
 
     private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
     private val timelineContent = Pane()

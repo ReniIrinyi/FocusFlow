@@ -18,6 +18,24 @@ class TaskStorage : StorageInterface<Task> {
     private val filePath = Constants.TASKS_FILE_PATH
     private val file = File(filePath)
 
+
+    init {
+        checkIfFilePathExists()
+    }
+
+    /**
+     * Überprüft, ob die Datei zum Speichern der Aufgaben existiert.
+     * Wenn nicht, wird eine neue Datei erstellt.
+     */
+    override fun checkIfFilePathExists() {
+        if (!file.exists()) {
+            println("Datei $file existiert nicht. Eine neue Datei wird erstellt...")
+            file.createNewFile()
+        } else {
+            println("Datei $file existiert bereits.")
+        }
+    }
+
     /**
      * Lädt alle Tasks aus der Datei.
      *
@@ -193,4 +211,6 @@ class TaskStorage : StorageInterface<Task> {
     private fun unescapeField(field: String): String {
         return field.replace("\\n", "\n").replace("\\|", "|").replace("\\\\", "\\")
     }
+
+
 }

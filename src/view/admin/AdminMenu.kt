@@ -8,48 +8,25 @@ import service.TaskService
 import service.UserService
 import view.admin.AdminSettings.TimelineSettings
 import view.admin.AdminSettings.UserManager
-import view.admin.AdminSettings.UserSettings
-import view.timeline.MultiTimeLineManager
-import view.admin.AdminSettings.AddMenu
+import view.admin.AdminSettings.AdminAuthSettings
+import view.admin.AdminSettings.TaskManager
 
 class AdminMenu(private val taskService: TaskService, private val userService: UserService) {
 
     private val content = StackPane()
 
     fun createView(): VBox {
-        // Create Header with Admin Settings options
+
         val header = createAdminSettingsHeader()
-
-        // Sidebar Buttons
-        val addTaskButton = Button("Add Task").apply {
-            setOnAction {
-                val addMenu = AddMenu()
-                content.children.setAll(addMenu.createView(taskService, userService))
-            }
-        }
-
-        val multiTimelineButton = Button("Show Timelines").apply {
-            setOnAction {
-                val multiTimeLineManager = MultiTimeLineManager(taskService, userService)
-                content.children.setAll(multiTimeLineManager.createView())
-            }
-        }
-
-        // Sidebar layout
-        val sidebar = VBox(10.0, addTaskButton, multiTimelineButton).apply {
-            style = "-fx-padding: 10px; -fx-background-color: #F5F5F5;"
-        }
-
-        // Combine Header, Sidebar, and Content
-        return VBox(20.0, header, HBox(20.0, sidebar, content)).apply {
+        return VBox(20.0, header, HBox(20.0, content)).apply {
             style = "-fx-padding: 20px; -fx-background-color: #E8F5E9;"
         }
     }
 
     private fun createAdminSettingsHeader(): HBox {
-        val userSettingsButton = Button("Benutzereinstellungen").apply {
+        val userSettingsButton = Button("Einstellungen Admin").apply {
             setOnAction {
-                val userSettings = UserSettings(userService) {
+                val userSettings = AdminAuthSettings(userService) {
                     refreshView()
                 }
                 content.children.setAll(userSettings.createView())
@@ -71,9 +48,14 @@ class AdminMenu(private val taskService: TaskService, private val userService: U
             }
         }
 
+        val taskManagerButton = Button("Aufgaben Verwalten").apply {
+            setOnAction {
+                val taskManager = TaskManager(taskService, userService)
+                content.children.setAll(taskManager.createView())
+            }
+        }
 
-        // Header layout with buttons
-        return HBox(10.0, userSettingsButton, userManagerButton,timelineSettingsButton).apply {
+        return HBox(10.0,taskManagerButton, userSettingsButton, userManagerButton,timelineSettingsButton).apply {
             style = "-fx-padding: 10px; -fx-background-color: #ECECEC; -fx-spacing: 15px;"
         }
     }

@@ -3,47 +3,75 @@ skinparam style strictuml
 skinparam packageStyle rectangle
 
 package "Presentation Layer (View)" {
-  interface Menu {
-    + createView(): VBox
-    + refresh(): void
+  interface MainMenü {
+    + showUserSettings()
+    + setupHeader()
+    + showTimeLineMenu()
+    + showAdminMenu()
+    + authenticateAdmin():bool
+    + showAlert()
   }
 
-  class TimelineMenu {
-    + createView(): VBox
-    + refresh(): void
+  class TimeLineManager {
+    + createView()
+    + loadTimeLineSettings():Pair<Int, List<Int>
   }
+
+  class TimeLine{
+      + createView(): Pane
+      + initAutoScrollToCurrentTime(): void
+      + drawTimeMarkers()
+      + drawTasks(List)
+      + initTimeUpdater()
+  }
+
+  class TimeLineHeader{
+    + init()
+    + startClock()
+  }
+
+  TimeLineManager <|--TimeLineHeader
+  TimeLineManager <|--TimeLine
 
   class AdminMenu {
     + createView(): VBox
-    + refresh(): void
     - createAdminSettingsHeader(): HBox
     - refreshView(): void
   }
 
-  Menu <|-- TimelineMenu
-  Menu <|-- AdminMenu
+  MainMenü <|-- TimeLineManager
+  MainMenü <|-- AdminMenu
 
   package "AdminSettings" {
     class TaskManager {
       + createView(): VBox
+      + addTask()
     }   
     class TimelineSettings {
       + createView(): VBox
+      + loadTimeLineSettings()
+      + saveTimeLineSettings()
+      + showAlert()
     }
 
     class UserManager {
       + createView(): VBox
+      + showUserUpdateDialog()
+      + showUserAddModal()
+
     }
 
-    class UserSettings {
+    class AdminAuthSettings {
       + createView(): VBox
+      + updatePassword()
+      + showalert()
     }
   }
 
-  AdminMenu --> AdminSettings.TimelineSettings
-  AdminMenu --> AdminSettings.UserManager
-  AdminMenu --> AdminSettings.UserSettings
   AdminMenu --> AdminSettings.TaskManager
+  AdminMenu --> AdminSettings.AdminAuthSettings
+  AdminMenu --> AdminSettings.UserManager
+  AdminMenu --> AdminSettings.TimelineSettings
 }
 
 package "ServiceLayer" {
@@ -57,7 +85,9 @@ package "ServiceLayer" {
   class TaskService {
     + findAll(): List<Task>
     + findById(Int): Task
+    + findByUserId(Int): void
     + save(Task): void
+    + encodeImageToBase64(Int): void
     + delete(Int): void
   }
 
@@ -66,41 +96,52 @@ package "ServiceLayer" {
     + findById(Int): User
     + save(User): void
     + delete(Int): void
+    + isAdminExists():bool
+    + getAdmin():User
+    + hashPassword(String):String
+    + updateAdminPasswort():void
+    + validateUser(Username,Passwort):void
   }
 
   CrudService <|.. TaskService
   CrudService <|.. UserService
 
 
-  TimelineMenu --> CrudService
-  AdminMenu --> CrudService
+  MainMenü --> CrudService
 
   CrudService --> Controller.StorageInterface
+
 }
 
 package Controller {
   interface StorageInterface<T> {
+       + checkIfFilePathExists():void
        + loadEntities(): List<T>
        + saveEntities(List<T>): void
        + addEntity(T): void
        + updateEntity(Int, T): Boolean
-       + deleteEntity(Int): Boolean
+       + deleteEntityById(Int): Boolean
      }
 
      class TaskStorage {
+       + checkIfFilePathExists():void
        + loadEntities(): List<Task>
        + saveEntities(List<Task>): void
        + addEntity(Task): void
        + updateEntity(Int, Task): Boolean
-       + deleteEntity(Int): Boolean
+       + deleteEntityById(Int): Boolean
+       + serializeTask(Task):String
+       + parseTask(String):Task
      }
 
      class UserStorage {
+       + checkIfFilePathExists():void
+       + initializeCurrentId():void
        + loadEntities(): List<User>
        + saveEntities(List<User>): void
        + addEntity(User): void
        + updateEntity(Int, User): Boolean
-       + deleteEntity(Int): Boolean
+       + deleteEntityById(Int): Boolean
      }
 
      StorageInterface <|.. TaskStorage

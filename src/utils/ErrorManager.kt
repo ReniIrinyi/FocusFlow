@@ -7,7 +7,7 @@ package utils
  */
 object ErrorManager {
     // Statuswerte
-    val STATUS_NOT_DONE = 0  // Nicht erledigt (Standardwert)
+    const val STATUS_NOT_DONE = 0  // Nicht erledigt (Standardwert)
     const val STATUS_IN_PROGRESS = 1 // In Bearbeitung
     const val STATUS_DONE = 2            // Erledigt
 

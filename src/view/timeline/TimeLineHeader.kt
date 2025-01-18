@@ -12,7 +12,6 @@ import javafx.util.Duration
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-//todo: warum so langsam..
 class TimeLineHeader : HBox() {
     private val timeLabel = Label().apply {
         textFill = Color.WHITE
