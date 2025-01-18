@@ -1,0 +1,18 @@
+@startuml
+start
+
+:Admin meldet sich an und navigiert zur **Task-Verwaltung**;
+
+if (Aktion auswählen: Erstellen, Bearbeiten, Löschen?) then (Erstellen)
+  :Formular für neuen Task ausfüllen;
+  :Speichere Task in der Datenbank;
+else if (Bearbeiten)
+  :Existierenden Task auswählen;
+  :Task-Daten bearbeiten und speichern;
+else if (Löschen)
+  :Task auswählen und aus der Datenbank entfernen;
+endif
+
+:Erfolgsmeldung anzeigen;
+stop
+@enduml

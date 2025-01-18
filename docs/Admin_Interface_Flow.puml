@@ -1,0 +1,20 @@
+@startuml
+start
+
+:Anwendung wird gestartet;
+:Überprüfen, ob ein Admin existiert;
+
+if (Existiert ein Admin?) then (Ja)
+  :Standardoberfläche wird geladen;
+  :Zeige Standardansicht: **Timeline**;
+  if (Benutzer klickt auf "Admin") then (Ja)
+    :Admin-Login-Formular wird angezeigt;
+  endif
+else (Nein)
+  :Zeige Popup: "Erstellen Sie einen neuen Admin";
+  :Admin-Daten (z.B. Name, Passwort) eingeben;
+  :Speichere neuen Admin und lade die Standardansicht;
+endif
+
+stop
+@enduml

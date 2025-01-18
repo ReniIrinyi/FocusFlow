@@ -1,0 +1,14 @@
+@startuml
+actor Admin
+participant "UserController" as UC
+participant "UserService" as US
+
+Admin -> UC : addUser(Benutzer)
+UC -> US : checkUserLimit()
+alt Benutzer hinzufügen möglich
+    US -> US : Benutzer in Datenbank speichern
+    UC -> Admin : Benutzer erfolgreich hinzugefügt
+else Limit erreicht
+    UC -> Admin : Fehler: Maximale Benutzeranzahl erreicht
+end
+@enduml

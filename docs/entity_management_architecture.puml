@@ -1,0 +1,60 @@
+@startuml
+skinparam style strictuml
+skinparam packageStyle rectangle
+
+package "StorageLayer" {
+  interface StorageInterface<T> {
+    + loadEntities(): List<T>
+    + saveEntities(List<T>): void
+    + addEntity(T): void
+    + updateEntity(Int, T): Boolean
+    + deleteEntity(Int): Boolean
+  }
+
+  class TaskStorage {
+    + loadEntities(): List<Task>
+    + saveEntities(List<Task>): void
+    + addEntity(Task): void
+    + updateEntity(Int, Task): Boolean
+    + deleteEntity(Int): Boolean
+  }
+
+  class UserStorage {
+    + loadEntities(): List<User>
+    + saveEntities(List<User>): void
+    + addEntity(User): void
+    + updateEntity(Int, User): Boolean
+    + deleteEntity(Int): Boolean
+  }
+
+  StorageInterface <|.. TaskStorage
+  StorageInterface <|.. UserStorage
+}
+
+package "ServiceLayer" {
+  interface CrudService<T> {
+    + findAll(): List<T>
+    + findById(Int): T
+    + save(T): void
+    + delete(Int): void
+  }
+
+  class TaskService {
+    + findAll(): List<Task>
+    + findById(Int): Task
+    + save(Task): void
+    + delete(Int): void
+  }
+
+  class UserService {
+    + findAll(): List<User>
+    + findById(Int): User
+    + save(User): void
+    + delete(Int): void
+  }
+
+  CrudService --> StorageLayer.StorageInterface
+  CrudService <|.. TaskService
+  CrudService <|.. UserService
+}
+@enduml

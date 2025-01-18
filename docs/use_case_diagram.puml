@@ -1,0 +1,15 @@
+@startuml
+left to right direction
+actor "Admin" as Admin
+actor "User" as User
+
+usecase "Benutzerverwaltung (CRUD)" as UC1
+usecase "Task-Verwaltung (CRUD)" as UC2
+usecase "Timeline einsehen (tagesaktuell)" as UC3
+usecase "Admin erstellen (bei erster Anwendung)" as UC4
+
+Admin --> UC1
+Admin --> UC2
+Admin -> UC3 : automatisch geladen
+User --> UC3 : Zugriff auf Timeline
+@enduml

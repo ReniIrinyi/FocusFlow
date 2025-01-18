@@ -1,0 +1,17 @@
+@startuml
+start
+
+:Benutzer öffnet die Benutzeroberfläche;
+:Timeline-Daten werden automatisch geladen;
+
+:Tasks abrufen für den Benutzer (User-ID);
+
+if (Tagesaktuelle Tasks vorhanden?) then (Ja)
+  :Zeige die Timeline mit den tagesaktuellen Aufgaben;
+else (Nein)
+  :Anzeige: **"Es liegen keine Aufgaben für heute vor"**;
+endif
+
+:Benutzer betrachtet die Timeline (Read-Only);
+stop
+@enduml

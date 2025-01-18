@@ -1,0 +1,77 @@
+@startuml
+start
+
+:Benutzer öffnet die Anwendung;
+:Benutzer kann nur die ihm zugewiesene Timeline einsehen;
+
+:Filtern der Aufgaben nach aktuellem Datum;
+
+if (Gibt es Aufgaben für heute?) then (Ja);
+  :Zeige Timeline mit aktuellen Aufgaben;
+else (Nein);
+  :Nachricht: "Keine Aufgaben für heute";
+endif
+
+stop
+@enduml@startuml
+skinparam style strictuml
+skinparam packageStyle rectangle
+
+package "Admin-Bereich (Ansicht)" {
+  class AdminMenu {
+    + manageTasks(): void
+    + manageUsers(): void
+  }
+}
+
+package "User-Bereich (Ansicht)" {
+  class TimelineMenu {
+    + viewCurrentTasks(): void
+  }
+}
+
+package "Controller-Schicht" {
+  class UserController {
+    + addUser(User user): void
+    + deleteUser(int id): void
+  }
+
+  class TaskController {
+    + createTask(Task task): void
+    + deleteTask(int id): void
+    + updateTask(Task task): void
+  }
+}
+
+package "Service-Schicht" {
+  class UserService {
+    + checkUserLimit(): boolean
+  }
+
+  class TaskService {
+    + filterTasksByDate(LocalDate date): List<Task>
+  }
+}
+
+package "Datenmodel (Model)" {
+  class Task {
+    + id: int
+    + title: String
+    + startDate: LocalDate
+    + assignedUser: User
+  }
+
+  class User {
+    + id: int
+    + name: String
+  }
+}
+
+AdminMenu --> UserController
+AdminMenu --> TaskController
+TimelineMenu --> TaskService
+UserController --> UserService
+TaskController --> TaskService
+TaskService --> Task
+UserService --> User
+@enduml

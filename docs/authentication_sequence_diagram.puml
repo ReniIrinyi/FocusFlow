@@ -1,0 +1,13 @@
+@startuml
+actor Admin
+participant UI
+participant AuthService
+participant Database
+
+Admin -> UI: Benutzername und Passwort eingeben
+UI -> AuthService: Anfrage zur Authentifizierung
+AuthService -> Database: Passwort abrufen
+Database --> AuthService: Passwort prüfen
+AuthService --> UI: Authentifizierung erfolgreich
+UI --> Admin: Zugriff auf Admin-Bereich gewährt
+@enduml

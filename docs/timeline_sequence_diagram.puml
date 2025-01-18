@@ -1,0 +1,10 @@
+tartuml
+actor User
+participant "TimelineMenu" as Menu
+participant "TaskService" as Service
+
+User -> Menu: Zugriff auf Timeline
+Menu -> Service: getTasksByUserIdAndDate(userId, currentDate)
+Service --> Menu: Liste von Aufgaben
+Menu --> User: Zeige Timeline
+@enduml

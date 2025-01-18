@@ -1,13 +1,5 @@
 import javafx.application.Application
-import model.Task
-import service.FileHandler
-import service.TaskService
-import ui.main.MainMenu
-import ui.show.ShowMenu
-import utils.Constants
-import utils.Priority
-import java.time.LocalDateTime
-import java.time.LocalTime
+import view.MainMenu
 
 /**
  * Einstiegspunkt der Anwendung.

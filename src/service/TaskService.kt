@@ -1,160 +1,74 @@
 package service
 
 import model.Task
+import controller.TaskStorage
 import utils.ImgHandler
 
 /**
- * Diese Klasse verwaltet die Geschäftslogik der Aufgaben.
- * - Nutzt FileHandler für die persistente Speicherung der Aufgaben.
- * - Enthält die Logik für:
- *   - Abrufen von Aufgaben
- *   - Hinzufügen neuer Aufgaben
- *   - Aktualisieren vorhandener Aufgaben
- *   - Löschen von Aufgaben
+ * Die TaskService-Klasse dient der Verwaltung von Task-Entitäten (Aufgaben).
+ * Diese Klasse implementiert das CrudService-Interface für den Typ "Task".
  */
-class TaskService(): FileHandler() {
+class TaskService : CrudService<Task> {
 
-    private val imgHandler = ImgHandler()
-    private val tasks = mutableListOf<Task>() // Lokale Liste der Aufgaben.
+    // Verbindung zur TaskStorage-Klasse, die die Speicherung der Entitäten verwaltet.
+    private val storage = TaskStorage()
 
     /**
-     * Konstruktor, der automatisch alle gespeicherten Aufgaben lädt.
+     * Ruft alle Task-Entitäten aus dem Speicher ab.
+     *
+     * @return Eine Liste aller gespeicherten Tasks.
      */
-    init {
-        init() // Initialisiert den TaskService und lädt die gespeicherten Aufgaben.
+    override fun findAll(): List<Task> {
+        return storage.loadEntities().first // Lädt alle Aufgaben (Tasks) und gibt die Liste zurück.
     }
 
     /**
-     * Initialisiert den TaskService und lädt alle gespeicherten Aufgaben.
-     * Diese Methode wird im Konstruktor automatisch aufgerufen.
+     * Ruft eine spezifische Task anhand ihrer eindeutigen ID ab.
+     *
+     * @param id Die ID der gesuchten Task.
+     * @return Die gefundene Task, falls vorhanden, ansonsten null.
      */
-    fun init() {
-      //  tasks.clear()
-        val (loadedTasks, status) = loadTasks()
-        handleFileHandlerResponse(
-            status,
-            successMessage = "TaskService erfolgreich initialisiert. ${loadedTasks.size} Aufgaben geladen.",
-            failureMessage = "Fehler beim Laden der Aufgaben."
-        ) {
-            tasks.addAll(loadedTasks)
+    override fun findById(id: Int): Task? {
+        return findAll().find { it.id == id } // Sucht nach einer Task mit der angegebenen ID in der Liste.
+    }
+
+    /**
+     * Speichert eine neue Task oder aktualisiert eine bestehende.
+     *
+     * @param entity Die Task, die gespeichert oder aktualisiert werden soll.
+     */
+    override fun save(entity: Task) {
+        val tasks = findAll() // Ruft alle Aufgaben ab.
+        val existingTask = tasks.find { it.id == entity.id } // Überprüft, ob die Aufgabe bereits existiert.
+
+        if (existingTask == null) {
+            // Wenn die Aufgabe nicht existiert, wird sie als neue hinzugefügt.
+            storage.addEntity(entity)
+        } else {
+            // Falls die Aufgabe existiert, wird sie aktualisiert.
+            storage.updateEntity(entity.id, entity)
         }
     }
 
     /**
-     * Get all tasks for a specific user.
-     * @param userId The ID of the user.
-     * @return List of tasks assigned to the user.
+     * Löscht eine Task-Entität anhand ihrer ID.
+     *
+     * @param id Die ID der zu löschenden Task.
      */
+    override fun delete(id: Int) {
+        storage.deleteEntityById(id) // Löscht die Task anhand der ID.
+    }
+
+    fun encodeImageToBase64(absolutePath: String): String {
+        val imgHandler = ImgHandler()
+        return imgHandler.encodeImageToBase64(absolutePath)
+
+    }
+
     fun getTasksForUser(userId: Int): List<Task> {
+        val tasks = findAll()
         println(tasks.filter { it.userId == userId })
         return tasks.filter { it.userId == userId }
-    }
-
-    /**
-     * Gibt alle vorhandenen Aufgaben zurück.
-     * @return Liste aller Aufgaben (List<Task>).
-     */
-    fun getAllTasks(): List<Task> {
-        return tasks.toList()
-    }
-
-    /**
-     * Gibt die Aufgabe mit der übergebenen ID zurück.
-     * TODO @david:
-     * //alle aufgaben laden
-     * 1. Suche die Aufgabe in der `tasks`-Liste, deren ID mit `taskId` übereinstimmt.
-     * 2. Wenn die Aufgabe gefunden wird, gib sie zurück.
-     * 3. Wenn keine Aufgabe gefunden wird, Errormeldung.
-     *
-     * @param taskId Die ID der gesuchten Aufgabe.
-     * @return Die Aufgabe mit der entsprechenden ID (Task).
-     */
-    fun getTask(taskId: Int): Task {
-        return return {} as Task
-    }
-
-    /**
-     * Aktualisiert die Aufgabe mit der übergebenen ID.
-     * TODO @david:
-     * 1. Suche die Aufgabe in der `tasks`-Liste anhand der ID (`taskId`).
-     * 2. Wenn die Aufgabe gefunden wird:
-     *    - Aktualisiere die Aufgabe mit den neuen Werten (`updatedTask`).
-     *    - Speichere die aktualisierte Liste mit `fileHandler.saveTasks(tasks)`.
-     * 3. Wenn die Aufgabe nicht gefunden wird, wirf eine Ausnahme.
-     *
-     * @param taskId Die ID der Aufgabe, die aktualisiert werden soll.
-     * @param updatedTask Neue Daten für die Aufgabe (Task).
-     * @return Die aktualisierte Aufgabe (Task).
-     */
-    fun add(newTask: Task) {
-      var status = addTask(newTask)
-  }
-
-    /**
-     * Fügt eine neue Aufgabe hinzu.
-     * TODO @alex:
-     * 1. Füge die neue Aufgabe (`task`) zur `tasks`-Liste hinzu.
-     * 2. Speichere die aktualisierte Liste mit `fileHandler.saveTasks(tasks)`.
-     *
-     * @param task Die neue Aufgabe, die hinzugefügt werden soll.
-     */
-   fun update(taskId: Int, updatedTask: Task) {
-     var status =  updateTask(taskId,updatedTask)
-   }
-
-    /**
-     * Löscht eine Aufgabe.
-     * TODO @alex:
-     * 1. Entferne die Aufgabe (`task`) aus der `tasks`-Liste.
-     * 2. Wenn die Aufgabe erfolgreich entfernt wurde:
-     *    - Speichere die aktualisierte Liste mit `fileHandler.saveTasks(tasks)`.
-     * 3. Wenn die Aufgabe nicht gefunden wird, Errormeldung.
-     *
-     * @param task Die Aufgabe, die gelöscht werden soll.
-     */
-    fun delete(taskId:Int) {
-        var status = deleteTaskById(taskId)
-        handleFileHandlerResponse(status,"", "",
-            {
-            println("onSucess")
-        }
-        )
-    }
-
-    /**
-     * Behandelt die Rückgabewerte des FileHandler und gibt eine Erfolgsmeldung aus.
-     * Bei Erfolg wird die übergebene `onSuccess`-Aktion ausgeführt.
-     *
-     * @param status Der Statuscode vom FileHandler.
-     * @param successMessage Die Nachricht, die bei Erfolg ausgegeben werden soll.
-     * @param failureMessage Die Nachricht, die bei einem Fehler ausgegeben werden soll.
-     * @param onSuccess Eine optionale Aktion, die bei Erfolg ausgeführt werden soll.
-     * @return Boolean, ob die Operation erfolgreich war.
-     */
-    private fun handleFileHandlerResponse(
-        status: Int,
-        successMessage: String,
-        failureMessage: String,
-        onSuccess: (() -> Unit)? = null
-    ): Boolean {
-        return if (status == 200) {
-            println(successMessage)
-            onSuccess?.invoke()
-            true
-        } else {
-            println(failureMessage)
-            false
-        }
-    }
-
-     fun decodeBase64ToImage(base64String: String): String {
-        TODO("Not yet implemented")
-    }
-
-     fun encodeImageToBase64(absolutePath: String): String {
-        val imgHandler = ImgHandler()
-       return imgHandler.encodeImageToBase64(absolutePath)
-
     }
 
 }

@@ -1,0 +1,142 @@
+@startuml
+skinparam style strictuml
+skinparam packageStyle rectangle
+
+package "Presentation Layer (View)" {
+  interface Menu {
+    + createView(): VBox
+    + refresh(): void
+  }
+
+  class TimelineMenu {
+    + createView(): VBox
+    + refresh(): void
+  }
+
+  class AdminMenu {
+    + createView(): VBox
+    + refresh(): void
+    - createAdminSettingsHeader(): HBox
+    - refreshView(): void
+  }
+
+  Menu <|-- TimelineMenu
+  Menu <|-- AdminMenu
+
+  package "AdminSettings" {
+    class TaskManager {
+      + createView(): VBox
+    }   
+    class TimelineSettings {
+      + createView(): VBox
+    }
+
+    class UserManager {
+      + createView(): VBox
+    }
+
+    class UserSettings {
+      + createView(): VBox
+    }
+  }
+
+  AdminMenu --> AdminSettings.TimelineSettings
+  AdminMenu --> AdminSettings.UserManager
+  AdminMenu --> AdminSettings.UserSettings
+  AdminMenu --> AdminSettings.TaskManager
+}
+
+
+package "ServiceLayer" {
+  interface CrudService<T> {
+    + findAll(): List
+    + findById(int id): T
+    + save(T entity): void
+    + delete(int id): void
+  }
+
+  class TaskService {
+    + findAll(): List<Task>
+    + findById(int id): Task
+    + save(Task entity): void
+    + delete(int id): void
+  }
+
+  class UserService {
+    + findAll(): List<User>
+    + findById(int id): User
+    + save(User entity): void
+    + delete(int id): void
+  }
+
+  CrudService <|.. TaskService
+  CrudService <|.. UserService
+
+  CrudService --> Storage.TaskStorage
+  CrudService --> Storage.UserStorage
+}
+
+package "StorageLayer" {
+  class TaskStorage {
+    + loadEntities(): List<Task>
+    + saveEntities(List<Task>): void
+    + addEntity(Task): void
+    + updateEntity(int, Task): void
+    + deleteEntity(int): void
+  }
+
+  class UserStorage {
+    + loadEntities(): List<User>
+    + saveEntities(List<User>): void
+    + addEntity(User): void
+    + deleteEntity(int): void
+  }
+}
+
+package "Controller Layer" {
+  class TaskController {
+    + getTasks(): List
+    + addTask(Task task): void
+    + updateTask(int, Task): void
+    + deleteTask(int): void
+  }
+
+  class UserController {
+    + getUsers(): List
+    + addUser(User user): void
+    + deleteUser(int): void
+  }
+
+  TaskController --> ServiceLayer.CrudService
+  UserController --> ServiceLayer.CrudService
+
+  AdminMenu --> TaskController
+  AdminMenu --> UserController
+  TimelineMenu --> TaskController
+}
+
+
+package "Model Layer" {
+  class Task {
+    + id: int
+    + title: String
+    + startTime: LocalDateTime
+    + endTime: LocalDateTime
+  }
+
+  class User {
+    + id: int
+    + name: String
+    + role: String
+  }
+}
+
+package "Utilities" {
+  class ErrorManager {
+    + logError(String, Exception): void
+    + alertUser(String, String): void
+  }
+
+  ErrorManager ..> ServiceLayer.CrudService
+}
+@enduml

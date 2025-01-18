@@ -17,6 +17,11 @@ Initialisiert den TaskService und lädt alle gespeicherten Aufgaben.
 Diese Methode wird im Konstruktor automatisch aufgerufen.
 
 
+Get all tasks for a specific user.
+@param userId The ID of the user.
+@return List of tasks assigned to the user.
+
+
 Gibt alle vorhandenen Aufgaben zurück.
 @return Liste aller Aufgaben (List<Task>).
 

@@ -1,0 +1,134 @@
+@startuml
+skinparam style strictuml
+skinparam packageStyle rectangle
+
+package "Presentation Layer (View)" {
+  interface Menu {
+    + createView(): VBox
+    + refresh(): void
+  }
+
+  class TimelineMenu {
+    + createView(): VBox
+    + refresh(): void
+  }
+
+  class AdminMenu {
+    + createView(): VBox
+    + refresh(): void
+    - createAdminSettingsHeader(): HBox
+    - refreshView(): void
+  }
+
+  Menu <|-- TimelineMenu
+  Menu <|-- AdminMenu
+
+  package "AdminSettings" {
+    class TaskManager {
+      + createView(): VBox
+    }   
+    class TimelineSettings {
+      + createView(): VBox
+    }
+
+    class UserManager {
+      + createView(): VBox
+    }
+
+    class UserSettings {
+      + createView(): VBox
+    }
+  }
+
+  AdminMenu --> AdminSettings.TimelineSettings
+  AdminMenu --> AdminSettings.UserManager
+  AdminMenu --> AdminSettings.UserSettings
+  AdminMenu --> AdminSettings.TaskManager
+}
+
+package "ServiceLayer" {
+  interface CrudService<T> {
+    + findAll(): List<T>
+    + findById(Int): T
+    + save(T): void
+    + delete(Int): void
+  }
+
+  class TaskService {
+    + findAll(): List<Task>
+    + findById(Int): Task
+    + save(Task): void
+    + delete(Int): void
+  }
+
+  class UserService {
+    + findAll(): List<User>
+    + findById(Int): User
+    + save(User): void
+    + delete(Int): void
+  }
+
+  CrudService <|.. TaskService
+  CrudService <|.. UserService
+
+
+  TimelineMenu --> CrudService
+  AdminMenu --> CrudService
+
+  CrudService --> Controller.StorageInterface
+}
+
+package Controller {
+  interface StorageInterface<T> {
+       + loadEntities(): List<T>
+       + saveEntities(List<T>): void
+       + addEntity(T): void
+       + updateEntity(Int, T): Boolean
+       + deleteEntity(Int): Boolean
+     }
+
+     class TaskStorage {
+       + loadEntities(): List<Task>
+       + saveEntities(List<Task>): void
+       + addEntity(Task): void
+       + updateEntity(Int, Task): Boolean
+       + deleteEntity(Int): Boolean
+     }
+
+     class UserStorage {
+       + loadEntities(): List<User>
+       + saveEntities(List<User>): void
+       + addEntity(User): void
+       + updateEntity(Int, User): Boolean
+       + deleteEntity(Int): Boolean
+     }
+
+     StorageInterface <|.. TaskStorage
+     StorageInterface <|.. UserStorage
+
+}
+
+package "Model Layer" {
+  class Task {
+    + id: Int
+    + title: String
+    + startTime: LocalDateTime
+    + endTime: LocalDateTime
+  }
+
+  class User {
+    + id: Int
+    + name: String
+    + role: String
+  }
+}
+
+package "Utilities" {
+  class ErrorManager {
+    + logError(String, Exception): void
+    + alertUser(String, String): void
+  }
+
+  ErrorManager ..> Controller.StorageInterface
+}
+@enduml

@@ -1,0 +1,13 @@
+@startuml
+start
+:Admin öffnet die Anwendung;
+:Admin klickt auf "Login";
+:Benutzerdaten werden eingegeben;
+
+if (Authentifizierung erfolgreich?) then (Ja)
+  :Admin hat Zugriff auf die Verwaltungsfunktionen;
+else
+  :Fehlermeldung: *"Login fehlgeschlagen"*;
+endif
+stop
+@enduml

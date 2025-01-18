@@ -1,0 +1,21 @@
+@startuml
+start
+
+:Admin öffnet das Menü "Aufgabe hinzufügen";
+:Admin füllt das Formular aus\\(z. B. Titel, Fälligkeitsdatum);
+
+if (Ist das Formular gültig ausgefüllt?) then (Ja)
+  :Speichern der Aufgabeninformationen;
+  :Task Controller verarbeitet die Daten;
+
+  if (Speichern erfolgreich?) then (Ja)
+    :Aufgabe erfolgreich hinzugefügt;
+  else (Nein)
+    :Fehlermeldung wird dem Benutzer angezeigt;
+  endif
+else (Nein)
+  :Fehlermeldung – "Pflichtfelder fehlen";
+endif
+
+stop
+@enduml

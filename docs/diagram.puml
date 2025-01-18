@@ -1,6 +1,6 @@
-@startuml
+startuml
 hide circle
-class FileHandler {
+open class FileHandler {
 class TaskStorageInterface
     + filePath: 
     + file: 
@@ -11,14 +11,20 @@ class TaskStorageInterface
     + createdAt: 
     + updatedAt: 
     + deadline: 
+    + startTimeStr: 
+    + endTimeStr: 
     + startTime: 
     + endTime: 
     + imageBase64: 
+    + userId: 
     + status: 
     + priority: 
     + file: 
     + lines: 
     + statusValue: 
+    + fmt: 
+    + stStr: 
+    + etStr: 
     + taskIndex: 
     + updatedTasks: 
     + updatedTasks: 
@@ -35,6 +41,7 @@ class TaskStorageInterface
     + updatedTask: 
     + updatedTasks: 
     + saveStatus: 
+    + lt: 
     + loadTasks(): Pair<List<Task>, Int>
 class Pair
 class Task
@@ -46,6 +53,7 @@ class Task
 class Enum
 class Priority
     + updateTaskStatus(taskId: Int, newStatus: Int?): Int
+    + parseFlexibleDateTime(value: String?): LocalDateTime?
     + escapeField(field: String): String
     + unescapeField(field: String): String
 }
@@ -57,6 +65,7 @@ class TaskService {
     + status: 
     + imgHandler: 
     + init(): 
+    + getTasksForUser(userId: Int): List<Task>
     + getAllTasks(): List<Task>
     + getTask(taskId: Int): Task
     + add(newTask: Task): 
@@ -64,24 +73,56 @@ class TaskService {
     + delete(taskId:Int): 
     + decodeBase64ToImage(base64String: String): String
     + encodeImageToBase64(absolutePath: String): String
-
+}
+    + loadTasks(): Pair<List<Task>, Int>
+    + saveTasks(tasks: List<Task>): Int
+    + updateTask(taskId: Int, updatedData: Task): Int
+    + addTask(newTask: Task): Int
+    + deleteTaskById(taskId: Int): Int
+    + updateTaskPriority(taskId: Int, newPriority: Enum<Priority>): Int
+    + updateTaskStatus(taskId: Int, newStatus: Int?): Int
 }
 class UserService {
-    + file: 
-    + lines: 
-    + file: 
+    + userFilePath: 
     + users: 
-    + tokens: 
-    + saveUsers(users: List<User>): Int
+    + id: 
+    + hashedPassword: 
+    + user: 
+    + users: 
+    + updatedUsers: 
+    + parts: 
+    + hashedPassword: 
+    + users: 
+    + userLine: 
+    + userData: 
+    + role: 
+    + savedPassword: 
+    + inputHashedPassword: 
+    + users: 
+    + updatedUsers: 
+    + parts: 
+    + users: 
+    + updatedUsers: 
+    + md: 
+    + hashedBytes: 
+    + checkIfFilePathExists(): 
+    + initializeCurrentId(): 
+    + saveUser(name: String, email: String, password: String?, role: Role): 
+class Role
+    + updateAdminPassword(username: String, newPassword: String): 
+    + validateUser(username: String, inputPassword: String?): Boolean
+    + updateUser(userId: Int, updatedName: String, updatedEmail: String, updatedRole: Role): 
+    + isAdminExists(): Boolean
+    + getAdmin(): User?
 class User
-    + loadUsers(): Pair<List<User>, Int>
-    + authenticateUser(email: String?, password: String?): 
-    + generateUserId(): Int
-    + registerUser(newUser: User): Boolean
+    + getUserById(userId: Int): User?
+    + getUsers(): List<User>
+    + deleteUser(userId: Int): 
+    + hashPassword(password: String): String
 }
 class AddMenu {
-    + stage: 
     + fileChooser: 
+    + userDropdown: 
     + titleField: 
     + priorityField: 
     + startTimeField: 
@@ -91,70 +132,271 @@ class AddMenu {
     + uploadButton: 
     + selectedFileLabel: 
     + selectedFile: File?
-
+class File
+    + file: 
+    + saveButton: 
+    + base64Image: 
+    + priority: 
+    + startHour: 
+    + endHour: 
+    + today: 
+    + startLocalTime: 
+    + endLocalTime: 
+    + startTime: 
+    + endTime: 
+    + deadline: 
+    + selectedUser: 
+    + newTask: 
+    + createView(taskService: TaskService, userService: UserService): VBox
+class VBox
 }
-
+class AdminMenu {
+    + content: 
+    + header: 
+    + addTaskButton: 
+    + addMenu: 
+    + multiTimelineButton: 
+    + multiTimeLineManager: 
+    + sidebar: 
+    + userSettingsButton: 
+    + userSettings: 
+    + userManagerButton: 
+    + userManager: 
+    + timelineSettingsButton: 
+    + timelineSettings: 
+    + createView(): VBox
+    + createAdminSettingsHeader(): HBox
+class HBox
+    + refreshView(): 
+}
+class Header {
+    + userSettingsButton: 
+    + timelineSettingsButton: 
+    + otherSettingsButton: 
+    + createHeader(): HBox
+}
+    + settingsFile: 
+    + timelineCountDropdown: 
+    + userDropdowns: 
+    + availableUsers: 
+    + count: 
+    + saveButton: 
+    + settingsBox: 
+    + timelineCount: 
+    + selectedUsers: 
+    + content: 
+    + content: 
+    + parts: 
+    + timelineCount: 
+    + userOptions: 
+    + userPair: 
+    + createView(): VBox
+    + saveSettings(): 
+    + loadSettings(availableUsers: List<User>): 
+    + showAlert(type: Alert.AlertType, title: String, message: String): 
+class Alert.AlertType
+}
+class TimelineSettings {
+    + settingsFile: 
+    + timelineCountDropdown: 
+    + userDropdowns: 
+    + availableUsers: 
+    + count: 
+    + saveButton: 
+    + settingsBox: 
+    + timelineCount: 
+    + selectedUsers: 
+    + content: 
+    + content: 
+    + parts: 
+    + timelineCount: 
+    + userOptions: 
+    + userPair: 
+    + createView(): VBox
+    + saveSettings(): 
+    + loadSettings(availableUsers: List<User>): 
+    + showAlert(type: Alert.AlertType, title: String, message: String): 
+}
+class UserManager {
+    + userList: 
+    + userDetailsPane: 
+    + selectedUser: 
+    + userName: 
+    + user: 
+    + userEditPane: 
+    + addUserButton: 
+    + deleteUserButton: 
+    + selectedUser: 
+    + userName: 
+    + user: 
+    + buttonBox: 
+    + nameField: 
+    + emailField: 
+    + roleDropdown: 
+    + saveButton: 
+    + updatedName: 
+    + updatedEmail: 
+    + updatedRole: 
+    + dialog: 
+    + nameField: 
+    + emailField: 
+    + passwordField: 
+    + roleDropdown: 
+    + name: 
+    + email: 
+    + password: 
+    + role: 
+    + result: 
+    + createView(): VBox
+    + createBetreuterSubMenu(user: User): VBox
+    + showAddUserModal(userList: ListView<String>): 
+class ListView
+    + showAlert(type: Alert.AlertType, title: String, message: String): 
+    + isValidUsername(username: String): Boolean
+    + isValidEmail(email: String): Boolean
+}
+class UserSettings {
+    + adminExists: 
+    + adminUser: 
+    + mainMenu: 
+    + usernameField: 
+    + emailField: 
+    + passwordField: 
+    + confirmPasswordField: 
+    + saveButton: 
+    + username: 
+    + email: 
+    + password: 
+    + confirmPassword: 
+    + usernameField: 
+    + passwordField: 
+    + confirmPasswordField: 
+    + saveButton: 
+    + password: 
+    + confirmPassword: 
+    + createView(): VBox
+    + createAdminCreationForm(): VBox
+    + createAdminSettingsView(adminUser: User?): VBox
+    + showAlert(type: Alert.AlertType, title: String, message: String): 
+    + isValidUsername(username: String): Boolean
+    + isValidEmail(email: String): Boolean
+}
+    + timelineButton: 
+    + adminButton: 
+}
+class MainMenu {
+class Application
+    + root: 
+    + userService: 
+    + taskService: 
+    + scene: 
+    + header: 
+    + timeLineMenu: 
+    + userSettings: 
+    + adminView: 
+    + dialog: 
+    + usernameField: 
+    + passwordField: 
+    + dialogPane: 
+    + result: 
+    + start(primaryStage: Stage): 
+class Stage
+    + setupHeader(): 
+    + showZeitachse(): 
+    + showUserSettings(): 
+    + showAdminView(): 
+    + authenticateAdmin(): Boolean
+    + showAlert(title: String, message: String): 
+}
+class Searchbar {
+}
 class ShowMenu {
     + show(): 
     + editTask(task: Task): 
 }
+class MultiTimeLineManager {
+    + settingsFile: 
+    + timelines: 
+    + user: 
+    + tasks: 
+    + timeLineMenu: 
+    + timelineBox: 
+    + content: 
+    + parts: 
+    + timelineCount: 
+    + userIds: 
+    + createView(): VBox
+    + loadSettings(): Pair<Int, List<Int?>>
+}
+class TimeLineHeader {
+    + timeLabel: 
+    + userLabel: 
+    + userBox: 
+    + dateLabel: 
+    + flowerIcon: 
+    + weatherBox: 
+    + timeline: 
+    + now: 
+    + startClock(): 
+}
 class TimeLineMenu {
     + timeFormatter: 
-    + timeline: 
-    + centerPane: 
+    + timelineContent: 
+    + scrollPane: 
+    + nowPointer: 
+    + windowStart: 
+    + windowEnd: 
+    + pxPerMinute: 
+    + totalHeight: 
+    + header: 
     + root: 
-    + currentTimeLine: 
     + now: 
-    + paneHeight: 
-    + position: 
-    + scene: 
-    + css: 
-    + centerX: 
-    + startHour: 
-    + endHour: 
-    + pastTimeLine: 
-    + futureTimeLine: 
-    + currentTimePointer: 
-    + now: 
-    + paneHeight: 
+    + diffMin: 
+    + currentPos: 
+    + scrollPosition: 
     + totalMinutes: 
-    + elapsedMinutes: 
-    + currentPosition: 
-    + startHour: 
-    + endHour: 
-    + paneHeight: 
-    + time: 
-    + yPos: 
-    + dotSize: 
-    + dot: 
-    + timeLabel: 
-    + imageBytes: 
-    + taskSpacing: 
-    + taskWidth: 
     + centerX: 
+    + pastLine: 
+    + futureLine: 
+    + current: 
+    + diffMin: 
+    + yPos: 
+    + timeLabel: 
+    + timeline: 
+    + now: 
+    + diffMin: 
+    + currentPos: 
+    + centerX: 
+    + taskWidth: 
     + horizontalOffset: 
-    + placedTasks: 
     + placeOnLeft: 
+    + start: 
+    + end: 
+    + startDiff: 
+    + endDiff: 
     + startY: 
     + endY: 
-    + taskHeight: 
-    + taskImage: 
+    + height: 
+    + isPast: 
+    + bgColor: 
     + imageView: 
-    + currentX: 
-    + isPastTask: 
-    + backgroundColor: 
-    + taskBlock: 
-    + startHour: 
-    + endHour: 
-    + totalMinutes: 
-    + pixelsPerMinute: 
-    + elapsedMinutes: 
-    + start(stage: Stage, tasks: List<Task>): 
-    + drawTimeLine(centerPane: Pane): 
+    + bytes: 
+    + box: 
+    + nowLine: 
+    + timeline: 
+    + now: 
+    + diffMin: 
+    + currentPos: 
+    + createView(tasks: List<Task>): Pane
+class Pane
+    + initAutoScrollToCurrentTime(): 
+    + drawTimeMarkers(): 
+    + drawTasks(tasks: List<Task>): 
+    + initTimeUpdater(): 
 }
-
 TaskStorageInterface <|-- FileHandler
 Application <|-- MainMenu
+HBox <|-- TimeLineHeader
 FileHandler --> Pair
 FileHandler --> Task
 FileHandler --> Enum
@@ -164,17 +406,31 @@ TaskStorageInterface --> Pair
 TaskStorageInterface --> Task
 TaskStorageInterface --> Enum
 TaskStorageInterface --> Priority
+UserService --> Role
 UserService --> User
-UserService --> Pair
 AddMenu --> File
 AddMenu --> TaskService
-MainMenu --> TaskService
+AddMenu --> UserService
+AddMenu --> VBox
+AdminMenu --> VBox
+AdminMenu --> HBox
+Header --> HBox
+User --> VBox
+User --> Alert.AlertType
+TimelineSettings --> VBox
+TimelineSettings --> User
+TimelineSettings --> Alert.AlertType
+UserManager --> VBox
+UserManager --> User
+UserManager --> ListView
+UserManager --> Alert.AlertType
+UserSettings --> VBox
+UserSettings --> User
+UserSettings --> Alert.AlertType
 MainMenu --> Stage
-MainMenu --> Task
 ShowMenu --> Task
-TimeLineMenu --> Stage
+MultiTimeLineManager --> VBox
+MultiTimeLineManager --> Pair
 TimeLineMenu --> Task
 TimeLineMenu --> Pane
-TimeLineMenu --> Image
-TimeLineMenu --> LocalTime
 @enduml

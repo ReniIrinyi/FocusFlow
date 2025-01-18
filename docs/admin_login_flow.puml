@@ -1,0 +1,16 @@
+@startuml
+start
+
+:Admin klickt auf den **Admin-Button**;
+:Login-Formular wird angezeigt;
+:Admin gibt Benutzername und Passwort ein;
+:Authentifizierung des Admins;
+
+if (Admin erfolgreich authentifiziert?) then (Ja)
+  :Zugriff auf Administrationsbereich gewährt;
+else (Nein)
+  :Fehlermeldung: *"Login fehlgeschlagen"*;
+endif
+
+stop
+@enduml

@@ -1,184 +1,117 @@
+package service
+
 import model.User
+import controller.UserStorage
 import utils.Role
-import java.io.File
-import java.security.MessageDigest
 
-class UserService {
+/**
+ * Die UserService-Klasse dient der Verwaltung von User-Entitäten (Benutzern).
+ * Diese Klasse implementiert das CrudService-Interface für den Typ "User".
+ */
+class UserService : CrudService<User> {
 
-    private val userFilePath = File("user_data.txt")
+    // Verbindung zur UserStorage-Klasse, die die Speicherung der Entitäten verwaltet.
+    private val storage = UserStorage()
 
-    init {
-        checkIfFilePathExists()
-        initializeCurrentId()
+    /**
+     * Ruft alle User-Entitäten aus dem Speicher ab.
+     *
+     * @return Eine Liste aller gespeicherten Benutzer.
+     */
+    override fun findAll(): List<User> {
+        return storage.loadEntities().first // Lädt alle Benutzer (Users) und gibt die Liste zurück.
     }
 
     /**
-     * Ensure the user file exists.
+     * Ruft einen spezifischen User anhand seiner eindeutigen ID ab.
+     *
+     * @param id Die ID des gesuchten Benutzers.
+     * @return Der gefundene Benutzer, falls vorhanden, ansonsten null.
      */
-    private fun checkIfFilePathExists() {
-        if (!userFilePath.exists()) {
-            println("File $userFilePath does not exist. Creating a new file...")
-            userFilePath.createNewFile()
+    override fun findById(id: Int): User? {
+        return findAll().find { it.id == id } // Sucht nach einem Benutzer mit der angegebenen ID in der Liste.
+    }
+
+    /**
+     * Speichert einen neuen User oder aktualisiert einen bestehenden.
+     *
+     * @param entity Der Benutzer, der gespeichert oder aktualisiert werden soll.
+     */
+    override fun save(entity: User) {
+        val users = findAll() // Ruft alle Benutzer ab.
+        val existingUser = users.find { it.id == entity.id } // Überprüft, ob der Benutzer bereits existiert.
+
+        if (existingUser == null) {
+            // Wenn der Benutzer nicht existiert, wird er als neuer hinzugefügt.
+            storage.addEntity(entity)
         } else {
-            println("File $userFilePath exists.")
+            // Falls der Benutzer existiert, wird er aktualisiert.
+            storage.updateEntity(entity.id, entity)
         }
     }
 
     /**
-     * Initialize the current ID based on the users in the file.
+     * Löscht eine User-Entität anhand ihrer ID.
+     *
+     * @param id Die ID des zu löschenden Benutzers.
      */
-    private fun initializeCurrentId() {
-        val users = getUsers()
-        if (users.isNotEmpty()) {
-            User.currentId = users.maxOf { it.id }
-        }
-    }
-
-    /**
-     * Save a new user.
-     * If the user is an admin, ensure no other admin exists.
-     */
-    fun saveUser(name: String, email: String, password: String?, role: Role) {
-        if (role == Role.ADMIN && isAdminExists()) {
-            throw IllegalArgumentException("Only one admin can exist!")
-        }
-
-        val id = User.generateId()
-        val hashedPassword = if (role == Role.ADMIN) hashPassword(password ?: "") else ""
-        val user = User(id, name, email, hashedPassword, role)
-
-        userFilePath.appendText("${user.id}|${user.name}|${user.email}|${user.password}|${user.role}\n")
-        println("User ${user.name} with role ${user.role} saved successfully.")
-    }
-
-    /**
-     * Update the admin's password.
-     */
-    fun updateAdminPassword(username: String, newPassword: String) {
-        val users = userFilePath.readLines()
-        val updatedUsers = users.map { line ->
-            val parts = line.split("|")
-            if (parts[1] == username && parts[4] == Role.ADMIN.name) {
-                val hashedPassword = hashPassword(newPassword)
-                "${parts[0]}|${parts[1]}|${parts[2]}|$hashedPassword|${parts[4]}"
-            } else {
-                line
-            }
-        }
-        userFilePath.writeText(updatedUsers.joinToString("\n"))
-    }
-
-    /**
-     * Validate user credentials.
-     */
-    fun validateUser(username: String, inputPassword: String?): Boolean {
-        val users = userFilePath.readLines()
-        val userLine = users.find { it.split("|")[1] == username } ?: return false
-
-        val userData = userLine.split("|")
-        val role = Role.valueOf(userData[4])
-
-        return if (role == Role.ADMIN) {
-            val savedPassword = userData[3]
-            val inputHashedPassword = hashPassword(inputPassword ?: "")
-            inputHashedPassword == savedPassword
-        } else {
-            true // Regular users do not require passwords
-        }
+    override fun delete(id: Int) {
+        storage.deleteEntityById(id) // Löscht den Benutzer anhand der ID.
     }
 
 
-    /**
-     * Update a user's details by ID.
-     */
-    fun updateUser(userId: Int, updatedName: String, updatedEmail: String, updatedRole: Role) {
-        val users = getUsers()
-        val updatedUsers = users.map { user ->
-            if (user.id == userId) {
-                    user.password
-                user.copy(
-                    name = updatedName,
-                    email = updatedEmail,
-                    role = updatedRole)
-            } else {
-                user
-            }
-        }
-
-        if (users == updatedUsers) {
-            println("User with ID $userId not found.")
-            return
-        }
-
-        userFilePath.writeText(
-            updatedUsers.joinToString("\n") { "${it.id}|${it.name}|${it.email}|${it.password}|${it.role}" }
-        )
-        println("User with ID $userId updated successfully.")
-    }
-
-    /**
-     * Check if an admin already exists.
-     */
     fun isAdminExists(): Boolean {
-        return getUsers().any { it.role == Role.ADMIN }
+        return storage.isAdminExists()
     }
 
     /**
-     * Retrieve the current admin user.
+     * Gibt den ersten existierenden Admin-Benutzer (falls vorhanden) zurück.
+     *
+     * @return Der Admin-Benutzer oder `null`, falls kein Admin gefunden wurde.
      */
     fun getAdmin(): User? {
-        return getUsers().find { it.role == Role.ADMIN }
+        return storage.getAdmin()
     }
 
-    fun getUserById(userId: Int): User? {
-        return getUsers().find { it.id == userId }
+    fun updateAdminPassword(username: String, newPassword: String) {
+        val users = findAll()
+
+        // Sucht den Benutzer mit dem Benutzernamen
+        val user = users.find { it.name == username && it.role == Role.ADMIN }
+            ?: throw IllegalArgumentException("Admin mit dem angegebenen Benutzernamen existiert nicht!")
+
+        // Neues Passwort hashen
+        val hashedPassword = storage.hashPassword(newPassword)
+
+        // Aktualisiertes User-Objekt erstellen
+        val updatedUser = user.copy(password = hashedPassword)
+
+        // Benutzer im Speicher aktualisieren
+        storage.updateEntity(user.id, updatedUser)
     }
 
-    /**
-     * Retrieve all users.
-     */
-    fun getUsers(): List<User> {
-        return userFilePath.readLines()
-            .mapNotNull { line ->
-                val parts = line.split("|")
-                if (parts.size == 5) {
-                    User(
-                        id = parts[0].toInt(),
-                        name = parts[1],
-                        email = parts[2],
-                        password = parts[3],
-                        role = Role.valueOf(parts[4])
-                    )
-                } else {
-                    null
-                }
+    fun validateUser(username: String, inputPassword: String?): Boolean {
+        val users = storage.loadEntities().first // Lädt alle Benutzer aus der Datenquelle.
+
+        // Sucht den Benutzer mit dem Benutzernamen.
+        val user = users.find { it.name == username } ?: return false // Benutzer existiert nicht.
+
+        return when (user.role) {
+            Role.ADMIN -> {
+                // Admins erfordern eine Passwortprüfung.
+                val hashedInputPassword = storage.hashPassword(inputPassword ?: "")
+                user.password == hashedInputPassword
             }
-    }
-
-    /**
-     * Delete a user by ID.
-     */
-    fun deleteUser(userId: Int) {
-        val users = getUsers()
-        val updatedUsers = users.filter { it.id != userId }
-
-        if (users.size == updatedUsers.size) {
-            println("User with ID $userId not found.")
-            return
+            else -> {
+                // Reguläre Benutzer erfordern keine Passwortprüfung.
+                true
+            }
         }
 
-        userFilePath.writeText(
-            updatedUsers.joinToString("\n") { "${it.id}|${it.name}|${it.email}|${it.password}|${it.role}" }
-        )
-        println("User with ID $userId deleted successfully.")
+
     }
 
-    /**
-     * Hash a password using SHA-256.
-     */
-    private fun hashPassword(password: String): String {
-        val md = MessageDigest.getInstance("SHA-256")
-        val hashedBytes = md.digest(password.toByteArray())
-        return hashedBytes.joinToString("") { "%02x".format(it) }
-    }
+
+
+
 }
