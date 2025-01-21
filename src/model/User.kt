@@ -11,10 +11,11 @@ package model
  */
 data class User (
     val id: Int,
-    val name: String,
+    var name: String,
     val email: String,
     val password: String,
-    val role: Int
+    val role: Int,
+    var profileImage:String
 ) {
     companion object {
         var currentId: Int = 0 // Hält die aktuelle ID, die für den nächsten Benutzer verwendet wird.

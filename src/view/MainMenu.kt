@@ -33,6 +33,13 @@ class MainMenu : Application() {
         }
 
         val scene = Scene(root, 1200.0, 800.0)
+
+        val css = this.javaClass.getResource("../styles/styles.css")
+        if (css != null) {
+            scene.stylesheets.add(css.toExternalForm())
+        } else {
+            println("Style.css konnte nicht gefunden werden!")
+        }
         primaryStage.title = "FocusFlow"
         primaryStage.scene = scene
         primaryStage.show()
@@ -51,8 +58,6 @@ class MainMenu : Application() {
             taskService,onZeitachseClicked = { showTimeLineMenu() },
             onAdminClicked = { showAdminMenu() }
         )
-        header.style = "-fx-background-color: rgba(255,0,0,0.3);"
-
         root.top = header
     }
 
@@ -96,6 +101,8 @@ class MainMenu : Application() {
         if (!result.isPresent) return false
 
         val (username, password) = result.get()
+        println(username)
+        println(password)
 
         // Validate the admin credentials
         return if (userService.isAdminExists()) {

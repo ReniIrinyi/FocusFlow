@@ -10,6 +10,7 @@ import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
+import javafx.scene.shape.Circle
 import javafx.scene.shape.Line
 import javafx.scene.shape.Polygon
 import javafx.scene.shape.Rectangle
@@ -17,20 +18,26 @@ import javafx.scene.text.Font
 import javafx.scene.web.WebView
 import javafx.util.Duration
 import model.Task
+import model.User
 import java.io.ByteArrayInputStream
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.*
 
-class TimeLine {
+class TimeLine(private val user: User) {
 
     private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
     private val timelineContent = Pane()
-    private val scrollPane = ScrollPane(timelineContent)
-    private val nowPointer = Polygon(-7.0, -12.0,
+    private val scrollPane = ScrollPane(timelineContent).apply { styleClass.add("timeline-scroll-pane") }
+    private val nowPointer = Polygon(
+        -7.0, -12.0,
         7.0, -12.0,
-        0.0,  0.0).apply { fill = Color.RED }
+        0.0, 0.0
+    ).apply {
+
+    }
 
     private var windowStart = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0)
     private var windowEnd = LocalDateTime.now().withHour(23).withMinute(59).withSecond(59).withNano(0)
@@ -38,15 +45,22 @@ class TimeLine {
 
     private val pxPerMinute = 3.0
     private var totalHeight = 0.0
+    val dayColors = mapOf(
+        "Monday" to "#4CAF50",
+        "Tuesday" to "#2196F3",
+        "Wednesday" to "#ffffff",
+        "Thursday" to "#FF9800",
+        "Friday" to "#FFD700",
+        "Saturday" to "#9C27B0",
+        "Sunday" to "#F44336"
+    )
+
+    val currentDay = LocalDate.now().dayOfWeek.name.lowercase().capitalize()
+    val backgroundColor = dayColors[currentDay] ?: "#4CAF50"
 
     fun createView(tasks: List<Task>): Pane {
-        scrollPane.isPannable = true
-        scrollPane.hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
-        scrollPane.vbarPolicy = ScrollPane.ScrollBarPolicy.ALWAYS
-        scrollPane.style = "-fx-background-color: #FDF8E3;"
-        scrollPane.setFitToWidth(true)
-        scrollPane.setFitToHeight(false)
 
+        scrollPane.isPannable = false
         drawTimeMarkers()
         drawTasks(tasks)
 
@@ -54,14 +68,19 @@ class TimeLine {
 
         initTimeUpdater()
         initAutoScrollToCurrentTime()
-        val header = TimeLineHeader()
+        val header = createUserHeader(user)
 
-        val root = VBox(header,scrollPane).apply {
-            setPrefSize(800.0, 600.0)
-            spacing = 10.0
-            padding = Insets(0.00,0.00,10.00,0.00)
+        val scrollPane = VBox(scrollPane).apply {
+            VBox.setVgrow(scrollPane, Priority.ALWAYS)
+            HBox.setHgrow(scrollPane, Priority.ALWAYS)
         }
-        return root
+        return GridPane().apply {
+            hgap = 0.0;
+            vgap = 0.0;
+            add(header, 0, 0)
+            add(scrollPane, 0, 1)
+            style = "-fx-background-color: $backgroundColor;"  // Dynamic background
+        }
     }
 
     private fun initAutoScrollToCurrentTime() {
@@ -84,20 +103,18 @@ class TimeLine {
 
         timelineContent.prefWidth = 600.0
         timelineContent.prefHeight = totalHeight
+        timelineContent.style = "-fx-background-color: #f5f5f5;"
+
 
         val centerX = 300.0
 
         val pastLine = Rectangle(centerX - 5, 0.0, 10.0, totalHeight).apply {
-            fill = Color.LIGHTGRAY
-            arcWidth = 10.0
-            arcHeight = 10.0
+            styleClass.add("past-line")
         }
         timelineContent.children.add(pastLine)
 
         val futureLine = Rectangle(centerX - 5, 0.0, 10.0, 0.0).apply {
-            fill = Color.ORANGE
-            arcWidth = 10.0
-            arcHeight = 10.0
+            styleClass.add("future-line")
         }
         timelineContent.children.add(futureLine)
 
@@ -131,7 +148,6 @@ class TimeLine {
     }
 
 
-
     private fun drawTasks(tasks: List<Task>) {
         val centerX = 300.0
         val taskWidth = 180.0
@@ -150,6 +166,7 @@ class TimeLine {
             val height = (endY - startY).coerceAtLeast(30.0)
 
             val isPast = (end < LocalDateTime.now())
+            val bgColorClass = if (isPast) "past-task" else "future-task"
             val bgColor = if (isPast) "#B0BEC5" else "#90CAF9"
 
             val imageView = t.imageBase64?.takeIf { it.isNotBlank() }?.let {
@@ -167,22 +184,16 @@ class TimeLine {
             }
 
             val box = VBox().apply {
+                styleClass.addAll("task-box", bgColorClass)
                 layoutX = if (placeOnLeft) (centerX - taskWidth - 20) else (centerX + 20 + horizontalOffset)
                 layoutY = startY
                 prefWidth = taskWidth
                 prefHeight = height
-                style = """
-                -fx-background-color: $bgColor;
-                -fx-border-color: #1976D2;
-                -fx-border-radius: 5px;
-                -fx-padding: 5px;
-            """.trimIndent()
-
                 imageView?.let { children.add(it) }
                 children.addAll(
-                    Label(t.title).apply { font = Font.font(14.0) },
+                    Label(t.title).apply { styleClass.add("task-title") },
                     Label("${start.format(timeFormatter)} - ${end.format(timeFormatter)}")
-                        .apply { font = Font.font(12.0) },
+                        .apply { styleClass.add("task-time") },
                     webView
                 )
             }
@@ -194,9 +205,8 @@ class TimeLine {
 
 
     private fun initTimeUpdater() {
-        val nowLine = Line(295.0, 0.0, 305.0, 0.0).apply {
-            stroke = Color.BLUE
-            strokeWidth = 4.0
+        val nowLine = Line(280.0, 0.0, 320.0, 0.0).apply {
+            styleClass.add("now-line")
         }
         timelineContent.children.add(nowLine)
 
@@ -214,4 +224,26 @@ class TimeLine {
         timeline.play()
     }
 
+    private fun createUserHeader(user: User): HBox {
+        val image = user.profileImage.takeIf { it.isNotBlank() }?.let {
+            val bytes = Base64.getDecoder().decode(it)
+            ImageView(Image(ByteArrayInputStream(bytes))).apply {
+
+                fitWidth = 110.0
+                fitHeight = 110.0
+                isPreserveRatio = false
+
+                val radius = fitWidth / 2
+                val circleClip = Circle(radius, radius, radius)
+                clip = circleClip
+            }
+        }
+
+        return HBox().apply {
+            alignment = javafx.geometry.Pos.CENTER_LEFT
+            styleClass.add("user-header")
+            image?.let { children.add(it) }
+        }
+
+    }
 }

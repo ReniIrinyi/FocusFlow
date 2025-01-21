@@ -34,7 +34,7 @@ class UserService : CrudService<User> {
         return findAll().find { it.id == id } // Sucht nach einem Benutzer mit der angegebenen ID in der Liste.
     }
 
-    fun createAdmin(username: String, email: String, password: String) {
+    fun createAdmin(username: String, email: String, password: String, img: String ="") {
         // Generiere eine eindeutige Benutzer-ID.
         val userId = User.generateId()
 
@@ -44,7 +44,8 @@ class UserService : CrudService<User> {
             name = username,
             email = email,
             password = hashPassword(password), // Sichere Speicherung des Passworts.
-            role = Constants.ROLE_ADMIN
+            role = Constants.ROLE_ADMIN,
+            profileImage = img
         )
 
         // Speichere den neuen Benutzer mit dem existierenden `save`-Mechanismus.
@@ -80,6 +81,9 @@ class UserService : CrudService<User> {
 
 
     fun isAdminExists(): Boolean {
+        println(storage.loadEntities())
+        println(storage.loadEntities().first.find { it.role ==  Constants.ROLE_ADMIN })
+        println(storage.loadEntities().first.any { it.role ==  Constants.ROLE_ADMIN })
         return storage.loadEntities().first.any { it.role ==  Constants.ROLE_ADMIN }
     }
 

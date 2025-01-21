@@ -1,11 +1,16 @@
 package view.admin.AdminSettings
 
 import javafx.scene.control.*
+import javafx.scene.image.Image
+import javafx.scene.image.ImageView
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
+import javafx.stage.FileChooser
 import model.User
 import service.UserService
 import utils.HelperFunctions
+import java.io.ByteArrayInputStream
+import java.util.*
 
 class UserManager(
     private val userService: UserService,
@@ -72,59 +77,122 @@ class UserManager(
             promptText = "Username"
         }
 
+        val profileImageView = ImageView().apply {
+            // Ha már van a user-nek mentett képe (Base64), azt megjeleníthetjük:
+            if (user.profileImage.isNotBlank()) {
+                val bytes = Base64.getDecoder().decode(user.profileImage)
+                image = Image(ByteArrayInputStream(bytes))
+            }
+            fitWidth = 100.0
+            isPreserveRatio = true
+        }
+
+        // Gomb a kép feltöltéséhez
+        val uploadButton = Button("Upload Image").apply {
+            setOnAction {
+                val fileChooser = javafx.stage.FileChooser().apply {
+                    title = "Select Profile Image"
+                    extensionFilters.addAll(
+                        FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
+                    )
+                }
+
+                val selectedFile = fileChooser.showOpenDialog(null)
+                if (selectedFile != null) {
+                    val fileBytes = selectedFile.readBytes()
+                    val base64String = Base64.getEncoder().encodeToString(fileBytes)
+                    user.profileImage = base64String
+                    profileImageView.image = Image(ByteArrayInputStream(fileBytes))
+                }
+            }
+        }
+
         val saveButton = Button("Save Changes").apply {
             setOnAction {
                 val updatedName = nameField.text.trim()
 
                 if (updatedName.isEmpty()) {
                     helperFunctions.showAlert(Alert.AlertType.ERROR, "Error", "All fields must be filled out!")
-                }  else {
-                    val updatedUser = User(
-                        id = user.id,
-                        name = updatedName,
-                        email = "",
-                        password = "",
-                        role = 2
-                    )
-                    userService.save(updatedUser)
+                } else {
+                    user.name = updatedName
+                    userService.save(user)
                     helperFunctions.showAlert(Alert.AlertType.INFORMATION, "Success", "User details updated successfully.")
                     onSettingsSaved()
                 }
             }
         }
 
-        return VBox(10.0, Label("Edit User"), nameField, saveButton).apply {
+        return VBox(10.0).apply {
+            children.addAll(
+                Label("Edit User"),
+                nameField,
+                profileImageView,
+                uploadButton,
+                saveButton
+            )
             style = "-fx-padding: 10px; -fx-border-color: #ccc; -fx-border-radius: 5px;"
         }
     }
 
+
     private fun showUserAddModal(userList: ListView<String>) {
         val dialog = Dialog<User>().apply {
             title = "Add New User"
+
+            var base64Image: String = ""
+            val nameField = TextField().apply { promptText = "Username" }
+            val profileImageView = ImageView().apply {
+                fitWidth = 100.0
+                isPreserveRatio = true
+            }
+
+            val uploadButton = Button("Upload Image").apply {
+                setOnAction {
+                    val fileChooser = javafx.stage.FileChooser().apply {
+                        title = "Select Profile Image"
+                        extensionFilters.addAll(
+                            FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
+                        )
+                    }
+                    val selectedFile = fileChooser.showOpenDialog(null)
+                    if (selectedFile != null) {
+                        val fileBytes = selectedFile.readBytes()
+                        base64Image = Base64.getEncoder().encodeToString(fileBytes)
+                        profileImageView.image = Image(ByteArrayInputStream(fileBytes))
+                    }
+                }
+            }
+
             dialogPane.content = VBox(10.0).apply {
-                val nameField = TextField().apply { promptText = "Username" }
                 children.addAll(
-                    Label("Add User Details"), nameField
+                    Label("Add User Details"),
+                    nameField,
+                    profileImageView,
+                    uploadButton
                 )
             }
+
+            // OK/Cancel gombok
             dialogPane.buttonTypes.addAll(ButtonType.OK, ButtonType.CANCEL)
 
             setResultConverter { buttonType ->
                 if (buttonType == ButtonType.OK) {
-                    val name = (dialogPane.content as VBox).children[1] as TextField
-
-                    if (name.text.isNotEmpty()) {
+                    val name = nameField.text.trim()
+                    if (name.isNotEmpty()) {
                         User(
                             id = User.generateId(),
-                            name = name.text,
+                            name = name,
                             email = " ",
                             password = " ",
-                            role = 2
+                            role = 2,
+                            profileImage = base64Image
                         )
                     } else {
                         null
                     }
-                } else null
+                } else {
+                    null
+                }
             }
         }
 
@@ -134,5 +202,6 @@ class UserManager(
             userList.items.add("${user.name} (Role: ${User.roleToString(user.role)})")
         }
     }
+
 
 }

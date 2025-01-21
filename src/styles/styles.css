@@ -1,0 +1,275 @@
+/***************************************
+                 Global
+****************************************/
+
+/* Definition der Sivus-Farben */
+    /*
+    --individual-stage-color: #4CAF50; !* Grün für individuelle Entwicklung *!
+    --pair-stage-color: #FF9800;      !* Orange für Paarkontakte *!
+    --group-stage-color: #2196F3;     !* Blau für Gruppenaktivitäten *!
+    --intergroup-stage-color: #9C27B0; !* Violett-Intergruppenphase *!
+    --society-stage-color: #F44336;  !* Rot für die Gesellschaftsstufe *!
+
+    --text-color: #000000;           !* Standard Textfarbe (Schwarz) *!
+    --background-color: #ffffff;     !* Hintergrundfarbe (Weiß) *!
+    --highlight-color: #FFD700;      !* Gelb für wichtige Highlights *!
+    --border-color: #D3D3D3;         !* Dezentes Grau für Rahmen *!
+    */
+
+/* Allgemeine Schriftart und Hintergrundfarbe für Barrierefreiheit */
+body {
+    font-family: Arial, sans-serif; /* Klare und gut lesbare Schriftart */
+    font-size: 24px; /* Größere Schrift für bessere Lesbarkeit */
+    color: #000000; /* Schwarzer Text für höchsten Kontrast */
+    line-height: 1.8; /* Größerer Zeilenabstand für bessere Lesbarkeit */
+    margin: 0;
+    padding: 0;
+}
+
+/* Header-Stil: Kontrastreicher Hintergrund und klare, lesbare Schrift */
+.header {
+    background-color: #005BBB; /* Dunkles Blau für starke Sichtbarkeit */
+    color: white; /* Weißer Text für guten Kontrast */
+    font-size: 26px; /* Größere Schrift für bessere Sichtbarkeit */
+    text-align: center;
+    padding: 25px;
+}
+
+/* Buttons: Klar umrissene, kontrastreiche Schaltflächen */
+.button.individual {
+    background-color: #228B22; /* Starkes Grün für positive Assoziationen */
+    color: white;
+    padding: 15px 25px;
+    border-width: 2px;
+    border-style: solid;
+    border-color: #006400; /* Dunkles Grün als Rahmen für Klarheit */
+    border-radius: 8px; /* Abgerundete Ecken für sanfte Optik */
+    font-size: 18px; /* Größere Schrift für bessere Lesbarkeit */
+    cursor: pointer;
+}
+
+/* Effekt, wenn der Button mit der Maus berührt wird */
+.button:hover {
+    background-color: #FFD700; /* Kräftiges Gelb für Aufmerksamkeit */
+    color: #000000; /* Schwarzer Text für maximalen Kontrast */
+}
+
+/* Karten-Design: Klar abgegrenzte Elemente mit gutem Kontrast */
+.card {
+    -fx-border-width: 2px;
+    -fx-border-style: solid;
+    -fx-border-color: #A9A9A9; /* Deutlich sichtbares Grau für Rahmen */
+    -fx-border-radius: 10px; /* Abgerundete Kanten für angenehmeres Erscheinungsbild */
+    -fx-padding: 25px;
+    -fx-background-color: #ffffff; /* Weißer Hintergrund für Klarheit */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0, 0, 4); /* Schatten-Effekt */
+}
+
+.card.individual {
+    -fx-border-width: 2px 2px 2px 8px;
+    -fx-border-color: #A9A9A9 #A9A9A9 #A9A9A9 #228B22; /* Grün links */
+}
+
+.card.pair {
+    -fx-border-width: 2px 2px 2px 8px;
+    -fx-border-color: #A9A9A9 #A9A9A9 #A9A9A9 #FF8C00; /* Orange links */
+}
+
+.card.group {
+    -fx-border-width: 2px 2px 2px 8px;
+    -fx-border-color: #A9A9A9 #A9A9A9 #A9A9A9 #005BBB; /* Blau links */
+}
+
+/* Überschriften: Klare Farben und eindeutige Trennung */
+h1, h2, h3 {
+    color: #005BBB; /* Das gleiche Blau für starke Sichtbarkeit */
+    margin-bottom: 15px;
+}
+
+/***************************************
+                 Hauptmenü
+****************************************/
+
+/* Menüleiste: Kontrastreiche Farben für Navigation */
+.menu-bar {
+    -fx-background-color: #005BBB;
+    -fx-padding: 15px;
+    -fx-border-color: #A9A9A9;
+    -fx-border-width: 0 0 3px 0; /* Starker Rahmen unten */
+    -fx-pref-width: 100%;
+}
+
+.menu {
+    -fx-text-fill: white; /* Weißer Text für maximalen Kontrast */
+    -fx-font-size: 18px; /* Lesbare Schriftgröße */
+    -fx-font-weight: bold;
+}
+
+/* Hover Effect: Klar erkennbare Navigation */
+.menu:hover {
+    -fx-text-fill: #FFD700; /* Gelb für Fokus */
+}
+
+/* Menüpunkt-Styling */
+.menu-item {
+    -fx-background-color: #FF8C00;
+    -fx-text-fill: white;
+}
+
+.menu-item:hover {
+    -fx-background-color: #FFD700;
+    -fx-text-fill: black;
+}
+
+/***************************************
+                 Timeline
+****************************************/
+
+/* Timeline-Styling: Besserer Kontrast und Responsivität */
+.timeline-root {
+    -fx-spacing: 15px;
+    -fx-background-color: #E8EAF6; /* Sehr helles Blau für Hintergrund */
+    -fx-padding: 15px;
+    -fx-background: #FFFFFF; /* Weißer Hintergrund für Lesbarkeit */
+
+}
+
+/* Scroll-Fenster in der Timeline */
+.timeline-scroll-pane {
+    -fx-background: transparent; /* Kein Hintergrund */
+    -fx-border-color: transparent; /* Kein Rahmen */
+    -fx-hbar-policy: never; /* Horizontale Scrollbar deaktivieren */
+    -fx-vbar-policy: never; /* Vertikale Scrollbar deaktivieren */
+}
+
+.timeline-content {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #A9A9A9;
+    -fx-border-width: 1px;
+}
+
+/* Zeitlinien-Markierungen */
+.past-line {
+    -fx-fill: #B0BEC5; /* Hellgrau für vergangene Linien */
+}
+
+.future-line {
+    -fx-fill: #FF9800;
+}
+
+/* Aufgaben-Boxen */
+.task-box {
+    -fx-border-radius: 8px;
+    -fx-padding: 15px;
+    -fx-spacing: 10px;
+    -fx-border-color: #A9A9A9;
+}
+
+/* Vergangene Aufgaben */
+.past-task {
+    -fx-background-color: #D3D3D3; /* Hellgrauer Hintergrund */
+    -fx-border-color: #808080; /* Dunklerer Rahmen */
+}
+
+/* Zukünftige Aufgaben */
+.future-task {
+    -fx-background-color: #BBDEFB; /* Hellblau als Fokus */
+    -fx-border-color: #005BBB; /* Dunkelblauer Rahmen */
+}
+
+/* Textstile: Kontrastreiche Titel und Untertitel */
+.task-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #000000; /* Klarer schwarzer Text */
+}
+
+.task-time {
+    -fx-font-size: 16px;
+    -fx-text-fill: #555555; /* Dunkelgrau für subtile Details */
+}
+
+/* Jetziger Zeitindikator */
+.now-line {
+    -fx-stroke: #F44336; /* Blau als Indikator */
+    -fx-stroke-width: 9;
+    -fx-border-radius: 12.0;
+    -fx-border-color: #A9A9A9;
+    -fx-border-width: 1px;
+
+}
+
+.user-header{
+    -fx-padding: 15px;
+    -fx-border-color: #A9A9A9; /* Dezente Rahmenfarbe für Struktur */
+    -fx-border-width: 2px;
+}
+
+.user-label {
+    -fx-font-weight: bold;
+}
+
+/* Header für die Timeline */
+.timeline-header {
+    -fx-background-color: #4CAF50; /* Farbverlauf für Wachstum & Zusammenarbeit */
+    -fx-padding: 20px;
+    -fx-border-color: #A9A9A9; /* Dezente Rahmenfarbe für Struktur */
+    -fx-border-width: 2px;
+    -fx-alignment: center-left;
+    -fx-font-weight: bold;
+    -fx-text-fill: white; /* Weißer Text für hohen Kontrast */
+}
+
+.timeline-header-userbox {
+    -fx-spacing: 15px;
+    -fx-alignment: center-left;
+}
+
+.timeline-header-user {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #FFD700; /* Goldgelb für Benutzername als Highlight */
+}
+
+.timeline-header-date {
+    -fx-font-size: 20px;
+    -fx-text-fill: white;
+}
+
+.timeline-header-time {
+    -fx-font-size: 20px;
+    -fx-text-fill: white;
+    -fx-font-style: italic;
+}
+
+
+.timeline-header-weatherbox {
+    -fx-spacing: 50px;
+    -fx-alignment: center;
+}
+
+.hbox {
+    -fx-pref-width: 100%;
+    -fx-spacing: 25px;
+}
+
+.vbox {
+    -fx-pref-width: 100%;
+    -fx-pref-height: 100%;
+}
+
+
+.label {
+    -fx-font-size: 20px;
+    -fx-text-fill: #000000;
+}
+
+/* Stellt sicher, dass die Timeline-Boxen volle Breite nutzen */
+.timeline-box {
+    -fx-pref-width: 100%;
+    -fx-pref-height: 100%;
+}
+
+/***************************************
+                 Admin-Menü
+****************************************/

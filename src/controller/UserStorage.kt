@@ -162,21 +162,22 @@ class UserStorage : StorageInterface<User> {
      * Konvertiert ein `User`-Objekt in ein textbasiertes Format, um es in die Datei zu speichern.
      */
     private fun serializeUser(user: User): String {
-        return listOf(user.id, user.name, user.email, user.password, user.role).joinToString("|")
+        return listOf(user.id, user.name, user.email, user.password, user.role, user.profileImage).joinToString("|")
     }
 
     /**
      * Parst eine Textzeile aus der Datei und konvertiert sie zurück in ein `User`-Objekt.
      */
     private fun parseUser(line: String): User? {
-        val parts = line.split("|")
-        return if (parts.size == 5) {
+        val tokens = line.split("|")
+        return if (tokens.size == 6) {
             User(
-                id = parts[0].toInt(),
-                name = parts[1],
-                email = parts[2],
-                password = parts[3],
-                role = parts[4].toInt()
+                id = tokens[0].toInt(),
+                name = tokens[1],
+                email = tokens[2],
+                password = tokens[3],
+                role = tokens[4].toInt(),
+                profileImage = tokens[5]
             )
         } else {
             null

@@ -1,79 +1,99 @@
 package view.timeline
-import javafx.animation.KeyFrame
-import javafx.animation.Timeline
-import javafx.event.EventHandler
-import javafx.geometry.Insets
+
 import javafx.geometry.Pos
-import javafx.scene.control.Label
-import javafx.scene.layout.*
-import javafx.scene.paint.Color
-import javafx.scene.text.Font
-import javafx.util.Duration
+import javafx.scene.image.Image
+import javafx.scene.image.ImageView
+import javafx.scene.layout.HBox
+import javafx.scene.layout.Priority
+import javafx.scene.layout.Region
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.Month
 import java.time.format.DateTimeFormatter
 
 class TimeLineHeader : HBox() {
-    private val timeLabel = Label().apply {
-        textFill = Color.WHITE
-        font = Font.font(16.0)
+
+    private val dayView = ImageView().apply {
+        isPreserveRatio = true
+        fitHeight = 150.0
+        fitWidth = 300.0
     }
+
+    private val periodImageView = ImageView().apply {
+        isPreserveRatio = true
+        fitHeight = 150.0
+        fitWidth = 300.0
+    }
+
+    private val monthImageView = ImageView().apply {
+        isPreserveRatio = true
+        fitHeight = 150.0
+        fitWidth = 300.0
+    }
+
     init {
-        background = Background(
-            BackgroundFill(Color.rgb(76, 175, 80), CornerRadii(0.0), Insets.EMPTY)
-        )
-        spacing = 20.0
+        styleClass.add("timeline-header")
         alignment = Pos.CENTER_LEFT
-        padding = Insets(10.0)
 
-        val userLabel = Label("Guten Tag,\nIsabel").apply {
-            textFill = Color.WHITE
-            font = Font.font(16.0)
+        // Spacer to push the day image to the right
+        val spacer1 = Region().apply {
+            HBox.setHgrow(this, Priority.ALWAYS)
+        }
+        val spacer2 = Region().apply {
+            HBox.setHgrow(this, Priority.ALWAYS)
         }
 
-       /* val userIcon = ImageView(Image("https://via.placeholder.com/50")).apply {
-            fitWidth = 50.0
-            fitHeight = 50.0
-            isPreserveRatio = true
-        }*/
 
-        val userBox = VBox(userLabel).apply {
-            spacing = 5.0
-            alignment = Pos.CENTER
-        }
 
-        val dateLabel = Label("Heute ist Mittwoch, den 18.\nDezember, 2024").apply {
-            textFill = Color.WHITE
-            font = Font.font(16.0)
-        }
+        dayView.image = Image(javaClass.getResourceAsStream(getDayImagePath()))
+        periodImageView.image = Image(javaClass.getResourceAsStream(getPeriodImagePath()))
+        monthImageView.image = Image(javaClass.getResourceAsStream(getMonthImagePath()))
 
-       /* val sunIcon = ImageView(Image("https://via.placeholder.com/50")).apply {
-            fitWidth = 50.0
-            fitHeight = 50.0
-            isPreserveRatio = true
-        }
-        val flowerIcon = ImageView(Image("https://via.placeholder.com/50")).apply {
-            fitWidth = 50.0
-            fitHeight = 50.0
-            isPreserveRatio = true
-        }*/
-
-        val weatherBox = HBox().apply {
-            spacing = 10.0
-            alignment = Pos.CENTER
-        }
-
-        children.addAll(userBox, dateLabel, weatherBox, timeLabel)
-        startClock()
+        children.addAll(periodImageView, spacer1, dayView, spacer2, monthImageView)
     }
 
-    private fun startClock() {
-        val timeline = Timeline(
-            KeyFrame(Duration.seconds(1.0), EventHandler {
-                val now = LocalDateTime.now()
-                timeLabel.text = now.format(DateTimeFormatter.ofPattern("HH:mm:ss"))
-            })
-        )
-        timeline.cycleCount = Timeline.INDEFINITE
-        timeline.play()
+    private fun getDayImagePath(): String {
+        val currentDay = LocalDate.now().dayOfWeek.name.lowercase().capitalize()
+        return when (currentDay) {
+            "Monday" -> "/images/montag.jpg"
+            "Tuesday" -> "/images/dienstag.jpg"
+            "Wednesday" -> "/images/mittwoch.jpg"
+            "Thursday" -> "/images/donnerstag.jpg"
+            "Friday" -> "/images/freitag.jpg"
+            "Saturday" -> "/images/samstag.jpg"
+            "Sunday" -> "/images/sonntag.jpg"
+            else -> "/images/sonntag.jpg"
+        }
     }
+
+    private fun getPeriodImagePath(): String {
+        val currentHour = LocalDateTime.now(java.time.ZoneId.systemDefault()).hour
+        return when {
+            currentHour in 6..11 -> "/images/morgen.jpg"
+            currentHour in 12..13 -> "/images/mittag.jpg"
+            currentHour in 18..< 21 -> "/images/abend.jpg"
+            else -> "/images/nacht.jpg"
+        }
+    }
+
+    private fun getMonthImagePath(): String {
+        val currentMonth = LocalDateTime.now(java.time.ZoneId.systemDefault()).month
+        println(currentMonth)
+        return when (currentMonth) {
+            Month.JANUARY -> "/images/januar.jpg"
+            Month.FEBRUARY -> "/images/februar.jpg"
+            Month.MARCH -> "/images/maerz.jpg"
+            Month.APRIL -> "/images/april.jpg"
+            Month.MAY -> "/images/mai.jpg"
+            Month.JUNE -> "/images/juni.jpg"
+            Month.JULY -> "/images/juli.jpg"
+            Month.AUGUST -> "/images/august.jpg"
+            Month.SEPTEMBER -> "/images/september.jpg"
+            Month.OCTOBER -> "/images/oktober.jpg"
+            Month.NOVEMBER -> "/images/november.jpg"
+            Month.DECEMBER -> "/images/dezember.jpg"
+            else -> "/images/januar.jpg"
+        }
+    }
+
 }
