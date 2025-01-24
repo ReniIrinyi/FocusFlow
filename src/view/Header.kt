@@ -1,15 +1,13 @@
 package view
 
 import javafx.scene.control.*
-import javafx.scene.layout.HBox
 import model.Task
-import service.TaskService
 
-import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
+import controller.GenericController
 
 class Header(
-    private val taskService: TaskService,
+    private val taskController: GenericController<Task>,
     private val onZeitachseClicked: (List<Task>) -> Unit,
     private val onAdminClicked: () -> Unit
 ) : VBox() {
@@ -32,7 +30,9 @@ class Header(
         }
 
         val openTimeline = MenuItem("Open Timeline").apply {
-            setOnAction { onZeitachseClicked(taskService.findAll()) }
+            val tasks = taskController.createRequest("GET", null, null, null, "all").first
+            println(tasks.toString())
+            setOnAction { onZeitachseClicked(tasks as List<Task>) }
         }
 
         val openAdminPanel = MenuItem("Admin Panel").apply {

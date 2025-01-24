@@ -3,25 +3,48 @@ skinparam style strictuml
 skinparam packageStyle rectangle
 
 package View {
-  interface MainMenü {
-    + showUserSettings()
-    + setupHeader()
-    + showTimeLineMenu()
-    + showAdminMenu()
-    + authenticateAdmin():bool
+  class MainMenü {
+  root:BorderPane
+  userService:UserService
+  taskService:TaskService
+  timeLineSettingsService:TimeLineSettingsService
+  helperfunctions:Helperfunctions
+  isAdminLoggedIn:Boolean
+    +start():void
+    + showUserSettings():void
+    + setupHeader():void
+    + showTimeLineMenu():void
+    + showAdminMenu():void
+    + authenticateAdmin():Boolean
   }
 
-  class TimeLineManager {
-    + createView()
+  class Header{
+    +init():void
+    +showAboutDialog():void
+  }
+
+    MainMenü --> Header
+
+
+package "timeline"{
+class TimeLineManager {
+    settingsFile:File
+    + createView():VBox
     + loadTimeLineSettings():Pair<Int, List<Int>
   }
 
   class TimeLine{
-      + createView(): Pane
+      timelineContent:Pane
+      scrollPane:ScrollPane
+      nowPointer:Polygon
+      windowStart:LocalDateTime
+      windowEnd:LocalDateTime
+      + createView(tasks:List<Task>): Pane
       + initAutoScrollToCurrentTime(): void
-      + drawTimeMarkers()
-      + drawTasks(List)
-      + initTimeUpdater()
+      + drawTimeMarkers():void
+      + drawTasks(tasks:List<Task>):void
+      + initTimeUpdater():void
+      + createUserHeader(user:User):Hbox
   }
 
   class TimeLineHeader{
@@ -29,96 +52,69 @@ package View {
     + startClock()
   }
 
-  TimeLineManager <|--TimeLineHeader
-  TimeLineManager <|--TimeLine
+  TimeLineManager --> TimeLineHeader
+  TimeLineManager --> TimeLine
+}
 
-  class AdminMenu {
-    + createView(): VBox
-    - createAdminSettingsHeader(): HBox
-    - refreshView(): void
-  }
+  package "admin" {
 
-  MainMenü <|-- TimeLineManager
-  MainMenü <|-- AdminMenu
+    class AdminMenu {
+      content:StackPane
+      + createView(): VBox
+      + createAdminSettingsHeader(): HBox
+      + refreshView(): void
+    }
 
-  package "AdminSettings" {
+    MainMenü --> TimeLineManager
+    MainMenü --> AdminMenu
+
     class TaskManager {
       + createView(): VBox
       + addTask()
-    }   
-    class TimelineSettings {
-      + createView(): VBox
-      + loadTimeLineSettings()
-      + saveTimeLineSettings()
     }
 
-    class UserManager {
+   class TaskOverview {
+     + createView(): VBox
+     + addTask()
+   }
+
+    class AdminSettings {
       + createView(): VBox
       + showUserUpdateDialog()
       + showUserAddModal()
+    }
 
+    class TimelineSettings {
+          + createView(): VBox
+          + loadTimeLineSettings()
+          + saveTimeLineSettings()
     }
 
     class AdminAuthSettings {
       + createView(): VBox
       + updatePassword()
     }
+
+    AdminSettings --> TimelineSettings
+    AdminSettings --> AdminAuthSettings
+    TaskManager --> TaskOverview
+
   }
 
-  AdminMenu --> AdminSettings.TaskManager
-  AdminMenu --> AdminSettings.AdminAuthSettings
-  AdminMenu --> AdminSettings.UserManager
-  AdminMenu --> AdminSettings.TimelineSettings
-}
-
-package Service {
-  interface CrudService<T> {
-    + findAll(): List<T>
-    + findById(Int): T
-    + save(T): void
-    + delete(Int): void
-  }
-
-  class TaskService {
-    + findAll(): List<Task>
-    + findById(Int): Task
-    + findByUserId(Int): void
-    + save(Task): void
-    + encodeImageToBase64(Int): void
-    + delete(Int): void
-  }
-
-  class UserService {
-    + findAll(): List<User>
-    + findById(Int): User
-    + save(User): void
-    + delete(Int): void
-    + isAdminExists():bool
-    + getAdmin():User
-    + hashPassword(String):String
-    + updateAdminPasswort():void
-    + validateUser(Username,Passwort):void
-  }
-
-  class TimeLineSettingsService {
-    + findAll(): List<User>
-    + findById(Int): User
-    + save(User): void
-    + delete(Int): void
-  }
-
-  CrudService <|.. TaskService
-  CrudService <|.. UserService
-  CrudService <|.. TimeLineSettingsService
-
-
-  MainMenü --> CrudService
-
-  CrudService --> Controller.StorageInterface
-
+  AdminMenu --> admin.AdminSettings
+  AdminMenu --> admin.TaskManager
 }
 
 package Controller {
+  class GenericController<T> {
+   + createRequest()
+  }
+
+  MainMenü --> GenericController
+
+}
+
+package Storage {
   interface StorageInterface<T> {
        + checkIfFilePathExists():void
        + loadEntities(): List<T>
@@ -157,6 +153,7 @@ package Controller {
        + deleteEntityById(Int): Boolean
      }
 
+     GenericController --> StorageInterface
      StorageInterface <|.. TaskStorage
      StorageInterface <|.. UserStorage
      StorageInterface <|.. TimeLineSettingsStorage
@@ -165,30 +162,31 @@ package Controller {
 
 package Model {
   class Task {
-    + id: Int
-    + userId: Int
-    + title: String
-    + priority: String
-    + updatedAt: LocalDateTime
-    + startTime: LocalDateTime
-    + endTime: LocalDateTime
-    + deadLine?:LocalDateTime
-    + status:String,
-    + imageBase64:String
+     id: Int
+     userId: Int
+     title: String
+     priority: String
+     updatedAt: LocalDateTime
+     startTime: LocalDateTime
+     endTime: LocalDateTime
+     deadLine?:LocalDateTime
+     status:String,
+     imageBase64:String
   }
 
   class User {
-    + id: Int
-    + name: String
-    + email: String
-    + password?: String
-    + role: String
+     id: Int
+     name: String
+     email: String
+     password?: String
+     role: String
+     profileImage:String
     + generateId()
   }
 
   class TimeLineSettings{
-    + timeLineCount:Int
-    + userId:Int
+     timeLineCount:Int
+     userId:Int
   }
 
 }

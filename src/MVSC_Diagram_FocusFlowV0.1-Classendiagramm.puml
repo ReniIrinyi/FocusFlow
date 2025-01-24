@@ -1,0 +1,107 @@
+@startuml
+skinparam style strictuml
+skinparam packageStyle rectangle
+
+package View {
+  class MainMenü {
+  }
+
+  class Header{
+
+  }
+
+    MainMenü --> Header
+
+
+package "timeline"{
+class TimeLineManager {
+  }
+
+  class TimeLine{
+  }
+
+  class TimeLineHeader{
+  }
+
+  TimeLineManager --> TimeLineHeader
+  TimeLineManager --> TimeLine
+}
+
+  package "admin" {
+
+    class AdminMenu {
+    }
+
+    MainMenü --> TimeLineManager
+    MainMenü --> AdminMenu
+
+    class TaskManager {
+    }
+
+   class TaskOverview {
+   }
+
+    class AdminSettings {
+    }
+
+    class TimelineSettings {
+
+    }
+
+    class AdminAuthSettings {
+
+    }
+
+    AdminSettings --> TimelineSettings
+    AdminSettings --> AdminAuthSettings
+    TaskManager --> TaskOverview
+
+  }
+
+  AdminMenu --> admin.AdminSettings
+  AdminMenu --> admin.TaskManager
+}
+
+package Controller {
+  class GenericController<T> {
+  }
+
+  MainMenü --> GenericController
+
+}
+
+package Storage {
+  interface StorageInterface<T> {
+     }
+
+     class TaskStorage {
+     }
+
+     class UserStorage {
+     }
+     class TimeLineSettingsStorage {
+     }
+
+     GenericController --> StorageInterface
+     StorageInterface <|.. TaskStorage
+     StorageInterface <|.. UserStorage
+     StorageInterface <|.. TimeLineSettingsStorage
+
+}
+
+package Model {
+  class Task {
+
+  }
+
+  class User {
+
+  }
+
+  class TimeLineSettings{
+
+  }
+
+}
+}
+@enduml

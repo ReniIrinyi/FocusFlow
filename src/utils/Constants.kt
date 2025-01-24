@@ -1,6 +1,7 @@
 package utils
 
 object Constants {
+
     //Filepaths
     const val TASKS_FILE_PATH = "tasks.txt" // Der Standard-Datei für AufgabenDaten
     const val USER_FILE_PATH= "user_data.txt" //Standard-Datei für UserDaten
@@ -16,6 +17,13 @@ object Constants {
     const val RESTAPI_NOT_FOUND = 404 //status response not found
     const val RESTAPI_INTERNAL_SERVER_ERROR = 500 //status response internal server_error
     const val RESTAPI_ADMIN_EXISTS = 506 //status admin existiert bereits
+    const val RESTAPI_BAD_REQUEST = 400 // status bad request
+
+    //RequestTypen
+    const val GET = "GET"
+    const val POST = "POST"
+    const val PUT = "PUT"
+    const val DELETE = "DELETE"
 
     //Prioritys
     const val PRIORITY_HIGH = 1

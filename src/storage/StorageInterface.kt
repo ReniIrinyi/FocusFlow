@@ -1,4 +1,4 @@
-package controller
+package storage
 
 /**
  * Generisches `StorageInterface`, das für die Verwaltung von beliebigen Entitäten geeignet ist (z. B. Task, User).
@@ -9,6 +9,8 @@ package controller
  * @param <T> Der Typ der Entität, die verwaltet wird, z. B. `Task`, `User`.
  */
 interface StorageInterface<T> {
+
+    fun getRequest(requestTyp: String, Id: Int?,userId:Int?, newData: T?,routePath: String?): Pair<Any, Int>
 
     fun checkIfFilePathExists()
     /**

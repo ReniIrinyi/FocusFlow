@@ -3,13 +3,12 @@ package view.timeline
 import javafx.animation.KeyFrame
 import javafx.animation.Timeline
 import javafx.event.EventHandler
-import javafx.geometry.Insets
+import javafx.scene.control.CheckBox
 import javafx.scene.control.Label
 import javafx.scene.control.ScrollPane
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.*
-import javafx.scene.paint.Color
 import javafx.scene.shape.Circle
 import javafx.scene.shape.Line
 import javafx.scene.shape.Polygon
@@ -19,6 +18,7 @@ import javafx.scene.web.WebView
 import javafx.util.Duration
 import model.Task
 import model.User
+import controller.GenericController
 import java.io.ByteArrayInputStream
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -26,7 +26,7 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.*
 
-class TimeLine(private val user: User) {
+class TimeLine(private val user: User, private val taskController: GenericController<Task>) {
 
     private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
     private val timelineContent = Pane()
@@ -183,6 +183,28 @@ class TimeLine(private val user: User) {
                 engine.loadContent(t.description) // HTML-Inhalt der Aufgabe
             }
 
+            val priorityLabel = Label("Priority: ${t.priority}").apply {
+                style = when (t.priority) {
+                    1 -> "-fx-text-fill: red; -fx-font-weight: bold;"
+                    2 -> "-fx-text-fill: orange;"
+                    3 -> "-fx-text-fill: green;"
+                    else -> "-fx-text-fill: black;"
+                }
+            }
+
+            val statusCheckBox = CheckBox().apply {
+                isSelected = t.status == 0
+                setOnAction {
+                    if (isSelected) {
+                        t.status = 2
+                    } else {
+                        t.status = 1
+                    }
+                }
+            }
+
+
+
             val box = VBox().apply {
                 styleClass.addAll("task-box", bgColorClass)
                 layoutX = if (placeOnLeft) (centerX - taskWidth - 20) else (centerX + 20 + horizontalOffset)
@@ -191,6 +213,8 @@ class TimeLine(private val user: User) {
                 prefHeight = height
                 imageView?.let { children.add(it) }
                 children.addAll(
+                    priorityLabel,
+                    statusCheckBox,
                     Label(t.title).apply { styleClass.add("task-title") },
                     Label("${start.format(timeFormatter)} - ${end.format(timeFormatter)}")
                         .apply { styleClass.add("task-time") },
@@ -199,9 +223,59 @@ class TimeLine(private val user: User) {
             }
             placeOnLeft = !placeOnLeft
 
-            timelineContent.children.add(box)
+            timelineContent.children.addAll(box)
         }
     }
+
+    private fun createTriStateCheckbox(task: Task): Label {
+        val checkBox = Label().apply {
+            minWidth = 30.0
+            minHeight = 30.0
+            style = getStatusStyle(task.status)
+            text = getStatusText(task.status)
+            setOnMouseClicked {
+                task.status = getNextStatus(task.status)
+                style = getStatusStyle(task.status)
+                text = getStatusText(task.status)
+                saveTaskStatus(task)
+            }
+        }
+        return checkBox
+    }
+
+    private fun saveTaskStatus(task: Task) {
+        taskController.createRequest("PUT",null,null,task,null)
+    }
+
+
+    private fun getNextStatus(currentStatus: Int): Int {
+        return when (currentStatus) {
+            0 -> 1
+            1 -> 2
+            else -> 0
+        }
+    }
+
+    private fun getStatusStyle(status: Int): String {
+        return when (status) {
+            0 -> "-fx-background-color: #FFEB3B; -fx-border-color: black; -fx-alignment: center;"
+            1 -> "-fx-background-color: #64B5F6; -fx-border-color: black; -fx-alignment: center;"
+            2 -> "-fx-background-color: #81C784; -fx-border-color: black; -fx-alignment: center;"
+            else -> "-fx-background-color: #E0E0E0; -fx-border-color: black; -fx-alignment: center;"
+        }
+    }
+
+    private fun getStatusText(status: Int): String {
+        return when (status) {
+            0 -> "O"
+            1 -> "I"
+            2 -> "✔"
+            else -> "?"
+        }
+    }
+
+
+
 
 
     private fun initTimeUpdater() {

@@ -1,22 +1,22 @@
-package view.admin.AdminSettings
+package view.admin
 
 import javafx.scene.control.*
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import model.TimeLineSettings
 import model.User
-import service.TimeLineSettingsService
-import service.UserService
+import controller.GenericController
 import utils.HelperFunctions
 
 class TimelineSettings(
-    private val userService: UserService,
-    private val timelineSettingsService: TimeLineSettingsService,
+    private val userController: GenericController<User>,
+    private val timelineSettingsController: GenericController<TimeLineSettings>,
     private val helperFunctions: HelperFunctions,
 ) {
 
     private val timelineCountDropdown = ComboBox<Int>() // Dropdown-Menü für die Auswahl der Timeline-Anzahl
     private val userDropdowns = List(3) { ComboBox<Pair<Int?, String>>() } // Drei Dropdowns für die Benutzerzuweisung zu den Timelines
+    val users = userController.createRequest("GET",null,null,null,"all").first as List<User>
 
     /**
      * Erstellt die JavaFX-Ansicht zur Verwaltung der Timeline-Einstellungen im Admin-Bereich.
@@ -24,7 +24,7 @@ class TimelineSettings(
      * @return Die erstellte Ansicht.
      */
     fun createView(): VBox {
-        val availableUsers = userService.findAll() // Benutzerliste aus dem UserService laden
+        val availableUsers = users
         println(availableUsers)
         loadSettings(availableUsers) // Einstellungen laden und Dropdowns initialisieren
 
@@ -51,17 +51,16 @@ class TimelineSettings(
         // Layout für die Anzeige der Konfiguration
         val settingsBox = VBox(10.0).apply {
             children.addAll(
-                Label("Konfigurieren Sie die Timeline-Einstellungen"),
+                Label("Einstellungen der Zeitachse"),
                 HBox(10.0, Label("Anzahl der Timelines:"), timelineCountDropdown),
                 *userDropdowns.mapIndexed { index, dropdown -> // Dropdowns für die Benutzerzuweisungen
                     HBox(10.0, Label("Timeline ${index + 1} Benutzer:"), dropdown)
                 }.toTypedArray(),
-                saveButton // Speicher-Button hinzufügen
+                saveButton
             )
-            style = "-fx-padding: 20px; -fx-background-color: #FFF3E0;" // Layout-Stil
         }
 
-        return settingsBox // Die gesamte Ansicht zurückgeben
+        return settingsBox
     }
 
     /**
@@ -71,7 +70,7 @@ class TimelineSettings(
      */
     private fun loadSettings(availableUsers: List<User>) {
         val userOptions = listOf<Pair<Int?, String>>(null to "Keine") + availableUsers.map { it.id to it.name } // Benutzeroptionen für Dropdowns
-        val allSettings = timelineSettingsService.findAll() // Lädt alle vorhandenen Einstellungen
+        val allSettings = timelineSettingsController.createRequest("GET",null,null,null,"all").first as List<TimeLineSettings>
 
         // Standardmäßige Timeline-Anzahl einstellen
         val defaultCount = allSettings.firstOrNull()?.timeLineCount ?: 1 // Falls keine existieren, Standardwert 1
@@ -98,7 +97,7 @@ class TimelineSettings(
         (0 until timelineCount).forEach { index ->
             val userId = userDropdowns[index].value?.first // Holt Benutzer-ID aus dem Dropdown
             val timeLineSettings = TimeLineSettings(timelineCount, userId = userId ?: -1) // Erstellt ein TimeLineSettings-Objekt
-            timelineSettingsService.save(timeLineSettings) // Speichert die Einstellungen
+            timelineSettingsController.createRequest("PUT",null,null,timeLineSettings,"all")
         }
     }
 

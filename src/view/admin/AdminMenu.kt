@@ -4,61 +4,49 @@ import javafx.scene.control.Button
 import javafx.scene.layout.HBox
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
+import model.Task
 import model.TimeLineSettings
-import service.TaskService
-import service.TimeLineSettingsService
-import service.UserService
+import model.User
+import controller.GenericController
 import utils.HelperFunctions
-import view.admin.AdminSettings.TimelineSettings
-import view.admin.AdminSettings.UserManager
-import view.admin.AdminSettings.AdminAuthSettings
-import view.admin.AdminSettings.TaskManager
 
-class AdminMenu(private val taskService: TaskService, private val userService: UserService, private val timeLineSettingsService: TimeLineSettingsService, private val helperFunctions: HelperFunctions,) {
+class AdminMenu(
+    private val taskController: GenericController<Task>,
+    private val userController: GenericController<User>,
+    private val timeLineSettingsController: GenericController<TimeLineSettings>, private val helperFunctions: HelperFunctions,) {
 
     private val content = StackPane()
 
-    fun createView(): VBox {
+    init {
+        val taskOverview = TaskOverview(taskController, userController)
+        content.children.setAll(taskOverview.createView())
+    }
 
+    fun createView(): VBox {
         val header = createAdminSettingsHeader()
-        return VBox(20.0, header, HBox(20.0, content)).apply {
-            style = "-fx-padding: 20px; -fx-background-color: #E8F5E9;"
+        return VBox( header, HBox( content)).apply {
+            styleClass.add("adminMenu-root")
         }
     }
 
     private fun createAdminSettingsHeader(): HBox {
         val userSettingsButton = Button("Einstellungen Admin").apply {
             setOnAction {
-                val userSettings = AdminAuthSettings(userService, helperFunctions) {
+                val adminSettings = AdminSettings(taskController,userController,timeLineSettingsController, helperFunctions) {
                     refreshView()
                 }
-                content.children.setAll(userSettings.createView())
-            }
-        }
-        val userManagerButton = Button("Benutzer Verwalten").apply {
-            setOnAction {
-                val userManager = UserManager(userService, helperFunctions) {
-                    refreshView()
-                }
-                content.children.setAll(userManager.createView())
+                content.children.setAll(adminSettings.createView())
             }
         }
 
-        val timelineSettingsButton = Button("Einstellungen der Zeitachse").apply {
+        val taskOverviewButton = Button("Aufgabenübersicht").apply {
             setOnAction {
-                val timelineSettings = TimelineSettings(userService,timeLineSettingsService,helperFunctions)
-                content.children.setAll(timelineSettings.createView())
+                val taskOverview = TaskOverview(taskController, userController)
+                content.children.setAll(taskOverview.createView())
             }
         }
 
-        val taskManagerButton = Button("Aufgaben Verwalten").apply {
-            setOnAction {
-                val taskManager = TaskManager(taskService, userService)
-                content.children.setAll(taskManager.createView())
-            }
-        }
-
-        return HBox(10.0,taskManagerButton, userSettingsButton, userManagerButton,timelineSettingsButton).apply {
+        return HBox(10.0,taskOverviewButton, userSettingsButton).apply {
             style = "-fx-padding: 10px; -fx-background-color: #ECECEC; -fx-spacing: 15px;"
         }
     }

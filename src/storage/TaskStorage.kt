@@ -1,4 +1,4 @@
-package controller
+package storage
 
 import model.Task
 import utils.Constants
@@ -6,11 +6,7 @@ import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-/**
- * Die Klasse TaskStorage implementiert das StorageInterface für den Task-Typ.
- * Sie ist verantwortlich für das Speichern, Abrufen, Aktualisieren und Löschen von Task-Entitäten
- * sowie für das Arbeiten mit der zugrunde liegenden Datei.
- */
+
 class TaskStorage : StorageInterface<Task> {
 
     // Der Pfad, wo die Task-Elemente gespeichert werden.
@@ -21,6 +17,105 @@ class TaskStorage : StorageInterface<Task> {
     init {
         checkIfFilePathExists()
     }
+
+    /**
+     * Behandelt verschiedene HTTP-Anfragen für Aufgaben (Tasks).
+     *
+     * Unterstützte Anfragetypen:
+     * - **GET**: Ruft Aufgaben basierend auf dem angegebenen Pfad ab.
+     *      - "all"       -> Gibt alle Aufgaben zurück.
+     *      - "byId"      -> Gibt eine bestimmte Aufgabe anhand der übergebenen ID zurück.
+     *      - "byUserId"  -> Gibt alle Aufgaben für einen bestimmten Benutzer zurück.
+     *
+     * - **PUT**: Aktualisiert eine bestehende Aufgabe mit den bereitgestellten Daten.
+     *      - Erforderlich: ID der Aufgabe und neue Daten (`newData`).
+     *      - Antwort: Erfolgs- oder Fehlermeldung mit Statuscode.
+     *
+     * - **DELETE**: Löscht eine Aufgabe anhand der übergebenen ID.
+     *      - Erforderlich: ID der Aufgabe.
+     *      - Antwort: Erfolgs- oder Fehlermeldung mit Statuscode.
+     *
+     * - **POST**: Erstellt eine neue Aufgabe mit den bereitgestellten Daten.
+     *      - Erforderlich: Neue Daten (`newData`).
+     *      - Antwort: Erfolgs- oder Fehlermeldung mit Statuscode.
+     *
+     * @param routePath Der spezifische Pfad der Anfrage (z.B. "all", "byId", "byUserId").
+     * @param requestTyp Der Typ der HTTP-Anfrage (GET, PUT, DELETE, POST).
+     * @param Id Die eindeutige ID der Aufgabe (nur für "byId" oder DELETE-Anfragen erforderlich).
+     * @param userId Die Benutzer-ID für benutzerbezogene Anfragen (nur für "byUserId" erforderlich).
+     * @param newData Die neuen Daten für PUT- oder POST-Anfragen (optional).
+     * @return Ein Paar bestehend aus der Antwort (Ergebnis oder Fehlermeldung) und dem HTTP-Statuscode.
+     */
+    override fun getRequest(requestTyp: String, Id: Int?, userId: Int?, newData: Task?,routePath: String?): Pair<Any, Int> {
+        return when (requestTyp) {
+            Constants.GET -> {
+                val (tasks, status) = this.loadEntities()
+
+                if (status != Constants.RESTAPI_OK) {
+                    return Pair("Fehler beim Laden der Tasks", Constants.RESTAPI_INTERNAL_SERVER_ERROR)
+                }
+
+                when (routePath) {
+                    "all" -> Pair(tasks, Constants.RESTAPI_OK)
+
+                    "byId" -> {
+                        val task = tasks.find { it.id == Id }
+                        if (task != null) {
+                            Pair(task, Constants.RESTAPI_OK)
+                        } else {
+                            Pair("Task nicht gefunden", Constants.RESTAPI_NOT_FOUND)
+                        }
+                    }
+
+                    "byUserId" -> {
+                        val userTasks = tasks.filter { it.userId == userId }
+                        if (userTasks.isNotEmpty()) {
+                            Pair(userTasks, Constants.RESTAPI_OK)
+                        } else {
+                            Pair(emptyList<Task>(), Constants.RESTAPI_NOT_FOUND)
+                        }
+                    }
+
+                    else -> Pair("Ungültiger Pfad", Constants.RESTAPI_BAD_REQUEST)
+                }
+            }
+
+            Constants.PUT -> {
+                if (newData != null && Id != null) {
+                    val result = this.updateEntity(Id, newData)
+                    Pair("Task erfolgreich aktualisiert.", result)
+                } else {
+                    Pair("Fehler: Keine Daten zum Aktualisieren angegeben.", Constants.RESTAPI_BAD_REQUEST)
+                }
+            }
+
+            Constants.DELETE -> {
+                if(Id != null) {
+                    val result = this.deleteEntityById(Id)
+                    if (result == Constants.RESTAPI_OK) {
+                        Pair("Task erfolgreich gelöscht.", Constants.RESTAPI_OK)
+                    } else {
+                        Pair("Task nicht gefunden.", Constants.RESTAPI_NOT_FOUND)
+                    }
+                } else {
+                    Pair("Kein Id angegeben", Constants.RESTAPI_BAD_REQUEST)
+                }
+
+            }
+
+            Constants.POST -> {
+                if (newData != null) {
+                    this.addEntity(newData)
+                    Pair("Neuer Task erfolgreich hinzugefügt.", Constants.RESTAPI_OK)
+                } else {
+                    Pair("Fehler: Keine Daten zum Hinzufügen.", Constants.RESTAPI_BAD_REQUEST)
+                }
+            }
+
+            else -> Pair("Ungültiger Anfrage-Typ.", Constants.RESTAPI_BAD_REQUEST)
+        }
+    }
+
 
     /**
      * Überprüft, ob die Datei zum Speichern der Aufgaben existiert.
@@ -107,7 +202,6 @@ class TaskStorage : StorageInterface<Task> {
         return try {
             val (tasks, status) = loadEntities()
             if (status != Constants.RESTAPI_OK) return Constants.RESTAPI_INTERNAL_SERVER_ERROR
-
             // Fügt die neue Task zur Liste hinzu und speichert sie.
             val updatedTasks = tasks.toMutableList()
             updatedTasks.add(newEntity)

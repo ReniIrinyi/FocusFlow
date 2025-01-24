@@ -29,7 +29,7 @@ import java.util.*
         }
     }
 
-    /**
+     /**
      * Zeigt ein Benachrichtigungs-Fenster dem Benutzer.
      *
      * @param type Art der Benachrichtigung (z. B. INFORMATION, WARNUNG).

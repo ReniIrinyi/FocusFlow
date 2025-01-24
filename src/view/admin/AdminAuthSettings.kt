@@ -1,21 +1,22 @@
-package view.admin.AdminSettings
+package view.admin
 
 import javafx.scene.control.*
 import javafx.scene.layout.VBox
-import service.UserService
+import model.User
+import controller.GenericController
 import utils.HelperFunctions
 
 class AdminAuthSettings(
-    private val userService: UserService,
+    private val userController: GenericController<User>,
     private val helperFunctions: HelperFunctions,
     private val onSettingsSaved: () -> Unit
 ) {
 
     fun createView(): VBox {
-        val adminUser = userService.getAdmin()
+        val admin = userController.createRequest("GET", null, null,null,"getAdmin").first as User
 
-        return if (adminUser != null) {
-            createAdminPasswordUpdateView(adminUser.name)
+        return if (admin != null) {
+            createAdminPasswordUpdateView(admin.name)
         } else {
             createNewAdminView()
         }
@@ -53,7 +54,6 @@ class AdminAuthSettings(
                 confirmPasswordField,
                 saveButton
             )
-            style = "-fx-padding: 20px; -fx-background-color: #F5F5F5;"
         }
     }
 
@@ -79,13 +79,13 @@ class AdminAuthSettings(
 
         return VBox(20.0).apply {
             children.addAll(
-                Label("Admin-Einstellungen"),
+                Label("Passwort ändern"),
                 usernameField,
                 passwordField,
                 confirmPasswordField,
                 saveButton
             )
-            style = "-fx-padding: 20px; -fx-background-color: #F5F5F5;"
+
         }
     }
 
@@ -115,7 +115,15 @@ class AdminAuthSettings(
                 helperFunctions.showAlert(Alert.AlertType.ERROR, "Fehler", "Die Passwörter stimmen nicht überein!")
             }
             else -> {
-                userService.createAdmin(trimmedUsername, trimmedEmail, trimmedPassword)
+                val newUser  = User(
+                    id = User.generateId(),
+                    name = trimmedUsername,
+                    email = trimmedEmail,
+                    password = trimmedPassword,
+                    role = 1,
+                    profileImage = "",
+                )
+                userController.createRequest("POST", null, null,newUser,null)
                 helperFunctions.showAlert(Alert.AlertType.INFORMATION, "Erfolg", "Admin-Benutzer wurde erfolgreich erstellt.")
                 onSettingsSaved()
             }
@@ -137,7 +145,9 @@ class AdminAuthSettings(
                 helperFunctions.showAlert(Alert.AlertType.ERROR, "Fehler", "Die Passwörter stimmen nicht überein!")
             }
             else -> {
-                userService.updateAdminPassword(trimmedPassword)
+                val admin = userController.createRequest("GET", null, null,null,"getAdmin").first as User
+                val newUser = admin.copy(password = trimmedPassword) as User
+                userController.createRequest("PUT", null, newUser.id,newUser,null)
                 helperFunctions.showAlert (Alert.AlertType.INFORMATION, "Erfolg", "Passwort wurde erfolgreich aktualisiert.")
                 onSettingsSaved()
             }
