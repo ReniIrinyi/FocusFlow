@@ -10,11 +10,12 @@ import model.User
 import controller.GenericController
 import utils.HelperFunctions
 
-class AdminMenu(
+class Menu(
     private val taskController: GenericController<Task>,
     private val userController: GenericController<User>,
-    private val timeLineSettingsController: GenericController<TimeLineSettings>, private val helperFunctions: HelperFunctions,) {
-
+    private val timeLineSettingsController: GenericController<TimeLineSettings>,
+    private val helperFunctions: HelperFunctions)
+{
     private val content = StackPane()
 
     init {
@@ -24,30 +25,32 @@ class AdminMenu(
 
     fun createView(): VBox {
         val header = createAdminSettingsHeader()
-        return VBox( header, HBox( content)).apply {
-            styleClass.add("adminMenu-root")
+        return VBox( header,content).apply {
+            styleClass.add("adminMenu-container")
         }
     }
 
     private fun createAdminSettingsHeader(): HBox {
-        val userSettingsButton = Button("Einstellungen Admin").apply {
+        val settingsBtn = Button("Einstellungen").apply {
+            styleClass.add("custom-button")
             setOnAction {
-                val adminSettings = AdminSettings(taskController,userController,timeLineSettingsController, helperFunctions) {
+                val settings = Settings(userController,timeLineSettingsController, helperFunctions) {
                     refreshView()
                 }
-                content.children.setAll(adminSettings.createView())
+                content.children.setAll(settings.createView())
             }
         }
 
-        val taskOverviewButton = Button("Aufgabenübersicht").apply {
+        val taskOverviewBtn = Button("Aufgabenübersicht").apply {
+            styleClass.add("custom-button")
             setOnAction {
                 val taskOverview = TaskOverview(taskController, userController)
                 content.children.setAll(taskOverview.createView())
             }
         }
 
-        return HBox(10.0,taskOverviewButton, userSettingsButton).apply {
-            style = "-fx-padding: 10px; -fx-background-color: #ECECEC; -fx-spacing: 15px;"
+        return HBox(10.0,taskOverviewBtn, settingsBtn).apply {
+            styleClass.add("adminMenu-header")
         }
     }
 

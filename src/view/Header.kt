@@ -13,15 +13,13 @@ class Header(
 ) : VBox() {
 
     init {
-        styleClass.add("header")
         spacing = 10.0
 
         val menuBar = MenuBar().apply {
-            styleClass.add("menu-bar")
+            styleClass.add("header")
         }
 
         val adminMenu = Menu("Admin").apply {
-            // Hier wird die onAdminClicked Methode aufgerufen, wenn das Menü geöffnet wird
             showingProperty().addListener { _, _, isShowing ->
                 if (isShowing) {
                     onAdminClicked()
@@ -52,7 +50,7 @@ class Header(
     private fun showAboutDialog() {
         val alert = Alert(Alert.AlertType.INFORMATION)
         alert.title = "About"
-        alert.headerText = "FocusFlow"
+        alert.headerText = "CareFlow"
         alert.contentText = "Version: 0.2"
         alert.showAndWait()
     }

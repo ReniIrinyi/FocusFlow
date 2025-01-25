@@ -11,7 +11,6 @@ class TaskOverview(
     private val taskController: GenericController<Task>,
     private val userController: GenericController<User>
 ) : BorderPane() {
-
     private lateinit var taskTreeView: TreeView<String>
     private lateinit var userDropdown: ComboBox<Pair<Int, String>>
     private lateinit var taskDetailsPane: VBox
@@ -20,12 +19,13 @@ class TaskOverview(
 
     fun createView(): BorderPane {
         val header = createHeader()
+
         taskDetailsPane = VBox().apply {
-            children.add(Label("Selektiere eine Aufgabe, um Details anzuzeigen oder zu bearbeiten."))
+            styleClass.add("grid-element")
         }
 
         taskTreeView = TreeView<String>().apply {
-            prefWidth = 300.0
+            prefWidth = 400.0
             VBox.setVgrow(this, Priority.ALWAYS)
             isShowRoot = false
         }
@@ -39,9 +39,8 @@ class TaskOverview(
                     val response = taskController.createRequest("GET", taskId, null, null, "byId").first
                     if (response is Task) {
                         val task = response
-                        println(task)
                         val user = userController.createRequest("GET", null, task.userId, null, "byId").first as User
-                        val taskManager = TaskManager(taskController, userController, task, user).createView()
+                        val taskManager = TaskManager(taskController, task, user).createView()
                         taskDetailsPane.children.setAll(taskManager)
                     } else {
                         taskDetailsPane.children.setAll(Label("Fehler beim Laden der Aufgabe."))
@@ -49,15 +48,20 @@ class TaskOverview(
                 }
             }
         }
-
-
-        val leftPane = VBox( header, taskTreeView).apply {
-            padding = Insets(0.0)
+        val list = VBox(header, taskTreeView).apply {
+            styleClass.add("grid-element")
+            VBox.setVgrow(this, Priority.ALWAYS)
         }
 
-        val taskContent = VBox( taskDetailsPane).apply {
-            padding = Insets(0.0)
-            style = "-fx-background-color: #f4f4f4;"
+        val leftPane = VBox(list).apply {
+            styleClass.add("task-content")
+            padding = Insets(20.0, 20.0, 20.0, 20.0)
+            VBox.setVgrow(this, Priority.ALWAYS)
+        }
+
+        val taskContent = VBox(taskDetailsPane).apply {
+            padding = Insets(20.0,20.0,20.0,0.0)
+            styleClass.add("task-content")
         }
 
         this.left = leftPane
@@ -68,12 +72,13 @@ class TaskOverview(
         return this
     }
 
+
     private fun selectAdminUser() {
         val adminUser = users.find { it.role == 1 }
         if (adminUser != null) {
             userDropdown.selectionModel.select(adminUser.id to adminUser.name)
             updateTreeView(adminUser.id)
-            val taskManager = TaskManager(taskController, userController, null, adminUser)
+            val taskManager = TaskManager(taskController, null, adminUser)
             taskDetailsPane.children.setAll(taskManager.createView())
         }
     }
@@ -81,25 +86,22 @@ class TaskOverview(
     private fun createHeader(): HBox {
         userDropdown = ComboBox<Pair<Int, String>>().apply {
             promptText = "Benutzer auswählen"
-            items.addAll(listOf(0 to "Alle Benutzer")+ users.map { it.id to it.name })
-            prefWidth = 200.0
+            items.addAll(listOf(0 to "Alle Benutzer") + users.map { it.id to it.name })
+            prefWidth = 250.0
+            styleClass.add("dropdown")
             setOnAction {
                 updateTreeView(value?.first)
             }
-
         }
 
-
-
         val addButton = Button("Neue Aufgabe hinzufügen").apply {
+            styleClass.add("custom-button")
             setOnAction {
                 val selectedUser = userDropdown.value
                 if (selectedUser != null) {
                     val userId = selectedUser.first
-                    println(userId)
-                    println(selectedUser)
                     val user = users.find { it.id == userId }
-                    val taskManager = TaskManager(taskController, userController, null, user as User)
+                    val taskManager = TaskManager(taskController, null, user as User)
                     val taskView = taskManager.createView()
 
                     if (center == null || center !is VBox) {
@@ -113,11 +115,12 @@ class TaskOverview(
             }
         }
 
-        return HBox(10.0, userDropdown, addButton).apply {
-            padding = Insets(10.0)
-            style = "-fx-background-color: #E0E0E0; -fx-padding: 10;"
+        return HBox(15.0, userDropdown, addButton).apply {
+            padding = Insets(15.0)
+            styleClass.add("toolbar-header")
         }
     }
+
 
     private fun updateTreeView(selectedUserId: Int?) {
         val rootItem = TreeItem("Benutzer")

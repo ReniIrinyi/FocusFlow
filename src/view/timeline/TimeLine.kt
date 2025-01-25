@@ -29,8 +29,8 @@ import java.util.*
 class TimeLine(private val user: User, private val taskController: GenericController<Task>) {
 
     private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-    private val timelineContent = Pane()
-    private val scrollPane = ScrollPane(timelineContent).apply { styleClass.add("timeline-scroll-pane") }
+    private val timelineContent = Pane().apply {styleClass.add("timelineContent")}
+    private val scrollPane = ScrollPane(timelineContent).apply { styleClass.add("scroll-pane") }
     private val nowPointer = Polygon(
         -7.0, -12.0,
         7.0, -12.0,
@@ -104,7 +104,6 @@ class TimeLine(private val user: User, private val taskController: GenericContro
         timelineContent.prefWidth = 600.0
         timelineContent.prefHeight = totalHeight
         timelineContent.style = "-fx-background-color: #f5f5f5;"
-
 
         val centerX = 300.0
 
@@ -315,7 +314,7 @@ class TimeLine(private val user: User, private val taskController: GenericContro
 
         return HBox().apply {
             alignment = javafx.geometry.Pos.CENTER_LEFT
-            styleClass.add("user-header")
+            styleClass.add("timeline-header")
             image?.let { children.add(it) }
         }
 

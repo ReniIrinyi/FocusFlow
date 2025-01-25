@@ -38,12 +38,12 @@ class TimeLineManager(
                 }
             }
 
-        val header = TimeLineHeader()
+        val header = Header()
 
         return VBox().apply {
             prefWidth = Double.MAX_VALUE
             prefHeight = Double.MAX_VALUE
-            styleClass.add("timeline-background")
+            styleClass.add("timelineManager-root")
             children.addAll(header, timelinesContainer)
         }
     }

@@ -15,7 +15,7 @@ import model.User
 import controller.GenericController
 import utils.HelperFunctions
 import view.admin.AdminAuthSettings
-import view.admin.AdminMenu
+import view.admin.Menu
 import view.timeline.TimeLineManager
 
 
@@ -89,7 +89,7 @@ class MainMenu : Application() {
                 return
             }
         }
-        val adminView = AdminMenu(taskController, userController, timeLineSettingsController, helperFunctions)
+        val adminView = Menu(taskController, userController, timeLineSettingsController, helperFunctions)
         root.center = adminView.createView()
     }
 

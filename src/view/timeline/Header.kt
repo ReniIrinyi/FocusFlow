@@ -9,30 +9,29 @@ import javafx.scene.layout.Region
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Month
-import java.time.format.DateTimeFormatter
 
-class TimeLineHeader : HBox() {
+class Header : HBox() {
 
     private val dayView = ImageView().apply {
         isPreserveRatio = true
-        fitHeight = 150.0
-        fitWidth = 300.0
+        fitHeight = 120.0
+        fitWidth = 280.0
     }
 
     private val periodImageView = ImageView().apply {
         isPreserveRatio = true
-        fitHeight = 150.0
-        fitWidth = 300.0
+        fitHeight = 120.0
+        fitWidth = 280.0
     }
 
     private val monthImageView = ImageView().apply {
         isPreserveRatio = true
-        fitHeight = 150.0
-        fitWidth = 300.0
+        fitHeight = 120.0
+        fitWidth = 280.0
     }
 
     init {
-        styleClass.add("timeline-header")
+        styleClass.add("timeLineManager-header")
         alignment = Pos.CENTER_LEFT
 
         // Spacer to push the day image to the right

@@ -61,23 +61,31 @@ class AdminAuthSettings(
         val usernameField = TextField(adminName).apply {
             promptText = "Admin Username"
             isEditable = false
+            styleClass.add("input")
+
         }
 
         val passwordField = PasswordField().apply {
             promptText = "New Password"
+            styleClass.add("input")
+
         }
 
         val confirmPasswordField = PasswordField().apply {
             promptText = "Confirm New Password"
+            styleClass.add("input")
+
         }
 
         val saveButton = Button("Update Admin Password").apply {
+            styleClass.add("custom-button")
             setOnAction {
                 updateAdminPassword(passwordField.text, confirmPasswordField.text)
             }
         }
 
         return VBox(20.0).apply {
+            styleClass.add("grid-element")
             children.addAll(
                 Label("Passwort ändern"),
                 usernameField,
