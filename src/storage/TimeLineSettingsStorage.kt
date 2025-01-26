@@ -8,11 +8,15 @@ class TimeLineSettingsStorage : StorageInterface<TimeLineSettings> {
     private val filePath = Constants.TIMELINE_FILE_PATH
     private val file = File(filePath)
 
-    // Prüft, ob die Datei zum Speichern der Timeline-Einstellungen existiert
+    init {
+        checkIfFilePathExists()
+    }
+
+
     override fun checkIfFilePathExists() {
         if (!file.exists()) {
             println("Datei $file existiert nicht. Eine neue Datei wird erstellt...")
-            file.createNewFile() // Erstellt die Datei, falls sie nicht existiert
+            file.createNewFile()
         }
     }
 
@@ -50,7 +54,7 @@ class TimeLineSettingsStorage : StorageInterface<TimeLineSettings> {
         return when (requestTyp) {
             Constants.GET->{
                 val (timeline, status) = this.loadEntities();
-                if(status !== Constants.RESTAPI_OK){
+                if(status != Constants.RESTAPI_OK){
                     return Pair(emptyList<TimeLineSettings>(), Constants.RESTAPI_INTERNAL_SERVER_ERROR)
                 } else {
                     return Pair(timeline, status)
@@ -60,7 +64,11 @@ class TimeLineSettingsStorage : StorageInterface<TimeLineSettings> {
                 if(newData != null && Id!=null) {
                     //todo: muss timeLineId einsetzen!
                     val result = this.updateEntity(Id, newData)
-                    Pair("Timeline erfolreich aktualisiert", result)
+                    if(result == Constants.RESTAPI_OK){
+                        Pair("Timeline erfolreich aktualisiert", result)
+                    } else {
+                        Pair(emptyList<TimeLineSettings>(), Constants.RESTAPI_INTERNAL_SERVER_ERROR)
+                    }
                 } else {
                     Pair("Fehler: Keine Daten zum Aktualisieren angegeben", Constants.RESTAPI_BAD_REQUEST)
                 }
@@ -75,11 +83,7 @@ class TimeLineSettingsStorage : StorageInterface<TimeLineSettings> {
         }
     }
 
-    // Lädt die Timeline-Einstellungen aus der Datei
     override fun loadEntities(): Pair<List<TimeLineSettings>, Int> {
-        checkIfFilePathExists() // Sicherstellen, dass die Datei existiert
-
-        // Dateiinhalt lesen und TimelinEinstellungen laden
         val content = file.readText().trim()
         if (content.isNotEmpty()) {
             val parts = content.split("|")
@@ -89,16 +93,14 @@ class TimeLineSettingsStorage : StorageInterface<TimeLineSettings> {
                 userId.toIntOrNull()?.let {
                     TimeLineSettings(timelineCount, it)
                 }
-            }.filterNotNull() // Entfernt null-Elemente
+            }.filterNotNull()
 
             return Pair(timelines, timelineCount)
         }
 
-        // Standardwert, wenn die Datei leer oder ungültig ist
         return Pair(emptyList(), 1)
     }
 
-    // Aktualisiert eine bestehende Timeline-Einstellung
     override fun updateEntity(id: Int, updatedData: TimeLineSettings): Int {
         val (entities, _) = loadEntities()
         val updatedEntities = entities.map {
@@ -108,11 +110,9 @@ class TimeLineSettingsStorage : StorageInterface<TimeLineSettings> {
         return 1
     }
 
-    // Speichert die Timeline-Einstellungen in einer Datei
     override fun saveEntities(entities: List<TimeLineSettings>): Int {
         checkIfFilePathExists() // Sicherstellen, dass die Datei existiert
 
-        // Timeline-Daten formatieren und schreiben
         val timelineCount = entities.firstOrNull()?.timeLineCount ?: 1
         val content = "$timelineCount|${entities.joinToString("|") { it.userId.toString() }}"
         file.writeText(content)
@@ -126,4 +126,5 @@ class TimeLineSettingsStorage : StorageInterface<TimeLineSettings> {
     override fun addEntity(newEntity: TimeLineSettings): Int {
         return -1
     }
+
 }

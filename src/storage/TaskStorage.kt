@@ -83,7 +83,8 @@ class TaskStorage : StorageInterface<Task> {
             Constants.PUT -> {
                 if (newData != null && Id != null) {
                     val result = this.updateEntity(Id, newData)
-                    Pair("Task erfolgreich aktualisiert.", result)
+                    Pair("Task erfolgreich aktualisiert.", Constants.RESTAPI_OK
+                    )
                 } else {
                     Pair("Fehler: Keine Daten zum Aktualisieren angegeben.", Constants.RESTAPI_BAD_REQUEST)
                 }
@@ -105,8 +106,12 @@ class TaskStorage : StorageInterface<Task> {
 
             Constants.POST -> {
                 if (newData != null) {
-                    this.addEntity(newData)
-                    Pair("Neuer Task erfolgreich hinzugefügt.", Constants.RESTAPI_OK)
+                    val saved= this.addEntity(newData)
+                    if(saved == Constants.RESTAPI_OK){
+                        Pair("Neuer Task erfolgreich hinzugefügt.", Constants.RESTAPI_OK)
+                    } else {
+                        Pair("Error", saved)
+                    }
                 } else {
                     Pair("Fehler: Keine Daten zum Hinzufügen.", Constants.RESTAPI_BAD_REQUEST)
                 }
@@ -137,12 +142,9 @@ class TaskStorage : StorageInterface<Task> {
      */
     override fun loadEntities(): Pair<List<Task>, Int> {
         return try {
-            // Überprüft, ob die Datei leer ist.
-            // Falls leer, gibt es eine leere Liste zurück.
             if (file.readText().isEmpty()) {
                 return Pair(emptyList(), Constants.RESTAPI_OK)
             }
-            // Liest jede Zeile und konvertiert sie in Task-Objekte.
             val tasks = file.readLines().map { line -> parseTask(line) }
             Pair(tasks, Constants.RESTAPI_OK)
         } catch (e: Exception) {
@@ -179,11 +181,9 @@ class TaskStorage : StorageInterface<Task> {
             val (tasks, status) = loadEntities()
             if (status != Constants.RESTAPI_OK) return Constants.RESTAPI_INTERNAL_SERVER_ERROR
 
-            // Sucht den Index des Tasks in der geladenen Liste basierend auf der ID.
             val taskIndex = tasks.indexOfFirst { it.id == id }
             if (taskIndex == -1) return Constants.RESTAPI_NOT_FOUND
 
-            // Aktualisiert den Task in der Liste und speichert die aktualisierte Liste.
             val updatedTasks = tasks.toMutableList()
             updatedTasks[taskIndex] = updatedData
             saveEntities(updatedTasks)
@@ -202,7 +202,7 @@ class TaskStorage : StorageInterface<Task> {
         return try {
             val (tasks, status) = loadEntities()
             if (status != Constants.RESTAPI_OK) return Constants.RESTAPI_INTERNAL_SERVER_ERROR
-            // Fügt die neue Task zur Liste hinzu und speichert sie.
+
             val updatedTasks = tasks.toMutableList()
             updatedTasks.add(newEntity)
             saveEntities(updatedTasks)

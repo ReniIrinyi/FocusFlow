@@ -9,6 +9,7 @@ import javafx.stage.FileChooser
 import model.TimeLineSettings
 import model.User
 import controller.GenericController
+import utils.Constants
 import utils.HelperFunctions
 import java.io.ByteArrayInputStream
 import java.util.*
@@ -93,7 +94,8 @@ class Settings(
                                 val imageBytes = Base64.getDecoder().decode(user.profileImage)
                                 imageView.image = Image(ByteArrayInputStream(imageBytes))
                             } else {
-                                imageView.image = Image("default-avatar.png")
+
+                                imageView.image = Image(javaClass.getResourceAsStream("/images/default-avatar.png"))
                             }
 
                             nameLabel.text = user.name
@@ -185,7 +187,8 @@ class Settings(
             }
 
             dialogPane.content = VBox(10.0, Label("Benutzer hinzufügen"), nameField, profileImageView, uploadButton).apply {
-                prefHeight=150.0
+                prefHeight = 350.0
+                prefWidth = 350.0
             }
             dialogPane.buttonTypes.addAll(ButtonType.OK, ButtonType.CANCEL)
 
@@ -194,9 +197,10 @@ class Settings(
 
         val result = dialog.showAndWait()
         result.ifPresent { user ->
-            val result = userController.createRequest("POST", null, null, user, null)
-            val user= result.first as User
-            userList.items.add(user)
+            val response = userController.createRequest("POST", null, null, user, null)
+            if(response.second == Constants.RESTAPI_OK){
+                userList.items.add(response.first as User)
+            }
         }
     }
 }

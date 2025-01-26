@@ -74,7 +74,6 @@ class TaskManager(
             styleClass.add("html-editor-custom")
         }
 
-        // Custom toolbar for uniform styling
         val customToolbar = HBox(10.0,
             titleField,
             startDatePicker,
@@ -88,7 +87,7 @@ class TaskManager(
                 }
             }
         ).apply {
-            styleClass.add("custom-toolbar")
+            styleClass.add("toolbar-header")
         }
 
         val saveButton = Button("Speichern").apply {
@@ -98,9 +97,8 @@ class TaskManager(
             }
         }
 
-        return VBox(10.0,
+        return VBox(0.0,
             customToolbar,
-            selectedFileLabel,
             htmlEditor,
             saveButton
         )

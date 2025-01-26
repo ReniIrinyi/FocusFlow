@@ -28,11 +28,11 @@ class TimeLineManager(
             .filterNotNull()
             .take(timelineCount)
             .forEach { userId ->
-                val user = userController.createRequest("GET",null,userId,null,"byId").first as User
+                val userresponse = userController.createRequest("GET",null,userId,null,"byId")
                 val tasks = taskController.createRequest("GET",null,userId,null,"byUserId").first as List<Task>
 
-                if (user != null) {
-                    val timeLineMenu = TimeLine(user, taskController)
+                if (userresponse.second == Constants.RESTAPI_OK) {
+                    val timeLineMenu = TimeLine(userresponse.first as User, taskController)
                     val timelineBox = timeLineMenu.createView(tasks)
                     timelinesContainer.children.add(timelineBox)
                 }
@@ -60,7 +60,7 @@ class TimeLineManager(
                 return Pair(timelineCount, userIds)
             }
         }
-        return Pair(1, listOf(null)) // Default to one timeline with no user
+        return Pair(1, listOf(null))
     }
 
 }

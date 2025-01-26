@@ -12,7 +12,6 @@ import java.security.MessageDigest
  */
 class UserStorage : StorageInterface<User> {
 
-    // Dateipfad, in dem die Benutzerdaten gespeichert werden
     private val filePath = Constants.USER_FILE_PATH
     private val file = File(filePath)
 
@@ -108,7 +107,7 @@ class UserStorage : StorageInterface<User> {
                     "getAdmin" -> {
                         val admin = this.getAdmin()
                         if(admin != null){
-                            Pair(admin, Constants.RESTAPI_NOT_FOUND)
+                            Pair(admin, Constants.RESTAPI_OK)
                         } else {
                             Pair("Fehler:Benutzer mit Rolle 'Admin' ist nicht hinterlegt", Constants.RESTAPI_NOT_FOUND)
                         }
@@ -121,26 +120,26 @@ class UserStorage : StorageInterface<User> {
                             Pair(false, Constants.RESTAPI_BAD_REQUEST)
                         }
                     }
-                    "updatePasswort"->{
-                        if(newData != null){
-                            this.updateAdminPassword(newData.password)
-                            Pair("Passwort aktualisiert",Constants.RESTAPI_OK)
-                        } else {
-                            Pair("Kein neue Datensatz gefunden", Constants.RESTAPI_BAD_REQUEST)
-                        }
-                    }
-
 
                     else -> Pair("Ungültiger Pfad", Constants.RESTAPI_BAD_REQUEST)
                 }
             }
 
             Constants.PUT -> {
-                if (newData != null && Id != null) {
-                    val result = this.updateEntity(Id, newData)
-                    Pair("Task erfolgreich aktualisiert.", result)
-                } else {
-                    Pair("Fehler: Keine Daten zum Aktualisieren angegeben.", Constants.RESTAPI_BAD_REQUEST)
+                if (routePath === "updatePasswort"){
+                        if(newData != null){
+                            this.updateAdminPassword(newData.password)
+                            Pair("Passwort aktualisiert",Constants.RESTAPI_OK)
+                        } else {
+                            Pair("Kein neue Datensatz gefunden", Constants.RESTAPI_BAD_REQUEST)
+                        }
+                    } else {
+                    if (newData != null && Id != null) {
+                        val result = this.updateEntity(Id, newData)
+                        Pair("Task erfolgreich aktualisiert.", Constants.RESTAPI_OK)
+                    } else {
+                        Pair("Fehler: Keine Daten zum Aktualisieren angegeben.", Constants.RESTAPI_BAD_REQUEST)
+                    }
                 }
             }
 
@@ -160,8 +159,12 @@ class UserStorage : StorageInterface<User> {
 
             Constants.POST -> {
                 if (newData != null) {
-                    this.addEntity(newData)
-                    Pair("Neuer User erfolgreich hinzugefügt.", Constants.RESTAPI_OK)
+                    val saved= this.addEntity(newData)
+                    if(saved == Constants.RESTAPI_OK){
+                        Pair("Neuer User erfolgreich hinzugefügt.", Constants.RESTAPI_OK)
+                    } else {
+                        Pair("Error: ", saved)
+                    }
                 } else {
                     Pair("Fehler: Keine Daten zum Hinzufügen.", Constants.RESTAPI_BAD_REQUEST)
                 }
@@ -180,7 +183,7 @@ class UserStorage : StorageInterface<User> {
     override fun loadEntities(): Pair<List<User>, Int> {
         return try {
             val users = file.readLines()
-                .mapNotNull { line -> parseUser(line) } // Konvertiert jede Zeile in ein User-Objekt, falls möglich
+                .mapNotNull { line -> parseUser(line) }
             Pair(users, Constants.RESTAPI_OK)
         } catch (e: Exception) {
             println("Fehler beim Laden der Benutzer: ${e.message}")
@@ -196,7 +199,6 @@ class UserStorage : StorageInterface<User> {
      */
     override fun saveEntities(entities: List<User>): Int {
         return try {
-            // Serialisiert jeden Benutzer und speichert ihn in der Datei
             file.writeText(entities.joinToString("\n") { serializeUser(it) })
             Constants.RESTAPI_OK
         } catch (e: Exception) {
@@ -217,7 +219,6 @@ class UserStorage : StorageInterface<User> {
             val (users, status) = loadEntities()
             if (status != Constants.RESTAPI_OK) return Constants.RESTAPI_INTERNAL_SERVER_ERROR
 
-            // Sucht den Benutzer anhand der ID
             val userIndex = users.indexOfFirst { it.id == id }
             if (userIndex == -1) return Constants.RESTAPI_NOT_FOUND
 
@@ -241,13 +242,14 @@ class UserStorage : StorageInterface<User> {
             val (users, status) = loadEntities()
             if (status != Constants.RESTAPI_OK) return Constants.RESTAPI_INTERNAL_SERVER_ERROR
 
-            // Verhindert das Hinzufügen eines zweiten Admins
             if (newEntity.role ==  Constants.ROLE_ADMIN && users.any { it.role ==  Constants.ROLE_ADMIN }) {
                 Constants.RESTAPI_ADMIN_EXISTS
             }
 
+            val newUser = newEntity.copy(password = hashPassword(newEntity.password))
+
             val newUsers = users.toMutableList()
-            newUsers.add(newEntity)
+            newUsers.add(newUser)
             saveEntities(newUsers)
         } catch (e: Exception) {
             Constants.RESTAPI_INTERNAL_SERVER_ERROR
@@ -266,7 +268,6 @@ class UserStorage : StorageInterface<User> {
             val (users, status) = loadEntities()
             if (status != Constants.RESTAPI_OK) return Constants.RESTAPI_INTERNAL_SERVER_ERROR
 
-            // Filtert den Benutzer mit der angegebenen ID heraus
             val updatedUsers = users.filter { it.id != id }
             if (updatedUsers.size == users.size) {
                 return Constants.RESTAPI_NOT_FOUND
@@ -277,8 +278,6 @@ class UserStorage : StorageInterface<User> {
 
         }
     }
-
-    // Hilfsmethoden zur Konvertierung zwischen Benutzer und Datei
 
     /**
      * Konvertiert ein `User`-Objekt in ein textbasiertes Format, um es in die Datei zu speichern.
@@ -323,21 +322,16 @@ class UserStorage : StorageInterface<User> {
         } else return null
     }
 
-
     fun validateUser(username: String, inputPassword: String?): Boolean {
-        val users = loadEntities().first // Lädt alle Benutzer aus der Datenquelle.
-
-        // Sucht den Benutzer mit dem Benutzernamen.
-        val user = users.find { it.name == username } ?: return false // Benutzer existiert nicht.
+        val users = loadEntities().first
+        val user = users.find { it.name == username } ?: return false
 
         return when (user.role) {
             Constants.ROLE_ADMIN -> {
-                // Admins erfordern eine Passwortprüfung.
                 val hashedInputPassword = hashPassword(inputPassword ?: "")
                 user.password == hashedInputPassword
             }
             else -> {
-                // Reguläre Benutzer erfordern keine Passwortprüfung.
                 true
             }
         }
@@ -356,21 +350,14 @@ class UserStorage : StorageInterface<User> {
         return hashedBytes.joinToString("") { "%02x".format(it) }
     }
 
-
     fun updateAdminPassword(newPassword: String) {
         val users = loadEntities().first
-
-        // Sucht den Benutzer mit dem Benutzernamen
         val user = users.find { it.role == Constants.ROLE_ADMIN }
             ?: throw IllegalArgumentException("Admin mit dem angegebenen Benutzernamen existiert nicht!")
 
-        // Neues Passwort hashen
         val hashedPassword = hashPassword(newPassword)
-
-        // Aktualisiertes User-Objekt erstellen
         val updatedUser = user.copy(password = hashedPassword)
-
-        // Benutzer im Speicher aktualisieren
         updateEntity(user.id, updatedUser)
+
     }
 }

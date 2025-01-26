@@ -374,19 +374,10 @@ h1, h2, h3 {
     -fx-spacing: 15px;
 }
 
-.custom-toolbar {
-    -fx-background-color: #e8f5e9;
-    -fx-padding: 10px;
-    -fx-spacing: 10px;
-    -fx-border-radius: 5px;
-    -fx-border-color: #c8e6c9;
-    -fx-alignment: center-left;
-}
-
 .html-editor-custom .tool-bar {
-    -fx-padding: 0;
-    -fx-background-color: transparent;
-    -fx-border: none;
+    -fx-background-color: rgba(76, 175, 80, 0.19);
+    -fx-padding: 15px;
+    -fx-border-color: #cccccc;
 }
 
 .input {

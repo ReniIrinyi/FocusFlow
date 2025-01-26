@@ -4,6 +4,7 @@ import javafx.scene.control.*
 import javafx.scene.layout.VBox
 import model.User
 import controller.GenericController
+import utils.Constants
 import utils.HelperFunctions
 
 class AdminAuthSettings(
@@ -13,13 +14,13 @@ class AdminAuthSettings(
 ) {
 
     fun createView(): VBox {
-        val admin = userController.createRequest("GET", null, null,null,"getAdmin").first as User
-
-        return if (admin != null) {
-            createAdminPasswordUpdateView(admin.name)
-        } else {
-            createNewAdminView()
+        val response = userController.createRequest("GET", null, null,null,"getAdmin")
+        if(response.second == Constants.RESTAPI_OK){
+            println(response)
+            val admin = response.first as User
+            return createAdminPasswordUpdateView(admin.name)
         }
+          return createNewAdminView()
     }
 
     private fun createNewAdminView(): VBox {
@@ -153,11 +154,15 @@ class AdminAuthSettings(
                 helperFunctions.showAlert(Alert.AlertType.ERROR, "Fehler", "Die Passwörter stimmen nicht überein!")
             }
             else -> {
-                val admin = userController.createRequest("GET", null, null,null,"getAdmin").first as User
-                val newUser = admin.copy(password = trimmedPassword) as User
-                userController.createRequest("PUT", null, newUser.id,newUser,null)
-                helperFunctions.showAlert (Alert.AlertType.INFORMATION, "Erfolg", "Passwort wurde erfolgreich aktualisiert.")
-                onSettingsSaved()
+                val response = userController.createRequest("GET", null, null,null,"getAdmin")
+                if(response.second == Constants.RESTAPI_OK){
+                    val newUser = (response.first as User).copy(password = trimmedPassword)
+                    val saved = userController.createRequest("PUT", null, null,newUser,"updatePasswort")
+                    if(saved.second == Constants.RESTAPI_OK){
+                        helperFunctions.showAlert (Alert.AlertType.INFORMATION, "Erfolg", "Passwort wurde erfolgreich aktualisiert.")
+                        onSettingsSaved()
+                    }
+                }
             }
         }
     }
