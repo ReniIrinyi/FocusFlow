@@ -30,21 +30,6 @@ data class User (
             return currentId
         }
 
-        fun roleToString(role:Int): String {
-            return when (role) {
-                1 -> "Admin"
-                2 -> "User"
-                else -> "Unknown"
-            }
-        }
-
-        fun stringToRole(role: String): Int {
-            return when (role.lowercase()) {
-                "admin" -> 1
-                "user" -> 2
-                else -> throw IllegalArgumentException("Unknown role: $role")
-            }
-        }
 
 
     }

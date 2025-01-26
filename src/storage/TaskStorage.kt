@@ -9,7 +9,6 @@ import java.time.format.DateTimeFormatter
 
 class TaskStorage : StorageInterface<Task> {
 
-    // Der Pfad, wo die Task-Elemente gespeichert werden.
     private val filePath = Constants.TASKS_FILE_PATH
     private val file = File(filePath)
 
@@ -223,7 +222,6 @@ class TaskStorage : StorageInterface<Task> {
             val (tasks, status) = loadEntities()
             if (status != Constants.RESTAPI_OK) return Constants.RESTAPI_INTERNAL_SERVER_ERROR
 
-            // Filtert den Task mit der angegebenen ID aus der Liste heraus.
             val updatedTasks = tasks.filter { it.id != id }
             if (updatedTasks.size == tasks.size) {
                 return Constants.RESTAPI_NOT_FOUND
@@ -233,8 +231,6 @@ class TaskStorage : StorageInterface<Task> {
             Constants.RESTAPI_INTERNAL_SERVER_ERROR
         }
     }
-
-    // Hilfsfunktionen zur Serialisierung und Deserialisierung von Task-Objekten.
 
     /**
      * Serialisiert ein Task-Objekt in ein String-Format für die Speicherung in der Datei.

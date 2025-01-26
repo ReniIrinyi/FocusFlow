@@ -38,9 +38,9 @@ import java.util.*
      */
      fun showAlert(type: Alert.AlertType, title: String, message: String) {
         Alert(type).apply {
-            this.title = title // Setzt den Titel der Benachrichtigung
-            this.contentText = message // Setzt den Inhalt der Benachrichtigung
-            showAndWait() // Zeigt die Benachrichtigung an und wartet
+            this.title = title
+            this.contentText = message
+            showAndWait()
         }
     }
 }

@@ -18,8 +18,6 @@ import view.admin.AdminAuthSettings
 import view.admin.Menu
 import view.timeline.TimeLineManager
 
-
-// Der Einstiegspunkt der Anwendung.
 class MainMenu : Application() {
 
     private val root = BorderPane()

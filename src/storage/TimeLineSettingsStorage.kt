@@ -111,8 +111,6 @@ class TimeLineSettingsStorage : StorageInterface<TimeLineSettings> {
     }
 
     override fun saveEntities(entities: List<TimeLineSettings>): Int {
-        checkIfFilePathExists() // Sicherstellen, dass die Datei existiert
-
         val timelineCount = entities.firstOrNull()?.timeLineCount ?: 1
         val content = "$timelineCount|${entities.joinToString("|") { it.userId.toString() }}"
         file.writeText(content)
