@@ -81,6 +81,7 @@ class TaskStorage : StorageInterface<Task> {
 
             Constants.PUT -> {
                 if (newData != null && Id != null) {
+                    println(newData)
                     val result = this.updateEntity(Id, newData)
                     Pair("Task erfolgreich aktualisiert.", Constants.RESTAPI_OK
                     )

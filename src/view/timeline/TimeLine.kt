@@ -191,16 +191,7 @@ class TimeLine(private val user: User, private val taskController: GenericContro
                 }
             }
 
-            val statusCheckBox = CheckBox().apply {
-                isSelected = t.status == 0
-                setOnAction {
-                    if (isSelected) {
-                        t.status = 2
-                    } else {
-                        t.status = 1
-                    }
-                }
-            }
+            val statusCheckBox = createTriStateCheckbox(t)
 
 
 
@@ -243,7 +234,8 @@ class TimeLine(private val user: User, private val taskController: GenericContro
     }
 
     private fun saveTaskStatus(task: Task) {
-        taskController.createRequest("PUT",null,null,task,null)
+        println(task)
+        taskController.createRequest("PUT",task.id,null,task,null)
     }
 
 
@@ -272,10 +264,6 @@ class TimeLine(private val user: User, private val taskController: GenericContro
             else -> "?"
         }
     }
-
-
-
-
 
     private fun initTimeUpdater() {
         val nowLine = Line(280.0, 0.0, 320.0, 0.0).apply {
