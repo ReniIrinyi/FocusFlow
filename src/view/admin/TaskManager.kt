@@ -93,14 +93,24 @@ class TaskManager(
         val saveButton = Button("Speichern").apply {
             styleClass.add("custom-button")
             setOnAction {
-                saveTask(titleField, priorityDropdown, startDatePicker, endTimeSpinner, htmlEditor)
+                saveTask(titleField, priorityDropdown, startDatePicker,startTimeSpinner, endTimeSpinner, htmlEditor)
             }
+        }
+        val deleteButton = Button("Löschen").apply {
+            styleClass.add("custom-button")
+            setOnAction {
+                deleteTask(titleField, priorityDropdown, startDatePicker,startTimeSpinner, endTimeSpinner, htmlEditor)
+            }
+        }
+
+        val buttonContainer = HBox(10.0, saveButton, deleteButton).apply {
+            padding = Insets(10.0,10.0,10.0,0.0)
         }
 
         return VBox(0.0,
             customToolbar,
             htmlEditor,
-            saveButton
+            buttonContainer
         )
     }
 
@@ -122,6 +132,7 @@ class TaskManager(
         titleField: TextField,
         priorityDropdown: ComboBox<String>,
         startDatePicker: DatePicker,
+        startTimePicker: Spinner<Int>,
         endTimePicker: Spinner<Int>,
         htmlEditor: HTMLEditor
     ) {
@@ -135,8 +146,9 @@ class TaskManager(
             }
             val startDate = startDatePicker.value
             val endHour = endTimePicker.value
+            val starHour = startTimePicker.value
 
-            val startLocalTime = LocalTime.of(8, 0)  // Default start time
+            val startLocalTime = LocalTime.of(starHour, 0)
             val endLocalTime = LocalTime.of(endHour, 0)
             val startTime = LocalDateTime.of(startDate, startLocalTime)
             val endTime = LocalDateTime.of(startDate, endLocalTime)
@@ -163,6 +175,50 @@ class TaskManager(
             helperFunctions.showAlert(Alert.AlertType.ERROR, "Fehler", "Bitte alle Felder ausfüllen!")
         }
     }
+
+    private fun deleteTask(
+        titleField: TextField,
+        priorityDropdown: ComboBox<String>,
+        startDatePicker: DatePicker,
+        startTimeSpinner: Spinner<Int>,
+        endTimeSpinner: Spinner<Int>,
+        htmlEditor: HTMLEditor
+    ) {
+        if (task == null) {
+            helperFunctions.showAlert(Alert.AlertType.ERROR, "Fehler", "Keine Aufgabe zum Löschen vorhanden!")
+            return
+        }
+
+        val (response, status) = taskController.createRequest(
+            requestTyp = "DELETE",
+            task.id,
+            userId = null,
+            newData = null,
+            routePath = null
+        )
+
+        if (status == 200) {
+            titleField.clear()
+            priorityDropdown.selectionModel.clearSelection()
+            startDatePicker.value = null
+            startTimeSpinner.valueFactory?.value = 12
+            endTimeSpinner.valueFactory?.value = 13
+            htmlEditor.htmlText = ""
+
+            helperFunctions.showAlert(
+                Alert.AlertType.INFORMATION,
+                "Erfolg",
+                "Aufgabe erfolgreich gelöscht!"
+            )
+        } else {
+            helperFunctions.showAlert(
+                Alert.AlertType.ERROR,
+                "Fehler",
+                "Konnte Aufgabe nicht löschen! (Status: $status)"
+            )
+        }
+    }
+
 
     private fun createDropdownButton(svgContent: String, tooltipText: String, startSpinner: Spinner<Int>, endSpinner: Spinner<Int>): MenuButton {
         val svgIcon = SVGPath().apply {

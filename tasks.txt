@@ -1,1 +1,0 @@
-1|2|2025-01-23T21:26:00.4584745|2025-01-23T21:26:00.4584745|2|0|aufgabe 2|<html dir="ltr"><head></head><body contenteditable="true"><p><span style="font-family: &quot;&quot;;">kikk</span></p></body></html>|2025-01-23T21:00:00|2025-01-23T00:00:00|2025-01-23T23:00:00|

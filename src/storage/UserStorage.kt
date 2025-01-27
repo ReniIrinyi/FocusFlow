@@ -144,8 +144,8 @@ class UserStorage : StorageInterface<User> {
             }
 
             Constants.DELETE -> {
-                if(Id != null) {
-                    val result = this.deleteEntityById(Id)
+                if(userId != null) {
+                    val result = this.deleteEntityById(userId)
                     if (result == Constants.RESTAPI_OK) {
                         Pair("Task erfolgreich gelöscht.", Constants.RESTAPI_OK)
                     } else {
@@ -267,8 +267,9 @@ class UserStorage : StorageInterface<User> {
         return try {
             val (users, status) = loadEntities()
             if (status != Constants.RESTAPI_OK) return Constants.RESTAPI_INTERNAL_SERVER_ERROR
-
+            println(id)
             val updatedUsers = users.filter { it.id != id }
+            println(updatedUsers)
             if (updatedUsers.size == users.size) {
                 return Constants.RESTAPI_NOT_FOUND
             }

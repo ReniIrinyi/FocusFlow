@@ -82,9 +82,9 @@ class TimelineSettings(
      * @param availableUsers Liste der verfügbaren Benutzer.
      */
     private fun loadSettings(availableUsers: List<User>) {
-        val userOptions = listOf<Pair<Int?, String>>(null to "Keine") + availableUsers.map { it.id to it.name } // Benutzeroptionen für Dropdowns
-        val allSettings = timelineSettingsController.createRequest("GET",null,null,null,"all").first as List<TimeLineSettings>
-
+        val userOptions = listOf<Pair<Int?, String>>(null to "Keine") + availableUsers.map { it.id to it.name }
+        val allSettings = timelineSettingsController.createRequest("GET",null,null,null,null).first as List<TimeLineSettings>
+        println(allSettings)
         val defaultCount = allSettings.firstOrNull()?.timeLineCount ?: 1
         timelineCountDropdown.value = defaultCount
 
@@ -108,8 +108,16 @@ class TimelineSettings(
         (0 until timelineCount).forEach { index ->
             val userId = userDropdowns[index].value?.first
             val timeLineSettings = TimeLineSettings(timelineCount, userId = userId ?: -1)
-            timelineSettingsController.createRequest("PUT",null,null,timeLineSettings,"all")
+
+            timelineSettingsController.createRequest(
+                requestTyp = "PUT",
+                index,
+                userId = null,
+                newData = timeLineSettings,
+                routePath = null
+            )
         }
     }
+
 
 }

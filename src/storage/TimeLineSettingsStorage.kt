@@ -61,8 +61,7 @@ class TimeLineSettingsStorage : StorageInterface<TimeLineSettings> {
                 }
             }
             Constants.PUT->{
-                if(newData != null && Id!=null) {
-                    //todo: muss timeLineId einsetzen!
+                if(newData != null && Id != null) {
                     val result = this.updateEntity(Id, newData)
                     if(result == Constants.RESTAPI_OK){
                         Pair("Timeline erfolreich aktualisiert", result)
@@ -85,37 +84,63 @@ class TimeLineSettingsStorage : StorageInterface<TimeLineSettings> {
 
     override fun loadEntities(): Pair<List<TimeLineSettings>, Int> {
         val content = file.readText().trim()
-        if (content.isNotEmpty()) {
-            val parts = content.split("|")
-            val timelineCount = parts[0].toIntOrNull() ?: 1
-
-            val timelines = parts.drop(1).mapIndexed { index, userId ->
-                userId.toIntOrNull()?.let {
-                    TimeLineSettings(timelineCount, it)
-                }
-            }.filterNotNull()
-
-            return Pair(timelines, timelineCount)
+        if (content.isEmpty()) {
+            return Pair(emptyList(), Constants.RESTAPI_OK)
         }
 
-        return Pair(emptyList(), 1)
+        val parts = content.split("|")
+        val timelineCount = parts[0].toIntOrNull() ?: 0
+        val userIdParts = parts.drop(1)
+
+        val realCount = minOf(timelineCount, userIdParts.size)
+
+        val timelines = (0 until realCount).map { index ->
+            val userId = userIdParts[index].toIntOrNull() ?: -1
+            TimeLineSettings(timelineCount, userId)
+        }
+
+        return Pair(timelines, Constants.RESTAPI_OK)
     }
+
+
+
+
 
     override fun updateEntity(id: Int, updatedData: TimeLineSettings): Int {
-        val (entities, _) = loadEntities()
-        val updatedEntities = entities.map {
-            if (it.userId == id) updatedData else it
+        val (entityList, status) = loadEntities()
+        val entities = entityList.toMutableList()
+
+        val neededSize = updatedData.timeLineCount
+        while (entities.size < neededSize) {
+            entities.add(TimeLineSettings(neededSize, -1))
         }
-        saveEntities(updatedEntities)
-        return 1
+
+        if (id < 0 || id >= neededSize) {
+            return Constants.RESTAPI_BAD_REQUEST
+        }
+
+        entities[id] = updatedData
+
+        saveEntities(entities)
+        return Constants.RESTAPI_OK
     }
 
+
     override fun saveEntities(entities: List<TimeLineSettings>): Int {
-        val timelineCount = entities.firstOrNull()?.timeLineCount ?: 1
-        val content = "$timelineCount|${entities.joinToString("|") { it.userId.toString() }}"
+        if (entities.isEmpty()) {
+            file.writeText("")
+            return Constants.RESTAPI_OK
+        }
+        val timelineCount = entities.first().timeLineCount
+        val finalList = entities.take(timelineCount)
+
+        val userIds = finalList.joinToString("|") { it.userId.toString() }
+        val content = "$timelineCount|$userIds"
+
         file.writeText(content)
-        return 1
+        return Constants.RESTAPI_OK
     }
+
 
     override fun deleteEntityById(id: Int): Int {
         return -1

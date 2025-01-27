@@ -198,6 +198,7 @@ class TaskStorage : StorageInterface<Task> {
      * @return HTTP-Statuscode: 200 (erfolgreich) oder 500 (Fehler).
      */
     override fun addEntity(newEntity: Task): Int {
+        println(newEntity)
         return try {
             val (tasks, status) = loadEntities()
             if (status != Constants.RESTAPI_OK) return Constants.RESTAPI_INTERNAL_SERVER_ERROR

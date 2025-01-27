@@ -142,10 +142,12 @@ class Settings(
             styleClass.add("custom-button")
             setOnAction {
                 val selectedUser = userList.selectionModel.selectedItem
-                if (selectedUser != null && selectedUser.role != 1) { // Admin törlésének tiltása
-                    userController.createRequest("DELETE", null, selectedUser.id, null, null)
-                    userList.items.remove(selectedUser)
-                    helperFunctions.showAlert(Alert.AlertType.INFORMATION, "Erfolg", "Benutzer erfolgreich gelöscht.")
+                if (selectedUser != null && selectedUser.role != 1) {
+                    val response = userController.createRequest("DELETE", null, selectedUser.id, null, null)
+                    if(response.second == Constants.RESTAPI_OK){
+                        userList.items.remove(selectedUser)
+                        helperFunctions.showAlert(Alert.AlertType.INFORMATION, "Erfolg", "Benutzer erfolgreich gelöscht.")
+                    }
                 } else {
                     helperFunctions.showAlert(Alert.AlertType.ERROR, "Fehler", "Admin-Benutzer kann nicht gelöscht werden.")
                 }
@@ -199,7 +201,9 @@ class Settings(
         result.ifPresent { user ->
             val response = userController.createRequest("POST", null, null, user, null)
             if(response.second == Constants.RESTAPI_OK){
-                userList.items.add(response.first as User)
+                val list = userController.createRequest("GET", null, null, null, "all").first as List<User>
+                val user= list.find { it.name == user.name } as User
+                userList.items.add(user)
             }
         }
     }
