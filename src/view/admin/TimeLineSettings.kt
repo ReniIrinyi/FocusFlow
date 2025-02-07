@@ -18,13 +18,8 @@ class TimelineSettings(
 
     private val timelineCountDropdown = ComboBox<Int>()
     private val userDropdowns = List(3) { ComboBox<Pair<Int?, String>>() }
-    private val users = userController.createRequest("GET",null,null,null,"all").first as List<User>
+    private val users = userController.read(null,null,null,"all").first as List<User>
 
-    /**
-     * Erstellt die JavaFX-Ansicht zur Verwaltung der Timeline-Einstellungen im Admin-Bereich.
-     *
-     * @return Die erstellte Ansicht.
-     */
     fun createView(): VBox {
         val availableUsers = users
         loadSettings(availableUsers)
@@ -75,16 +70,9 @@ class TimelineSettings(
         }
     }
 
-
-    /**
-     * Lädt bereits gespeicherte Einstellungen aus dem Service und initialisiert die Benutzer-Dropdowns.
-     *
-     * @param availableUsers Liste der verfügbaren Benutzer.
-     */
     private fun loadSettings(availableUsers: List<User>) {
         val userOptions = listOf<Pair<Int?, String>>(null to "Keine") + availableUsers.map { it.id to it.name }
-        val allSettings = timelineSettingsController.createRequest("GET",null,null,null,null).first as List<TimeLineSettings>
-        println(allSettings)
+        val allSettings = timelineSettingsController.read(null,null,null,null).first as List<TimeLineSettings>
         val defaultCount = allSettings.firstOrNull()?.timeLineCount ?: 1
         timelineCountDropdown.value = defaultCount
 
@@ -99,23 +87,13 @@ class TimelineSettings(
         }
     }
 
-    /**
-     * Speichert die ausgewählten Einstellungen mithilfe des TimelineSettingsService.
-     */
     private fun saveSettings() {
         val timelineCount = timelineCountDropdown.value ?: 1
 
         (0 until timelineCount).forEach { index ->
             val userId = userDropdowns[index].value?.first
             val timeLineSettings = TimeLineSettings(timelineCount, userId = userId ?: -1)
-
-            timelineSettingsController.createRequest(
-                requestTyp = "PUT",
-                index,
-                userId = null,
-                newData = timeLineSettings,
-                routePath = null
-            )
+            timelineSettingsController.update(index, timeLineSettings)
         }
     }
 

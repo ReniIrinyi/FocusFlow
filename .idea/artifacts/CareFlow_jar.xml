@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact name="CareFlow:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/CareFlow_jar</output-path>
+    <root id="root">
+      <element id="archive" name="FocusFlow.jar">
+        <element id="module-output" name="FocusFlow" />
+      </element>
+      <element id="library" level="project" name="KotlinJavaRuntime" />
+      <element id="library" level="project" name="fuel-3.0.0-alpha04" />
+    </root>
+  </artifact>
+</component>

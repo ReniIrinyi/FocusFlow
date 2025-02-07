@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Main-Class: MainKt
+Class-Path: kotlin-stdlib-2.0.20.jar annotations-13.0.jar
+

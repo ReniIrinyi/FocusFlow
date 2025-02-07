@@ -28,8 +28,7 @@ class Header(
         }
 
         val openTimeline = MenuItem("Open Timeline").apply {
-            val tasks = taskController.createRequest("GET", null, null, null, "all").first
-            println(tasks.toString())
+            val tasks = taskController.read(null, null, null, "all").first
             setOnAction { onZeitachseClicked(tasks as List<Task>) }
         }
 

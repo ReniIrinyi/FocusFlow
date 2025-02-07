@@ -35,7 +35,7 @@ class MainMenu : Application() {
 
 
     override fun start(primaryStage: Stage) {
-        val isAdminExists = userController.createRequest("GET", null, null,null,"isAdminExists").first as Boolean
+        val isAdminExists = userController.read(null, null,null,"isAdminExists").first as Boolean
         if (!isAdminExists) {
             showUserSettings()
         } else {
@@ -45,7 +45,7 @@ class MainMenu : Application() {
 
         val scene = Scene(root)
 
-        val css = this.javaClass.getResource("../styles/styles.css")
+        val css = this.javaClass.getResource("/styles.css")
         if (css != null) {
             scene.stylesheets.add(css.toExternalForm())
         } else {
@@ -91,9 +91,6 @@ class MainMenu : Application() {
         root.center = adminView.createView()
     }
 
-    /**
-     * Authenticate the admin user by prompting for username and password.
-     */
     private fun authenticateAdmin(): Boolean {
         val dialog = Dialog<Pair<String, String>>().apply {
             title = "Admin Authentication"
@@ -127,10 +124,10 @@ class MainMenu : Application() {
             role = 0,
             profileImage = ""
         )
-        val isAdminExists = userController.createRequest("GET", null, null,null,"isAdminExists").first as Boolean
+        val isAdminExists = userController.read( null, null,null,"isAdminExists").first as Boolean
         println(isAdminExists)
         return if (isAdminExists) {
-            return userController.createRequest("GET", null, null,user,"validateUser").first as Boolean
+            return userController.read( null, null,user,"validateUser").first as Boolean
         } else {
             false
         }

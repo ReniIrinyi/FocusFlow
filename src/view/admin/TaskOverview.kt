@@ -14,8 +14,8 @@ class TaskOverview(
     private lateinit var taskTreeView: TreeView<String>
     private lateinit var userDropdown: ComboBox<Pair<Int, String>>
     private lateinit var taskDetailsPane: VBox
-    private val users = userController.createRequest("GET", null, null, null, "all").first as List<User>
-    private val tasks = taskController.createRequest("GET", null, null, null, "all").first as List<Task>
+    private val users = userController.read(null, null, null, "all").first as List<User>
+    private val tasks = taskController.read( null, null, null, "all").first as List<Task>
 
     fun createView(): BorderPane {
         val header = createHeader()
@@ -36,10 +36,10 @@ class TaskOverview(
                 if (!selectedItem.value.contains(":")) return@addListener
                 val taskId = selectedItem.value.substringBefore(":").trim().toIntOrNull()
                 if (taskId != null) {
-                    val response = taskController.createRequest("GET", taskId, null, null, "byId").first
+                    val response = taskController.read( taskId, null, null, "byId").first
                     if (response is Task) {
                         val task = response
-                        val user = userController.createRequest("GET", null, task.userId, null, "byId").first as User
+                        val user = userController.read(null, task.userId, null, "byId").first as User
                         val taskManager = TaskManager(taskController, task, user).createView()
                         taskDetailsPane.children.setAll(taskManager)
                     } else {

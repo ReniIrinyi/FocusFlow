@@ -20,7 +20,7 @@ class Settings(
     private val helperFunctions: HelperFunctions,
     private val onSettingsSaved: () -> Unit
 ) {
-    val users = userController.createRequest("GET", null, null, null, "all").first as List<User>
+    val users = userController.read( null, null, null, "all").first as List<User>
 
     fun createView(): VBox {
         val userListView = createUserListView()
@@ -114,7 +114,7 @@ class Settings(
 
         userList.setOnMouseClicked {
             val selectedUser = userList.selectionModel.selectedItem
-            if (selectedUser != null && selectedUser.role != 1) {  // Ha nem admin
+            if (selectedUser != null && selectedUser.role != 1) {
                 val dialog = TextInputDialog(selectedUser.name).apply {
                     title = "Benutzername ändern"
                     headerText = null
@@ -124,7 +124,7 @@ class Settings(
                 result.ifPresent { newName ->
                     if (newName.isNotEmpty()) {
                         selectedUser.name = newName
-                        userController.createRequest("POST", null, null, selectedUser, null)
+                        userController.update(selectedUser.id,  selectedUser)
                         userList.refresh()
                     }
                 }
@@ -143,8 +143,8 @@ class Settings(
             setOnAction {
                 val selectedUser = userList.selectionModel.selectedItem
                 if (selectedUser != null && selectedUser.role != 1) {
-                    val response = userController.createRequest("DELETE", null, selectedUser.id, null, null)
-                    if(response.second == Constants.RESTAPI_OK){
+                    val response = userController.delete( selectedUser.id)
+                    if(response.second == Constants.STATUS_OK){
                         userList.items.remove(selectedUser)
                         helperFunctions.showAlert(Alert.AlertType.INFORMATION, "Erfolg", "Benutzer erfolgreich gelöscht.")
                     }
@@ -199,9 +199,9 @@ class Settings(
 
         val result = dialog.showAndWait()
         result.ifPresent { user ->
-            val response = userController.createRequest("POST", null, null, user, null)
-            if(response.second == Constants.RESTAPI_OK){
-                val list = userController.createRequest("GET", null, null, null, "all").first as List<User>
+            val response = userController.create(user )
+            if(response.second == Constants.STATUS_OK){
+                val list = userController.read( null, null, null, "all").first as List<User>
                 val user= list.find { it.name == user.name } as User
                 userList.items.add(user)
             }

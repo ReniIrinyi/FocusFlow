@@ -93,10 +93,6 @@ class TimeLine(private val user: User, private val taskController: GenericContro
         scrollPane.vvalue = scrollPosition
     }
 
-
-    /**
-     * Zeichnet die Halbstunden-Markierungen und legt die Größe des timelineContent fest.
-     */
     private fun drawTimeMarkers() {
         val totalMinutes = ChronoUnit.MINUTES.between(windowStart, windowEnd).toDouble()
         totalHeight = totalMinutes * pxPerMinute
@@ -234,8 +230,7 @@ class TimeLine(private val user: User, private val taskController: GenericContro
     }
 
     private fun saveTaskStatus(task: Task) {
-        println(task)
-        taskController.createRequest("PUT",task.id,null,task,null)
+        taskController.update(task.id,task)
     }
 
 

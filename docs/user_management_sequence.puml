@@ -6,7 +6,7 @@ participant "UserService" as US
 Admin -> UC : addUser(Benutzer)
 UC -> US : checkUserLimit()
 alt Benutzer hinzufügen möglich
-    US -> US : Benutzer in Datenbank speichern
+    US -> US : Benutzer in user_data.txt speichern
     UC -> Admin : Benutzer erfolgreich hinzugefügt
 else Limit erreicht
     UC -> Admin : Fehler: Maximale Benutzeranzahl erreicht

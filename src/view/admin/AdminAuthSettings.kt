@@ -14,8 +14,8 @@ class AdminAuthSettings(
 ) {
 
     fun createView(): VBox {
-        val response = userController.createRequest("GET", null, null,null,"getAdmin")
-        if(response.second == Constants.RESTAPI_OK){
+        val response = userController.read( null, null,null,"getAdmin")
+        if(response.second == Constants.STATUS_OK){
             println(response)
             val admin = response.first as User
             return createAdminPasswordUpdateView(admin.name)
@@ -132,7 +132,7 @@ class AdminAuthSettings(
                     role = 1,
                     profileImage = "",
                 )
-                userController.createRequest("POST", null, null,newUser,null)
+                userController.create(newUser)
                 helperFunctions.showAlert(Alert.AlertType.INFORMATION, "Erfolg", "Admin-Benutzer wurde erfolgreich erstellt.")
                 onSettingsSaved()
             }
@@ -154,11 +154,11 @@ class AdminAuthSettings(
                 helperFunctions.showAlert(Alert.AlertType.ERROR, "Fehler", "Die Passwörter stimmen nicht überein!")
             }
             else -> {
-                val response = userController.createRequest("GET", null, null,null,"getAdmin")
-                if(response.second == Constants.RESTAPI_OK){
-                    val newUser = (response.first as User).copy(password = trimmedPassword)
-                    val saved = userController.createRequest("PUT", null, null,newUser,"updatePasswort")
-                    if(saved.second == Constants.RESTAPI_OK){
+                val response = userController.read( null, null,null,"getAdmin")
+                if(response.second == Constants.STATUS_OK){
+                    val user = (response.first as User).copy(password = trimmedPassword)
+                    val saved = userController.update( user.id, user,"updatePasswort")
+                    if(saved.second == Constants.STATUS_OK){
                         helperFunctions.showAlert (Alert.AlertType.INFORMATION, "Erfolg", "Passwort wurde erfolgreich aktualisiert.")
                         onSettingsSaved()
                     }

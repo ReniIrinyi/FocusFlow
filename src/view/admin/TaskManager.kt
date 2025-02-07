@@ -9,9 +9,9 @@ import javafx.stage.FileChooser
 import model.Task
 import model.User
 import controller.GenericController
+import utils.Constants
 import utils.HelperFunctions
 import java.io.File
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
@@ -168,8 +168,11 @@ class TaskManager(
                 imageBase64 = base64Image
             )
 
-            val requestType = if (task == null) "POST" else "PUT"
-            taskController.createRequest(requestType, task?.id, null, updatedTask, null)
+            if(task == null){
+                taskController.create(updatedTask)
+            } else {
+                taskController.update(task.id, updatedTask)
+            }
             helperFunctions.showAlert(Alert.AlertType.INFORMATION, "Erfolg", "Aufgabe erfolgreich gespeichert!")
         } else {
             helperFunctions.showAlert(Alert.AlertType.ERROR, "Fehler", "Bitte alle Felder ausfüllen!")
@@ -189,15 +192,9 @@ class TaskManager(
             return
         }
 
-        val (response, status) = taskController.createRequest(
-            requestTyp = "DELETE",
-            task.id,
-            userId = null,
-            newData = null,
-            routePath = null
-        )
+        val (response, status) = taskController.delete(task.id)
 
-        if (status == 200) {
+        if (status == Constants.STATUS_OK) {
             titleField.clear()
             priorityDropdown.selectionModel.clearSelection()
             startDatePicker.value = null

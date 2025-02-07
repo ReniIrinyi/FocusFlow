@@ -5,13 +5,13 @@ import utils.Constants
 import java.io.File
 
 class TimeLineSettingsStorage : StorageInterface<TimeLineSettings> {
+
     private val filePath = Constants.TIMELINE_FILE_PATH
     private val file = File(filePath)
 
     init {
         checkIfFilePathExists()
     }
-
 
     override fun checkIfFilePathExists() {
         if (!file.exists()) {
@@ -20,72 +20,49 @@ class TimeLineSettingsStorage : StorageInterface<TimeLineSettings> {
         }
     }
 
-    /**
-     * Behandelt verschiedene HTTP-Anfragen für Timeline-Einstellungen.
-     *
-     * Unterstützte Anfragetypen:
-     * - **GET**: Ruft alle Timeline-Einstellungen ab.
-     *      - Antwort: Liste aller Timeline-Einstellungen oder Fehlermeldung.
-     *
-     * - **PUT**: Aktualisiert eine bestehende Timeline-Einstellung mit den bereitgestellten Daten.
-     *      - Erforderlich: ID der Timeline und neue Daten (`newData`).
-     *      - Antwort: Erfolgs- oder Fehlermeldung mit Statuscode.
-     *
-     * - **DELETE**: Wird nicht unterstützt.
-     *      - Antwort: Fehlermeldung mit Statuscode.
-     *
-     * - **POST**: Wird nicht unterstützt.
-     *      - Antwort: Fehlermeldung mit Statuscode.
-     *
-     * @param routePath Der spezifische Pfad der Anfrage (z.B. "all", "byId").
-     * @param requestTyp Der Typ der HTTP-Anfrage (GET, PUT, DELETE, POST).
-     * @param Id Die eindeutige ID der Timeline (nur für PUT-Anfragen erforderlich).
-     * @param userId Benutzer-ID für benutzerbezogene Anfragen (optional, aktuell nicht verwendet).
-     * @param newData Die neuen Daten für PUT-Anfragen (optional).
-     * @return Ein Paar bestehend aus der Antwort (Ergebnis oder Fehlermeldung) und dem HTTP-Statuscode.
-     */
-    override fun getRequest(
-        requestTyp: String,
-        Id: Int?,
-        userId: Int?,
-        newData: TimeLineSettings?,
-        routePath: String?
-    ): Pair<Any, Int> {
-        return when (requestTyp) {
-            Constants.GET->{
-                val (timeline, status) = this.loadEntities();
-                if(status != Constants.RESTAPI_OK){
-                    return Pair(emptyList<TimeLineSettings>(), Constants.RESTAPI_INTERNAL_SERVER_ERROR)
-                } else {
-                    return Pair(timeline, status)
-                }
-            }
-            Constants.PUT->{
-                if(newData != null && Id != null) {
-                    val result = this.updateEntity(Id, newData)
-                    if(result == Constants.RESTAPI_OK){
-                        Pair("Timeline erfolreich aktualisiert", result)
-                    } else {
-                        Pair(emptyList<TimeLineSettings>(), Constants.RESTAPI_INTERNAL_SERVER_ERROR)
-                    }
-                } else {
-                    Pair("Fehler: Keine Daten zum Aktualisieren angegeben", Constants.RESTAPI_BAD_REQUEST)
-                }
-            }
-            Constants.DELETE->{
-                    Pair("Fehler: Delete von Timeline wird nicht unterstützt", Constants.RESTAPI_BAD_REQUEST)
-            }
-            Constants.POST->{
-                    Pair("Hinzufügen von neuen Timeline wird nicht unterstützt.", Constants.RESTAPI_BAD_REQUEST)
-            }
-            else -> Pair("Ungüliter Anfrage-Typ", Constants.RESTAPI_BAD_REQUEST)
+    override fun create(entity: TimeLineSettings, routePath: String?): Pair<Any, Int> {
+        return Pair("Adding new TimeLineSettings is not supported.", Constants.STATUS_BAD_REQUEST)
+    }
+
+    override fun read(entityId: Int?, userId: Int?,newData:TimeLineSettings?, routePath: String?): Pair<Any, Int> {
+        val (timelines, status) = loadEntities()
+        return if (status == Constants.STATUS_OK) {
+            Pair(timelines, status)
+        } else {
+            Pair(emptyList<TimeLineSettings>(), Constants.STATUS_ERROR)
         }
+    }
+
+    override fun update(entityId: Int, updatedData: TimeLineSettings, routePath: String?): Pair<Any, Int> {
+        val (entityList, status) = loadEntities()
+        val entities = entityList.toMutableList()
+
+        val neededSize = updatedData.timeLineCount
+        while (entities.size < neededSize) {
+            entities.add(TimeLineSettings(neededSize, -1))
+        }
+
+        if (entityId < 0 || entityId >= neededSize) {
+            return Pair("Invalid entity ID", Constants.STATUS_BAD_REQUEST)
+        }
+
+        entities[entityId] = updatedData
+
+        return if (saveEntities(entities) == Constants.STATUS_OK) {
+            Pair("Timeline successfully updated", Constants.STATUS_OK)
+        } else {
+            Pair("Error updating Timeline", Constants.STATUS_ERROR)
+        }
+    }
+
+    override fun delete(entityId: Int, routePath: String?): Pair<Any, Int> {
+        return Pair("Deleting TimelineSettings is not supported", Constants.STATUS_BAD_REQUEST)
     }
 
     override fun loadEntities(): Pair<List<TimeLineSettings>, Int> {
         val content = file.readText().trim()
         if (content.isEmpty()) {
-            return Pair(emptyList(), Constants.RESTAPI_OK)
+            return Pair(emptyList(), Constants.STATUS_OK)
         }
 
         val parts = content.split("|")
@@ -99,37 +76,13 @@ class TimeLineSettingsStorage : StorageInterface<TimeLineSettings> {
             TimeLineSettings(timelineCount, userId)
         }
 
-        return Pair(timelines, Constants.RESTAPI_OK)
+        return Pair(timelines, Constants.STATUS_OK)
     }
-
-
-
-
-
-    override fun updateEntity(id: Int, updatedData: TimeLineSettings): Int {
-        val (entityList, status) = loadEntities()
-        val entities = entityList.toMutableList()
-
-        val neededSize = updatedData.timeLineCount
-        while (entities.size < neededSize) {
-            entities.add(TimeLineSettings(neededSize, -1))
-        }
-
-        if (id < 0 || id >= neededSize) {
-            return Constants.RESTAPI_BAD_REQUEST
-        }
-
-        entities[id] = updatedData
-
-        saveEntities(entities)
-        return Constants.RESTAPI_OK
-    }
-
 
     override fun saveEntities(entities: List<TimeLineSettings>): Int {
         if (entities.isEmpty()) {
             file.writeText("")
-            return Constants.RESTAPI_OK
+            return Constants.STATUS_OK
         }
         val timelineCount = entities.first().timeLineCount
         val finalList = entities.take(timelineCount)
@@ -138,16 +91,8 @@ class TimeLineSettingsStorage : StorageInterface<TimeLineSettings> {
         val content = "$timelineCount|$userIds"
 
         file.writeText(content)
-        return Constants.RESTAPI_OK
+        return Constants.STATUS_OK
     }
 
-
-    override fun deleteEntityById(id: Int): Int {
-        return -1
-    }
-
-    override fun addEntity(newEntity: TimeLineSettings): Int {
-        return -1
-    }
 
 }
