@@ -9,8 +9,8 @@ import storage.StorageInterface
  */
 class GenericController<T>(private val storage: StorageInterface<T>) {
 
-    fun create(entity: T, routePath: String? = null): Pair<Any, Int> {
-        return storage.create(entity, routePath)
+    fun create(newData: T, routePath: String? = null): Pair<Any, Int> {
+        return storage.create(newData, routePath)
     }
 
     fun read(entityId: Int? = null, userId: Int? = null,newData:T? = null, routePath: String? = null): Pair<Any, Int> {

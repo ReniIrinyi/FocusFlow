@@ -107,7 +107,10 @@ class TimeLineManager {
 
 package Controller {
   class GenericController<T> {
-   + createRequest()
+   + create(newData:T,routePath:String)
+   + read(entityId:Int,userId:Int,newData:T,routePath:String)
+   + update(entityId:Int,updatedData:T,routePath:String)
+   + delete(entityId:Int,routePath:String)
   }
 
   MainMenü --> GenericController
@@ -117,20 +120,22 @@ package Controller {
 package Storage {
   interface StorageInterface<T> {
        + checkIfFilePathExists():void
+       + create(newData:T,routePath:String)
+       + read(entityId:Int,userId:Int,newData:T,routePath:String)
+       + update(entityId:Int,updatedData:T,routePath:String)
+       + delete(entityId:Int,routePath:String)
        + loadEntities(): List<T>
-       + saveEntities(List<T>): void
-       + addEntity(T): void
-       + updateEntity(Int, T): Boolean
-       + deleteEntityById(Int): Boolean
+       + saveEntities(entities:List<T>): void
      }
 
      class TaskStorage {
        + checkIfFilePathExists():void
+       + create(newData:Task,routePath:String)
+       + read(entityId:Int,userId:Int,newData:Task,routePath:String)
+       + update(entityId:Int,updatedData:Task,routePath:String)
+       + delete(entityId:Int,routePath:String)
        + loadEntities(): List<Task>
-       + saveEntities(List<Task>): void
-       + addEntity(Task): void
-       + updateEntity(Int, Task): Boolean
-       + deleteEntityById(Int): Boolean
+       + saveEntities(entities:List<Task>): void
        + serializeTask(Task):String
        + parseTask(String):Task
      }
@@ -138,19 +143,22 @@ package Storage {
      class UserStorage {
        + checkIfFilePathExists():void
        + initializeCurrentId():void
+       + create(newData:User,routePath:String)
+       + read(entityId:Int,userId:Int,newData:User,routePath:String)
+       + update(entityId:Int,updatedData:User,routePath:String)
+       + delete(entityId:Int,routePath:String)
        + loadEntities(): List<User>
-       + saveEntities(List<User>): void
-       + addEntity(User): void
-       + updateEntity(Int, User): Boolean
-       + deleteEntityById(Int): Boolean
+       + saveEntities(entities:List<User>): void
      }
+
      class TimeLineSettingsStorage {
-       + checkIfFilePathExists():void
-       + loadEntities(): List<User>
-       + saveEntities(List<User>): void
-       + addEntity(User): void
-       + updateEntity(Int, User): Boolean
-       + deleteEntityById(Int): Boolean
+          + checkIfFilePathExists():void
+             + create(newData:TimeLineSettings,routePath:String)
+             + read(entityId:Int,userId:Int,newData:TimeLineSettings,routePath:String)
+             + update(entityId:Int,updatedData:TimeLineSettings,routePath:String)
+             + delete(entityId:Int,routePath:String)
+             + loadEntities(): List<TimeLineSettings>
+             + saveEntities(entities:List<TimeLineSettings>): void
      }
 
      GenericController --> StorageInterface

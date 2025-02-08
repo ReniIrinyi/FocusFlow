@@ -10,6 +10,8 @@ package storage
  */
 interface StorageInterface<T> {
 
+    fun checkIfFilePathExists()
+
     fun create(entity: T, routePath: String? = null): Pair<Any, Int>
 
     fun read(entityId: Int?, userId: Int?,newData:T?, routePath: String? = null): Pair<Any, Int>
@@ -21,7 +23,5 @@ interface StorageInterface<T> {
     fun loadEntities(): Pair<List<T>, Int>
 
     fun saveEntities(entities: List<T>): Int
-
-    fun checkIfFilePathExists()
 
 }

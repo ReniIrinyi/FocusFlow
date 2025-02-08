@@ -13,12 +13,6 @@ object Constants {
     const val STATUS_ERROR = 500 //status response internal server_error
     const val STATUS_BAD_REQUEST = 400 // status bad request
 
-    //RequestTypen
-    const val GET = "GET"
-    const val POST = "POST"
-    const val PUT = "PUT"
-    const val DELETE = "DELETE"
-
     //User-Roles
     const val ROLE_ADMIN = 1
     const val ROLE_USER = 2
