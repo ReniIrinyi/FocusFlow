@@ -1,4 +1,4 @@
-tartuml
+@startuml
 actor User
 participant "TimelineMenu" as Menu
 participant "TaskService" as Service
