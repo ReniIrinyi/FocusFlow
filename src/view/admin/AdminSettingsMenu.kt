@@ -11,10 +11,11 @@ import model.User
 import controller.GenericController
 import utils.Constants
 import utils.HelperFunctions
+import view.AuthSettings
 import java.io.ByteArrayInputStream
 import java.util.*
 
-class Settings(
+class AdminSettingsMenu(
     private val userController: GenericController<User>,
     private val timeLineSettingsController: GenericController<TimeLineSettings>,
     private val helperFunctions: HelperFunctions,
@@ -24,7 +25,7 @@ class Settings(
 
     fun createView(): VBox {
         val userListView = createUserListView()
-        val authSettings = AdminAuthSettings(userController, helperFunctions) {}
+        val authSettings = AuthSettings(userController, helperFunctions) {}
         val timelineSettings = TimelineSettings(userController, timeLineSettingsController, helperFunctions)
 
         val gridPane = GridPane().apply {
@@ -36,18 +37,18 @@ class Settings(
             columnConstraints.addAll(
                 ColumnConstraints().apply {
                     hgrow = Priority.ALWAYS
-                    percentWidth = 50.0
+                  //  percentWidth = 50.0
                 },
                 ColumnConstraints().apply {
                     hgrow = Priority.ALWAYS
-                    percentWidth = 50.0
+                  //  percentWidth = 50.0
                 }
             )
 
             rowConstraints.addAll(
                 RowConstraints().apply {
                     vgrow = Priority.ALWAYS
-                    percentHeight = 50.0
+                   // percentHeight = 50.0
                 }
             )
 

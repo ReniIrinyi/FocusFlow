@@ -27,16 +27,16 @@ class Header(
             }
         }
 
-        val openTimeline = MenuItem("Open Timeline").apply {
+        val openTimeline = MenuItem("Zeitachse").apply {
             val tasks = taskController.read(null, null, null, "all").first
             setOnAction { onZeitachseClicked(tasks as List<Task>) }
         }
 
-        val openAdminPanel = MenuItem("Admin Panel").apply {
+        val openAdminPanel = MenuItem("Adminbereich").apply {
             setOnAction { onAdminClicked() }
         }
 
-        val about = MenuItem("About").apply {
+        val about = MenuItem("CareFlow").apply {
             setOnAction { showAboutDialog() }
         }
 
@@ -48,9 +48,9 @@ class Header(
 
     private fun showAboutDialog() {
         val alert = Alert(Alert.AlertType.INFORMATION)
-        alert.title = "About"
-        alert.headerText = "CareFlow"
-        alert.contentText = "Version: 0.2"
+        alert.title = "CareFlow"
+        alert.headerText = "Version: 0.5"
+        alert.contentText = "Letzte Aktualisierung: 14.02.2025"
         alert.showAndWait()
     }
 }

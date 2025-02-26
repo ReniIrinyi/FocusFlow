@@ -10,7 +10,7 @@ import model.User
 import controller.GenericController
 import utils.HelperFunctions
 
-class Menu(
+class Main(
     private val taskController: GenericController<Task>,
     private val userController: GenericController<User>,
     private val timeLineSettingsController: GenericController<TimeLineSettings>,
@@ -19,8 +19,8 @@ class Menu(
     private val content = StackPane()
 
     init {
-        val taskOverview = TaskOverview(taskController, userController)
-        content.children.setAll(taskOverview.createView())
+        val taskManagerMenu = TaskManagerMenu(taskController, userController)
+        content.children.setAll(taskManagerMenu.createView())
     }
 
     fun createView(): VBox {
@@ -34,18 +34,18 @@ class Menu(
         val settingsBtn = Button("Einstellungen").apply {
             styleClass.add("custom-button")
             setOnAction {
-                val settings = Settings(userController,timeLineSettingsController, helperFunctions) {
+                val adminSettingsMenu = AdminSettingsMenu(userController,timeLineSettingsController, helperFunctions) {
                     refreshView()
                 }
-                content.children.setAll(settings.createView())
+                content.children.setAll(adminSettingsMenu.createView())
             }
         }
 
         val taskOverviewBtn = Button("Aufgabenübersicht").apply {
             styleClass.add("custom-button")
             setOnAction {
-                val taskOverview = TaskOverview(taskController, userController)
-                content.children.setAll(taskOverview.createView())
+                val taskManagerMenu = TaskManagerMenu(taskController, userController)
+                content.children.setAll(taskManagerMenu.createView())
             }
         }
 

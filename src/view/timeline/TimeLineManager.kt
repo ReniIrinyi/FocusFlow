@@ -6,6 +6,7 @@ import javafx.scene.layout.VBox
 import model.Task
 import model.User
 import controller.GenericController
+import javafx.scene.layout.AnchorPane
 import utils.Constants
 import java.io.File
 
@@ -15,6 +16,15 @@ class TimeLineManager(
 ) {
 
     private val settingsFile = File(Constants.TIMELINE_FILE_PATH)
+    fun createFullScreenView(): AnchorPane {
+        val timelineVBox = createView()
+        return AnchorPane(timelineVBox).apply {
+            AnchorPane.setTopAnchor(timelineVBox, 0.0)
+            AnchorPane.setBottomAnchor(timelineVBox, 0.0)
+            AnchorPane.setLeftAnchor(timelineVBox, 0.0)
+            AnchorPane.setRightAnchor(timelineVBox, 0.0)
+        }
+    }
 
     fun createView(): VBox {
         val (timelineCount, selectedUserIds) = loadTimeLineSettings()

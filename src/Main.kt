@@ -1,6 +1,6 @@
 import javafx.application.Application
-import view.MainMenu
+import view.Main
 
 fun main() {
-    Application.launch(MainMenu::class.java)
+    Application.launch(Main::class.java)
 }

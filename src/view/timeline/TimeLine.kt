@@ -3,7 +3,6 @@ package view.timeline
 import javafx.animation.KeyFrame
 import javafx.animation.Timeline
 import javafx.event.EventHandler
-import javafx.scene.control.CheckBox
 import javafx.scene.control.Label
 import javafx.scene.control.ScrollPane
 import javafx.scene.image.Image

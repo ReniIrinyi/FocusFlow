@@ -1,4 +1,4 @@
-package view.admin
+package view
 
 import javafx.scene.control.*
 import javafx.scene.layout.VBox
@@ -7,7 +7,7 @@ import controller.GenericController
 import utils.Constants
 import utils.HelperFunctions
 
-class AdminAuthSettings(
+class AuthSettings(
     private val userController: GenericController<User>,
     private val helperFunctions: HelperFunctions,
     private val onSettingsSaved: () -> Unit
@@ -25,30 +25,36 @@ class AdminAuthSettings(
 
     private fun createNewAdminView(): VBox {
         val nameField = TextField().apply {
-            promptText = "Admin Username"
+            promptText = "Benutzername"
         }
 
         val emailField = TextField().apply {
-            promptText = "Admin Email"
+            promptText = "Email"
         }
 
         val passwordField = PasswordField().apply {
-            promptText = "Password"
+            promptText = "Passwort"
         }
 
         val confirmPasswordField = PasswordField().apply {
-            promptText = "Confirm Password"
+            promptText = "Passwort bestätigen"
         }
 
-        val saveButton = Button("Create Admin").apply {
+        val saveButton = Button("Speichern").apply {
             setOnAction {
                 createNewAdmin(nameField.text, emailField.text, passwordField.text, confirmPasswordField.text)
             }
         }
 
         return VBox(20.0).apply {
+            prefWidth = 400.0
+            val infoLabel = Label("Es existiert noch kein Benutzer mit Admin-Rechten. Um CareFlow nutzen zu können, müssen Sie zunächst einen Administrator anlegen.").apply {
+                isWrapText = true
+                maxWidth = 380.0
+            }
+            style="-fx-padding:20px;-fx-alignment: center; -fx-background-color: #f9f9f9;"
             children.addAll(
-                Label("Admin Registration"),
+                infoLabel,
                 nameField,
                 emailField,
                 passwordField,
@@ -67,18 +73,18 @@ class AdminAuthSettings(
         }
 
         val passwordField = PasswordField().apply {
-            promptText = "New Password"
+            promptText = "Neue Password"
             styleClass.add("input")
 
         }
 
         val confirmPasswordField = PasswordField().apply {
-            promptText = "Confirm New Password"
+            promptText = "Neue Password bestätigen"
             styleClass.add("input")
 
         }
 
-        val saveButton = Button("Update Admin Password").apply {
+        val saveButton = Button("Speichern").apply {
             styleClass.add("custom-button")
             setOnAction {
                 updateAdminPassword(passwordField.text, confirmPasswordField.text)
@@ -133,7 +139,6 @@ class AdminAuthSettings(
                     profileImage = "",
                 )
                 userController.create(newUser)
-                helperFunctions.showAlert(Alert.AlertType.INFORMATION, "Erfolg", "Admin-Benutzer wurde erfolgreich erstellt.")
                 onSettingsSaved()
             }
         }

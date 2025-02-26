@@ -15,10 +15,11 @@ import java.io.File
 import java.time.LocalDateTime
 import java.time.LocalTime
 
-class TaskManager(
+class TaskEditor(
     private val taskController: GenericController<Task>,
     private val task: Task? = null,
-    private val user: User
+    private val user: User,
+    private val onTaskChanged: (() -> Unit)? = null
 ) {
     private var selectedFile: File? = null
     private val helperFunctions = HelperFunctions()
@@ -173,6 +174,7 @@ class TaskManager(
             } else {
                 taskController.update(task.id, updatedTask)
             }
+            this.onTaskChanged?.invoke()
             helperFunctions.showAlert(Alert.AlertType.INFORMATION, "Erfolg", "Aufgabe erfolgreich gespeichert!")
         } else {
             helperFunctions.showAlert(Alert.AlertType.ERROR, "Fehler", "Bitte alle Felder ausfüllen!")
@@ -202,6 +204,7 @@ class TaskManager(
             endTimeSpinner.valueFactory?.value = 13
             htmlEditor.htmlText = ""
 
+            this.onTaskChanged?.invoke()
             helperFunctions.showAlert(
                 Alert.AlertType.INFORMATION,
                 "Erfolg",

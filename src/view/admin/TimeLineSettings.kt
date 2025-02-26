@@ -1,7 +1,6 @@
 package view.admin
 
 import javafx.scene.control.*
-import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import model.TimeLineSettings
 import model.User

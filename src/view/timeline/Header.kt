@@ -36,13 +36,11 @@ class Header : HBox() {
 
         // Spacer to push the day image to the right
         val spacer1 = Region().apply {
-            HBox.setHgrow(this, Priority.ALWAYS)
+            setHgrow(this, Priority.ALWAYS)
         }
         val spacer2 = Region().apply {
-            HBox.setHgrow(this, Priority.ALWAYS)
+            setHgrow(this, Priority.ALWAYS)
         }
-
-
 
         dayView.image = Image(javaClass.getResourceAsStream(getDayImagePath()))
         periodImageView.image = Image(javaClass.getResourceAsStream(getPeriodImagePath()))

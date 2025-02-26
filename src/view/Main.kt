@@ -14,11 +14,10 @@ import model.TimeLineSettings
 import model.User
 import controller.GenericController
 import utils.HelperFunctions
-import view.admin.AdminAuthSettings
-import view.admin.Menu
+import view.admin.Main
 import view.timeline.TimeLineManager
 
-class MainMenu : Application() {
+class Main : Application() {
 
     private val root = BorderPane()
     private val userController = GenericController<User>(
@@ -49,7 +48,7 @@ class MainMenu : Application() {
         if (css != null) {
             scene.stylesheets.add(css.toExternalForm())
         } else {
-            println("Style.css konnte nicht gefunden werden!")
+            println("Style.css konnte nicht geladen werden!")
         }
         primaryStage.title = "CareFlow"
         primaryStage.scene = scene
@@ -57,7 +56,7 @@ class MainMenu : Application() {
     }
 
     private fun showUserSettings() {
-        val userSettings = AdminAuthSettings(userController,helperFunctions) {
+        val userSettings = AuthSettings(userController,helperFunctions) {
             setupHeader()
             showTimeLineMenu()
         }
@@ -74,7 +73,7 @@ class MainMenu : Application() {
 
     private fun showTimeLineMenu() {
         val timeLineMenu = TimeLineManager(taskController, userController)
-        root.center = timeLineMenu.createView()
+        root.center = timeLineMenu.createFullScreenView()
         this.isAdminLoggedIn = false
     }
 
@@ -83,24 +82,24 @@ class MainMenu : Application() {
             if (authenticateAdmin()) {
                 isAdminLoggedIn = true
             } else {
-                helperFunctions.showAlert(Alert.AlertType.ERROR,"Authentication Failed", "Only the admin can access this section.")
+                helperFunctions.showAlert(Alert.AlertType.ERROR, "Authentifizierung fehlgeschlagen", "Nur Administratoren dürfen auf diesen Bereich zugreifen.")
                 return
             }
         }
-        val adminView = Menu(taskController, userController, timeLineSettingsController, helperFunctions)
+        val adminView = Main(taskController, userController, timeLineSettingsController, helperFunctions)
         root.center = adminView.createView()
     }
 
     private fun authenticateAdmin(): Boolean {
         val dialog = Dialog<Pair<String, String>>().apply {
-            title = "Admin Authentication"
-            headerText = "Enter Admin Username and Password"
+            title = "Bitte melden Sie sich an"
+            headerText = "Geben Sie Ihre Benutzernamen und Passwort ein"
 
-            val usernameField = TextField().apply { promptText = "Username" }
+            val usernameField = TextField().apply { promptText = "Benutzername" }
             val passwordField = PasswordField().apply { promptText = "Password" }
 
             val dialogPane = dialogPane
-            dialogPane.content = VBox(10.0, Label("Username:"), usernameField, Label("Password:"), passwordField)
+            dialogPane.content = VBox(10.0, Label("Benutzername:"), usernameField, Label("Password:"), passwordField)
             dialogPane.buttonTypes.addAll(ButtonType.OK, ButtonType.CANCEL)
 
             setResultConverter { buttonType ->
