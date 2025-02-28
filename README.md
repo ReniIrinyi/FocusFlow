@@ -10,9 +10,7 @@ This README provides a quick overview of how to clone the CareFlow repository, b
 git clone https://github.com/ReniIrinyi/CareFlow.git
 cd CareFlow
 ```
-Replace `ReniIrinyi/CareFlow.git` with the actual repository URL.
 
----
 
 ## 2. Building the JAR File
 
