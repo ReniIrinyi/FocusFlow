@@ -3,106 +3,168 @@ skinparam style strictuml
 skinparam packageStyle rectangle
 
 package View {
-  class MainMenü {
-  root:BorderPane
-  userService:UserService
-  taskService:TaskService
-  timeLineSettingsService:TimeLineSettingsService
-  helperfunctions:Helperfunctions
-  isAdminLoggedIn:Boolean
+  class Main {
+  -root:BorderPane
+  -userController:GenericController<User>
+  -taskController:GenericController<Task>
+  -timeLineSettingsController:GenericController<TimeLineSettings>
+  -helperfunctions:Helperfunctions
+  -isAdminLoggedIn:Boolean = false
     +start():void
-    + showUserSettings():void
-    + setupHeader():void
-    + showTimeLineMenu():void
-    + showAdminMenu():void
-    + authenticateAdmin():Boolean
+    - showUserSettings():void
+    - setupHeader():void
+    - showTimeLineMenu():void
+    - showAdminMenu():void
+    - isAdminAuthSuccessful():Boolean
   }
 
   class Header{
+    -taskController:GenericController<Task>
+    -onZeitachseClicked:(List<Task)
+    -onAdminClicked:()
     +init():void
-    +showAboutDialog():void
+    -showAboutDialog():void
   }
 
-    MainMenü --> Header
+    class AuthSettings {
+      - userController:GenericController<User>
+      - helperfunctions:Helperfunctions
+      - onSettingsSaved()
+      + createView(): VBox
+      - createNewAdminView():VBox
+      - createAdminPasswordUpdateView(adminName:String):VBox
+      - createNewAdmin():void
+      - updateAdminPassword():void
+      - isValidEmail():Boolean
+    }
+
+    Main --> AuthSettings
+    Main --> Header
 
 
 package "timeline"{
 class TimeLineManager {
-    settingsFile:File
+    -taskController:GenericController<Task>
+    -userController:GenericController<User>
+    -settingsFile:File
+    + createFullScreenView():AnchorPane
     + createView():VBox
-    + loadTimeLineSettings():Pair<Int, List<Int>
+    - loadTimeLineSettings():Pair<Int, List<Int>
   }
 
   class TimeLine{
-      timelineContent:Pane
-      scrollPane:ScrollPane
-      nowPointer:Polygon
-      windowStart:LocalDateTime
-      windowEnd:LocalDateTime
+      -user:User
+      -taskController:GenericController<Task>
+      -timelineContent:Pane
+      -scrollPane:ScrollPane
+      -nowPointer:Polygon
+      -windowStart:LocalDateTime
+      -windowEnd:LocalDateTime
       + createView(tasks:List<Task>): Pane
-      + initAutoScrollToCurrentTime(): void
-      + drawTimeMarkers():void
-      + drawTasks(tasks:List<Task>):void
-      + initTimeUpdater():void
-      + createUserHeader(user:User):Hbox
+      - initAutoScrollToCurrentTime(): void
+      - drawTimeMarkers():void
+      - drawTasks(tasks:List<Task>):void
+      - createTriStateCheckbox():Label
+      - saveTaskStatus():void
+      - getNextStatus():Int
+      - getStatusStyle():String
+      - getStatusText():String
+      - initTimeUpdater():void
+      - createUserHeader(user:User):Hbox
   }
 
-  class TimeLineHeader{
-    + init()
-    + startClock()
+  class Header{
+    -dayView:ImageView
+    -periodImageView:ImageView
+    -monthImageView:ImageView
+    - getDayImagePath():String
+    - getPeriodImagePath():String
+    - getMonthImagePath():String
   }
 
-  TimeLineManager --> TimeLineHeader
+  TimeLineManager --> Header
   TimeLineManager --> TimeLine
 }
 
   package "admin" {
 
     class AdminMenu {
-      content:StackPane
+      -taskController:GenericController<Task>
+      -userController:GenericController<User>
+      -timeLineSettingsController:GenericController<TimeLineSettings>
+      -helperfunctions:Helperfunctions
+      -content:StackPane
       + createView(): VBox
-      + createAdminSettingsHeader(): HBox
-      + refreshView(): void
+      - createAdminSettingsHeader(): HBox
+      - refreshView(): void
     }
 
-    MainMenü --> TimeLineManager
-    MainMenü --> AdminMenu
+    Main --> TimeLineManager
+    Main --> AdminMenu
 
-    class TaskManager {
-      + createView(): VBox
-      + addTask()
-    }
 
-   class TaskOverview {
-     + createView(): VBox
-     + addTask()
+   class TaskManagerMenu {
+    -taskController:GenericController<Task>
+    -userController:GenericController<User>
+    - taskTreeView:TreeView
+         - userDropdown:Combobox
+         - taskEditorContainer:VBox
+         -users:List<Users>
+         -tasks:List<Tasks>
+         + createView(): VBox
+         - createHeader():HBox
+         -updateTaskEditor()
+         -updateTaskTree()
+         -selectAdmin()
    }
 
-    class AdminSettings {
+    class TaskEditor {
+      - taskController:GenericController<Task>
+      - task:Task
+      - user:User
+      - onTaskChanged()
+      - selectedFile:File
+      -helperfunctions:Helperfunctions
       + createView(): VBox
-      + showUserUpdateDialog()
-      + showUserAddModal()
+      - createSVGIconButton():Button
+      -saveTask()
+      -deleteTask()
+      -createDropdownButton()
+
+    }
+
+
+    class AdminSettingsMenu {
+      - userController:GenericController<User>
+      - timeLineSettingsController:GenericController<TimeLineSettings>
+      - helperfunctions:Helperfunctions
+      - onSettingsSaved()
+      - users:List<User>
+      + createView(): VBox
+      -createUserListView():VBox
+      -showUserAddModal()
     }
 
     class TimelineSettings {
+          -userController:GenericController<User>
+          -timeLineSettingsController:GenericController<TimeLineSettings>
+          -helperfunctions:Helperfunctions
+          -timelineCountDropdown:Combobox
+          -userDropdowns:List<String>
+          -users:List<Users>
           + createView(): VBox
-          + loadTimeLineSettings()
-          + saveTimeLineSettings()
+          - loadSettings()
+          - saveSettings()
     }
 
-    class AdminAuthSettings {
-      + createView(): VBox
-      + updatePassword()
-    }
 
-    AdminSettings --> TimelineSettings
-    AdminSettings --> AdminAuthSettings
-    TaskManager --> TaskOverview
+    AdminSettingsMenu --> TimelineSettings
+    TaskManagerMenu --> TaskEditor
 
   }
 
-  AdminMenu --> admin.AdminSettings
-  AdminMenu --> admin.TaskManager
+  AdminMenu --> admin.AdminSettingsMenu
+  AdminMenu --> admin.TaskManagerMenu
 }
 
 package Controller {
@@ -113,7 +175,7 @@ package Controller {
    + delete(entityId:Int,routePath:String)
   }
 
-  MainMenü --> GenericController
+  Main --> GenericController
 
 }
 
@@ -129,6 +191,8 @@ package Storage {
      }
 
      class TaskStorage {
+     -filePath:String
+     -file:File
        + checkIfFilePathExists():void
        + create(newData:Task,routePath:String)
        + read(entityId:Int,userId:Int,newData:Task,routePath:String)
@@ -136,11 +200,16 @@ package Storage {
        + delete(entityId:Int,routePath:String)
        + loadEntities(): List<Task>
        + saveEntities(entities:List<Task>): void
-       + serializeTask(Task):String
-       + parseTask(String):Task
+       - serializeTask(Task):String
+       - parseTask(String):Task
+       - escapeField()
+       - unescapeField()
      }
 
      class UserStorage {
+     -filePath:String
+     -file:File
+
        + checkIfFilePathExists():void
        + initializeCurrentId():void
        + create(newData:User,routePath:String)
@@ -149,9 +218,17 @@ package Storage {
        + delete(entityId:Int,routePath:String)
        + loadEntities(): List<User>
        + saveEntities(entities:List<User>): void
+       - serializeUser()
+       -parseUser():User
+       - isAdminExists():Boolean
+       - getAdmin():User
+       - hashPassword():String
+
      }
 
      class TimeLineSettingsStorage {
+     -filePath:String
+     -file:File
           + checkIfFilePathExists():void
              + create(newData:TimeLineSettings,routePath:String)
              + read(entityId:Int,userId:Int,newData:TimeLineSettings,routePath:String)

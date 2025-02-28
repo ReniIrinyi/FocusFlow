@@ -28,8 +28,6 @@ class TimeLineManager(
 
     fun createView(): VBox {
         val (timelineCount, selectedUserIds) = loadTimeLineSettings()
-        println(timelineCount)
-        println(selectedUserIds)
 
         val timelinesContainer = HBox(20.0).apply {
             padding = Insets(20.0)
@@ -42,13 +40,10 @@ class TimeLineManager(
             .forEach { userId ->
                 val userresponse = userController.read(userId,null,null,"byId")
                 val tasks = taskController.read(null,userId,null,"byUserId").first as List<Task>
-                println(tasks.size)
                 if (userresponse.second == Constants.STATUS_OK) {
                     val timeLineMenu = TimeLine(userresponse.first as User, taskController)
                     val timelineBox = timeLineMenu.createView(tasks)
                     timelinesContainer.children.add(timelineBox)
-                } else {
-                    println(userresponse)
                 }
             }
 

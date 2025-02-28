@@ -10,7 +10,7 @@ import javafx.scene.layout.GridPane
 import utils.HelperFunctions
 
 class TimelineSettings(
-    userController: GenericController<User>,
+    private val userController: GenericController<User>,
     private val timelineSettingsController: GenericController<TimeLineSettings>,
     private val helperFunctions: HelperFunctions,
 ) {

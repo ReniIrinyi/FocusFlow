@@ -10,7 +10,7 @@ import model.User
 import controller.GenericController
 import utils.HelperFunctions
 
-class Main(
+class AdminMenu(
     private val taskController: GenericController<Task>,
     private val userController: GenericController<User>,
     private val timeLineSettingsController: GenericController<TimeLineSettings>,

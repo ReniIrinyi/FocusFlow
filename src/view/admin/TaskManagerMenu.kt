@@ -77,7 +77,6 @@ class TaskManagerMenu(
         return this
     }
 
-
     private fun createHeader(): HBox {
         userDropdown = ComboBox<Pair<Int, String>>().apply {
             promptText = "Benutzer auswählen"
@@ -146,7 +145,6 @@ class TaskManagerMenu(
 
         taskTreeView.root = rootItem
     }
-
 
     private fun selectAdmin() {
         val adminUser = users.find { it.role == 1 }

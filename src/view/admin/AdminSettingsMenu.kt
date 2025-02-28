@@ -21,7 +21,7 @@ class AdminSettingsMenu(
     private val helperFunctions: HelperFunctions,
     private val onSettingsSaved: () -> Unit
 ) {
-    val users = userController.read( null, null, null, "all").first as List<User>
+    private val users = userController.read( null, null, null, "all").first as List<User>
 
     fun createView(): VBox {
         val userListView = createUserListView()

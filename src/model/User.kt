@@ -1,14 +1,5 @@
 package model
 
-/**
- * Die `User`-Datenklasse repräsentiert Benutzerinformationen innerhalb des Systems.
- *
- * @property id Die eindeutige ID des Benutzers. Diese wird automatisch generiert.
- * @property name Der vollständige Name des Benutzers.
- * @property email Die E-Mail-Adresse des Benutzers, um ihn zu kontaktieren oder zur Authentifizierung zu nutzen.
- * @property password Das Passwort des Benutzers (gehashed).
- * @property role Die Rolle des Benutzers im System (Admin(Super-User) = 1, User = 2)
- */
 data class User (
     val id: Int,
     var name: String,

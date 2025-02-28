@@ -10,6 +10,7 @@ import utils.HelperFunctions
 class AuthSettings(
     private val userController: GenericController<User>,
     private val helperFunctions: HelperFunctions,
+    //todo: braucht man das ?
     private val onSettingsSaved: () -> Unit
 ) {
 

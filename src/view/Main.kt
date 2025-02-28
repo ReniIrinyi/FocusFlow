@@ -14,7 +14,7 @@ import model.TimeLineSettings
 import model.User
 import controller.GenericController
 import utils.HelperFunctions
-import view.admin.Main
+import view.admin.AdminMenu
 import view.timeline.TimeLineManager
 
 class Main : Application() {
@@ -79,18 +79,18 @@ class Main : Application() {
 
     private fun showAdminMenu() {
         if (!isAdminLoggedIn) {
-            if (authenticateAdmin()) {
+            if (isAdminAuthSuccessful()) {
                 isAdminLoggedIn = true
             } else {
                 helperFunctions.showAlert(Alert.AlertType.ERROR, "Authentifizierung fehlgeschlagen", "Nur Administratoren dürfen auf diesen Bereich zugreifen.")
                 return
             }
         }
-        val adminView = Main(taskController, userController, timeLineSettingsController, helperFunctions)
+        val adminView = AdminMenu(taskController, userController, timeLineSettingsController, helperFunctions)
         root.center = adminView.createView()
     }
 
-    private fun authenticateAdmin(): Boolean {
+    private fun isAdminAuthSuccessful(): Boolean {
         val dialog = Dialog<Pair<String, String>>().apply {
             title = "Bitte melden Sie sich an"
             headerText = "Geben Sie Ihre Benutzernamen und Passwort ein"
@@ -113,8 +113,7 @@ class Main : Application() {
         if (!result.isPresent) return false
 
         val (username, password) = result.get()
-        println(username)
-        println(password)
+
         val user = User (
             id = 0,
             name = username,

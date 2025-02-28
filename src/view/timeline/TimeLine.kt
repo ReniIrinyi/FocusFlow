@@ -141,7 +141,6 @@ class TimeLine(private val user: User, private val taskController: GenericContro
         timeline.play()
     }
 
-
     private fun drawTasks(tasks: List<Task>) {
         val centerX = 300.0
         val taskWidth = 180.0
@@ -231,7 +230,6 @@ class TimeLine(private val user: User, private val taskController: GenericContro
     private fun saveTaskStatus(task: Task) {
         taskController.update(task.id,task)
     }
-
 
     private fun getNextStatus(currentStatus: Int): Int {
         return when (currentStatus) {
