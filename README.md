@@ -7,10 +7,10 @@ This README provides a quick overview of how to clone the CareFlow repository, b
 ## 1. Cloning the Repository
 
 ```bash
-git clone https://github.com/yourusername/CareFlow.git
+git clone https://github.com/ReniIrinyi/CareFlow.git
 cd CareFlow
 ```
-Replace `yourusername/CareFlow.git` with the actual repository URL.
+Replace `ReniIrinyi/CareFlow.git` with the actual repository URL.
 
 ---
 
